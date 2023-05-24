@@ -1,0 +1,29 @@
+{
+  "name": "syplugin-hierarchyNavigate",
+  "author": "OpaqueGlass",
+  "url": "https://github.com/OpaqueGlass/syplugin-hierarchyNavigate",
+  "version": "0.2.0",
+  "displayName": {
+    "default": "HierarchyNavigate",
+    "zh_CN": "文档层级导航"
+  },
+  "description": {
+    "default": "Insert doc-links under current doc title",
+    "zh_CN": "在标题下插入上下层级文档链接"
+  },
+  "readme": {
+    "default": "README_english.md",
+    "zh_CN": "README.md"
+  },
+  "i18n": [
+    "zh_CN"
+  ],
+  "funding": {
+    "openCollective": "",
+    "patreon": "",
+    "github": "",
+    "custom": [
+      ""
+    ]
+  }
+}
