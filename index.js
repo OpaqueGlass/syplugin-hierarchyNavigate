@@ -29,7 +29,7 @@ let g_observerRetryInterval;
 let g_observerStartupRefreshTimeout;
 let g_initRetryInterval;
 let g_initFailedMsgTimeout;
-let g_TIMER_LABLE_NAME_COMPARE = "文档栏插件";
+let g_TIMER_LABLE_NAME_COMPARE = "文档导航插件";
 let g_tabbarElement = undefined;
 let g_saveTimeout;
 let g_writeStorage;
@@ -47,6 +47,8 @@ let g_setting = {
     docMaxNum: null, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
     linkDivider: null,
     popupWindow: null,
+    hideIndicator: null,
+    sameWidth: null,
 };
 let g_setting_default = {
     fontSize: 12,
@@ -60,9 +62,11 @@ let g_setting_default = {
     nameMaxLength: 100,// 文档名称最大长度 0不限制
     docMaxNum: 512, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
     limitPopUpScope: false,// 限制浮窗触发范围
-    linkDivider: "",
+    linkDivider: "", // 前缀
     popupWindow: CONSTANTS.POP_LIMIT,
     maxHeightLimit: 10,
+    hideIndicator: false,
+    sameWidth: 0,
 };
 /**
  * Plugin类
@@ -143,14 +147,14 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
 
         // 创建dialog
         const settingDialog = new siyuan.Dialog({
-            "title": "测试 ing",
+            "title": language["setting_panel_title"],
             "content": `
             <div class="b3-dialog__content" style="flex: 1;">
                 <div id="${CONSTANTS.PLUGIN_NAME}-form-content" style="overflow: scroll;"></div>
             </div>
             <div class="b3-dialog__action" id="${CONSTANTS.PLUGIN_NAME}-form-action" style="max-height: 40px">
-                <button class="b3-button b3-button--cancel">${"取消"}</button><div class="fn__space"></div>
-                <button class="b3-button b3-button--text">${"保存"}</button>
+                <button class="b3-button b3-button--cancel">${language["button_cancel"]}</button><div class="fn__space"></div>
+                <button class="b3-button b3-button--text">${language["button_save"]}</button>
             </div>
             `,
             "width": siyuan.isMobile() ? "92vw":"1040px",
@@ -194,6 +198,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
                 {value:1},
                 {value:2}]),
             new SettingProperty("maxHeightLimit", "NUMBER", [0, 1024]),
+            new SettingProperty("sameWidth", "NUMBER", [0, 1024]),
             //TODO: 排序方式
             // new SettingProperty("docSortMode", "SELECT", [
             //     {value:0},
@@ -213,7 +218,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             //     {value:14},
             //     {value:15}, // 内部使用
             // ]),
-            // new SettingProperty("", "NUMBER", [0, 1024]),
+            new SettingProperty("hideIndicator", "SWITCH", null),
             new SettingProperty("linkDivider", "TEXT", null),
             new SettingProperty("docLinkClass", "TEXT", null),
             new SettingProperty("parentBoxCSS", "TEXTAREA", null),
@@ -230,17 +235,22 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
 
 
 // debug push
-let g_DEBUG = 1; // 2 写入前台 1 只控制台
+let g_DEBUG = 0; // 2 写入前台 1 只控制台
 let g_DEBUG_ELEM = null;
+function isDebugMode() {
+    if (g_DEBUG == 0 && (window["OpaqueGlassDebug"] != true)) return false;
+    return true;
+}
 function debugPush(str, ...args) {
-    if (g_DEBUG == 0) return;
+    if (!isDebugMode()) return;
+    let parsedArgsStr = "";
     for (let arg of args) {
-        str += arg;
+        parsedArgsStr += arg;
     }
     if (g_DEBUG_ELEM && g_DEBUG > 1) {   
-        g_DEBUG_ELEM.innerText = str;
+        g_DEBUG_ELEM.innerText = parsedArgsStr;
     }else{
-        console.log("oghn", str);
+        console.log("oghn "+str, ...args);
     }
 }
 
@@ -301,14 +311,14 @@ function setObserver() {
             for (let mutation of mutationList) {
                 // console.log("发现页签切换", mutation);
                 setTimeout(async () => {
-                    console.time(g_TIMER_LABLE_NAME_COMPARE);
+                    if (isDebugMode()) console.time(g_TIMER_LABLE_NAME_COMPARE);
                     try{
                         // TODO: 改为动态获取id
                         await main([mutation.target]);
                     }catch(err) {
                         console.error(err);
                     }
-                    console.timeEnd(g_TIMER_LABLE_NAME_COMPARE);
+                    if (isDebugMode()) console.timeEnd(g_TIMER_LABLE_NAME_COMPARE);
                 }, Math.round(Math.random() * CONSTANTS.OBSERVER_RANDOM_DELAY) + CONSTANTS.OBSERVER_RANDOM_DELAY_ADD);
             }
         });
@@ -321,14 +331,14 @@ function setObserver() {
         for (let mutation of mutationList) {
             // console.log("发现页签切换", mutation);
             setTimeout(async () => {
-                console.time(g_TIMER_LABLE_NAME_COMPARE);
+                if (isDebugMode()) console.time(g_TIMER_LABLE_NAME_COMPARE);
                 try{
                     // TODO: 改为动态获取id
                     await main([mutation.target]);
                 }catch(err) {
                     console.error(err);
                 }
-                console.timeEnd(g_TIMER_LABLE_NAME_COMPARE);
+                if (isDebugMode()) console.timeEnd(g_TIMER_LABLE_NAME_COMPARE);
             }, Math.round(Math.random() * CONSTANTS.OBSERVER_RANDOM_DELAY) + CONSTANTS.OBSERVER_RANDOM_DELAY_ADD);
         }
     });
@@ -362,14 +372,14 @@ function observerRetry() {
             // 重启监听后立刻执行检查
             if (element.children.length > 0) {
                 g_observerStartupRefreshTimeout = setTimeout(async () => {
-                    console.time(g_TIMER_LABLE_NAME_COMPARE);
+                    // console.time(g_TIMER_LABLE_NAME_COMPARE);
                     try{
                         // TODO
                         await main(element.children);
                     }catch (err) {
                         console.error(err);
                     }
-                    console.timeEnd(g_TIMER_LABLE_NAME_COMPARE);
+                    // console.timeEnd(g_TIMER_LABLE_NAME_COMPARE);
                 }, Math.round(Math.random() * CONSTANTS.OBSERVER_RANDOM_DELAY) + CONSTANTS.OBSERVER_RANDOM_DELAY_ADD);
             }
         });
@@ -394,6 +404,11 @@ async function main(targets) {
         return ;
     }
     let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
+    if (sqlResult[0].ial.includes("og-hn-ignore")) {
+        debugPush("检测到忽略标记，停止处理");
+        return;
+    }
+
     // TODO: 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
     // 获取文档相关信息
     const [parentDoc, childDoc, siblingDoc] = await getDocumentRelations(docId, sqlResult);
@@ -465,7 +480,9 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
     let parentElem = document.createElement("div");
     parentElem.setAttribute("id", CONSTANTS.PARENT_CONTAINER_ID);
     parentElem.style.cssText = CONTAINER_STYLE;
-    let parentElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">${language["parent_nodes"]}</span>`;
+    let parentElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
+        ${language["parent_nodes"]}
+    </span>`;
     let parentFlag = false;
     for (let doc of parentDoc) {
         parentElemInnerText += docLinkGenerator(doc);
@@ -474,7 +491,9 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
     let siblingElem = document.createElement("div");
     siblingElem.setAttribute("id", CONSTANTS.SIBLING_CONTAINER_ID);
     siblingElem.style.cssText = CONTAINER_STYLE;
-    let siblingElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">${language["sibling_nodes"]}</span>`;
+    let siblingElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
+        ${language["sibling_nodes"]}
+        </span>`;
 
     if (parentFlag) {
         parentElem.innerHTML = parentElemInnerText;
@@ -483,7 +502,9 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
         for (let doc of siblingDoc) {
             siblingElemInnerText += docLinkGenerator(doc);
         }
-        if (siblingElemInnerText != `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">${language["sibling_nodes"]}</span>`) {
+        if (siblingElemInnerText != `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
+          ${language["sibling_nodes"]}
+          </span>`) {
             siblingElem.innerHTML = siblingElemInnerText;
             htmlElem.appendChild(siblingElem);
         }else{
@@ -499,7 +520,9 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
     childElem.setAttribute("id", CONSTANTS.CHILD_CONTAINER_ID);
     
     childElem.style.cssText = CONTAINER_STYLE;
-    let childElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">${language["child_nodes"]}</span>`;
+    let childElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
+        ${language["child_nodes"]}
+        </span>`;
     let childFlag = false;
     for (let doc of childDoc) {
         childElemInnerText += docLinkGenerator(doc);
@@ -624,14 +647,15 @@ function setStyle() {
     const head = document.getElementsByTagName('head')[0];
     const style = document.createElement('style');
     style.setAttribute("id", CONSTANTS.STYLE_ID);
-    let nameLengthRestrict = "";
-    // g_setting.nameMaxLength == 0 ? "" : `
-    // #og-hn-heading-docs-container .trimDocName {
-    //     overflow: hidden;
-    //     text-overflow: ellipsis;
-    //     max-width: ${g_setting.nameMaxLength}em;
-    //     white-space: nowrap;
-    // }`;
+    let linkWidthRestrict = g_setting.sameWidth == 0 ? "" : `
+    #og-hn-heading-docs-container span.docLinksWrapper {
+        width: ${g_setting.sameWidth}em;
+    }`;
+    let noIndicatorStyle = g_setting.hideIndicator ? `
+    #og-hn-heading-docs-container .og-hierachy-navigate-doc-indicator {
+        display:none;
+    }
+    `:"";
     const defaultLinkStyle = `
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
         background-color: var(--b3-protyle-code-background);/*var(--b3-protyle-inline-code-background); --b3-protyle-code-background  --b3-theme-surface-light*/
@@ -656,6 +680,16 @@ function setStyle() {
         /*background-color: var(--b3-toolbar-hover);*/
         /*text-decoration: underline;*/
     }
+
+    #og-hn-heading-docs-container .trimDocName {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+   ${linkWidthRestrict}
+
+   ${noIndicatorStyle}
 
     .og-hierachy-navigate-doc-container {
         max-height: ${g_setting.maxHeightLimit}em;
@@ -841,6 +875,7 @@ let zh_CN = {
     "child_nodes": "子：",
     "sibling_nodes": "兄：",
     "none": "无",
+    "setting_panel_title": "文档层级导航插件设置",
     "setting_fontSize_name": "字号",
     "setting_fontSize_desp": "单位：px",
     "setting_nameMaxLength_name": "文档名最大显示长度",
@@ -1015,7 +1050,7 @@ function loadUISettings(formElement) {
         result[number.name] = parseFloat(number.value);
     }
 
-    console.log("UI SETTING", result);
+    debugPush("UI SETTING", result);
     return result;
 }
 

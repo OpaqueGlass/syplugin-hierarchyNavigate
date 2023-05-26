@@ -1,41 +1,42 @@
-## hierarchyNavigate 文档标题下添加上下层文档导航
+## Hierarchy Navigate
 
-[English](https://github.com/OpaqueGlass/syplugin-my-plugin-collection/blob/main/hierarchyNavigate/README_english.md)
+[请点这里阅读中文说明](README_zh_CN.md)
 
-> 当前版本：v0.2.0 **重构**：迁移到官方插件系统；**改进**：支持设定最大高度，减少空间占用；
+> Most of this document was translated by Google Translate.
 
-### 快速开始
+> Current Version：v0.2.0 **Development**: Most of features are transformed to official plugin system;  **Enhancement**: Support limit height of navigation area; **Enhancement**: Support ignore the docs with "og-hn-ignore" in attributes.
 
-- 开启插件即可；
-- 其他请浏览插件设置页面；
+Add parent and children documents links under the document title.
 
-#### 说明
+### Quick Start
 
-- 已尽力保证在安卓App上可用，如果仍有问题，麻烦反馈，谢谢；
+- Just turn on the plugin; (`Marketplace`--`Downloaded`--`Plugin`--`HierarchyNavigate`, click switch icon)
+- For more information, please refer to the plugin setting page;  (`Marketplace`--`Downloaded`--`Plugin`--`HierarchyNavigate`-- Click setting icon)
 
+#### Other explanation
 
+- Maybe available in siyuan Android App (in testing);
 
-- 插入导航部分后，标题左侧的文档图标将有一些错位，可通过“设置--外观--代码片段--添加css”解决：
+- After inserting the navigation part, the document icon on the left side of the title will have some misalignment, which can be solved by "Settings - Appearance - Code Snippet - Add css"
 
-```css
-.protyle-title__icon {
-    top: 40px;
-}
-```
+  ```css
+  .protyle-title__icon {
+      top: 40px;
+  }
+  ```
 
+  
 
+## Feedback bugs
 
-## 反馈bug
+Please go to [github repository](https://github.com/OpaqueGlass/syplugin-my-plugin-collection) to report problems.
 
-请前往[github仓库](https://github.com/OpaqueGlass/syplugin-my-plugin-collection)反馈问题。
+## References & Appreciations
 
-## 参考&感谢
+| Developer/Project                                            | Description                                                  | Illustration                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [UFDXD](https://github.com/UFDXD)/[HBuilderX-Light](https://github.com/UFDXD/HBuilderX-Light) | A borderless eye protection theme                            | This plug-in is implemented by referring to the parent-child document information under its title |
+| [leolee9086](https://github.com/leolee9086) / [cc-template](https://github.com/leolee9086/cc-template) | Render template in widget; [Mulan Permissive Software License，Version 2](https://github.com/leolee9086/cc-template/blob/main/LICENSE) | Click to open the doc.                                       |
+| [zuoez02](https://github.com/zuoez02)/[siyuan-plugin-system](https://github.com/zuoez02/siyuan-plugin-system) | A 3-rd plugin system for siyuan                              |                                                              |
+| [zxhd863943427](https://github.com/zxhd863943427)&[mozhux (赐我一胖)](https://github.com/mozhux) |                                                              | Suggestions or contributions about default style.            |
 
-代码贡献者（开发者）详见[贡献者列表](https://github.com/OpaqueGlass/syplugin-my-plugin-collection/graphs/contributors)。
-
-| 开发者/项目                                                  | 描述                                                         | 说明                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------- |
-| [UFDXD](https://github.com/UFDXD)/[HBuilderX-Light](https://github.com/UFDXD/HBuilderX-Light) | 一个无边距的护眼主题                                         | 参考其标题下父子文档信息实现 |
-| [leolee9086](https://github.com/leolee9086) / [cc-template](https://github.com/leolee9086/cc-template) | 使用挂件渲染模板；[木兰宽松许可证， 第2版](https://github.com/leolee9086/cc-template/blob/main/LICENSE) | 点击打开文档                 |
-| [zuoez02](https://github.com/zuoez02)/[siyuan-plugin-system](https://github.com/zuoez02/siyuan-plugin-system) | 插件系统                                                     |                              |
-| [zxhd863943427](https://github.com/zxhd863943427)&[mozhux (赐我一胖) (github.com)](https://github.com/mozhux) |                                                              | 样式建议等                   |
