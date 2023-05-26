@@ -404,7 +404,7 @@ async function main(targets) {
         return ;
     }
     let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
-    if (sqlResult[0].ial.includes("og-hn-ignore")) {
+    if (sqlResult[0].ial.includes("og-hn-ignore") || sqlResult[0].ial.includes("og文档导航忽略")) {
         debugPush("检测到忽略标记，停止处理");
         return;
     }
