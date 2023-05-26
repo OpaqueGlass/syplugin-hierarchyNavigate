@@ -11,7 +11,7 @@
   "description": {
     "default": "Insert doc-links under current doc title",
     "zh_CN": "在标题下方显示上下层级文档链接",
-    "en_US": "Insert doc-links under current doc title",
+    "en_US": "Insert doc-links under current doc title"
   },
   "readme": {
     "default": "README.md",
