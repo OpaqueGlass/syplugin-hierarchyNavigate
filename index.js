@@ -49,6 +49,7 @@ let g_setting = {
     popupWindow: null,
     hideIndicator: null,
     sameWidth: null,
+    adjustDocIcon: null, //调整文档图标位置
 };
 let g_setting_default = {
     fontSize: 12,
@@ -59,7 +60,7 @@ let g_setting_default = {
     docLinkClass: "",
     icon: CONSTANTS.ICON_CUSTOM_ONLY, // 0禁用 1只显示设置图标的 2显示所有
     sibling: false, // 为true则在父文档不存在时清除
-    nameMaxLength: 100,// 文档名称最大长度 0不限制
+    nameMaxLength: 20,// 文档名称最大长度 0不限制
     docMaxNum: 512, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
     limitPopUpScope: false,// 限制浮窗触发范围
     linkDivider: "", // 前缀
@@ -67,6 +68,7 @@ let g_setting_default = {
     maxHeightLimit: 10,
     hideIndicator: false,
     sameWidth: 0,
+    adjustDocIcon: true,
 };
 /**
  * Plugin类
@@ -86,7 +88,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
         if (g_tabbarElement == undefined) {
             g_isMobile = true;
         }
-        g_isMobile = siyuan.isMobile();
+        g_isMobile = isMobile();
         // 语言切换
         // let siyuanLanguage;
         // try{
@@ -1053,6 +1055,10 @@ function loadUISettings(formElement) {
     debugPush("UI SETTING", result);
     return result;
 }
+
+function isMobile() {
+    return window.top.document.getElementById("sidebar") ? true : false;
+};
 
 module.exports = {
     default: HierachyNavigatePlugin,
