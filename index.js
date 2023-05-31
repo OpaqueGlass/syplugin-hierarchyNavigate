@@ -159,8 +159,8 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
                 <button class="b3-button b3-button--text">${language["button_save"]}</button>
             </div>
             `,
-            "width": siyuan.isMobile() ? "92vw":"1040px",
-            "height": siyuan.isMobile() ? "50vw":"540px",
+            "width": isMobile() ? "92vw":"1040px",
+            "height": isMobile() ? "50vw":"540px",
         });
         console.log("dialog", settingDialog);
         const actionButtons = settingDialog.element.querySelectorAll(`#${CONSTANTS.PLUGIN_NAME}-form-action button`);

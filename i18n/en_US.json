@@ -38,5 +38,9 @@
   "setting_popupWindow_option_2": "Icon and link text",
   "setting_maxHeightLimit_name": "Limit the max height of naviation container",
   "setting_maxHeightLimit_desp": "The excess part needs to be scrolled to view. Unit: em",
+  "setting_sameWidth_name": "Consistent width of document links",
+  "setting_sameWidth_desp": "Ensure all document links have a consistent width. Set as <code>0</code> to disable. Unit: em",
+  "setting_hideIndicator_name": "Hide hint words",
+  "setting_hideIndicator_desp": "Do not display 'Parent: ', 'Children: ' etc. To modify hint words, please go to the i18n/en_US.json file located in the plugin directory.",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience"
 }
