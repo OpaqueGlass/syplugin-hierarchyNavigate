@@ -201,6 +201,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
                 {value:2}]),
             new SettingProperty("maxHeightLimit", "NUMBER", [0, 1024]),
             new SettingProperty("sameWidth", "NUMBER", [0, 1024]),
+            new SettingProperty("adjustDocIcon", "SWITCH", null),
             //TODO: 排序方式
             // new SettingProperty("docSortMode", "SELECT", [
             //     {value:0},
@@ -658,6 +659,11 @@ function setStyle() {
         display:none;
     }
     `:"";
+    let iconAdjustStyle = g_setting.adjustDocIcon ? `
+    .protyle-title__icon {
+        top: 25px;
+    }
+    `:"";
     const defaultLinkStyle = `
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
         background-color: var(--b3-protyle-code-background);/*var(--b3-protyle-inline-code-background); --b3-protyle-code-background  --b3-theme-surface-light*/
@@ -688,6 +694,8 @@ function setStyle() {
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+
+    ${iconAdjustStyle}
 
    ${linkWidthRestrict}
 

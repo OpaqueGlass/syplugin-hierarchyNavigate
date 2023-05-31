@@ -40,5 +40,7 @@
     "setting_sameWidth_desp": "使得所有文档链接具有相同的宽度，设置为<code>0</code>则禁用，单位：em（字体宽度）",
     "setting_hideIndicator_name": "隐藏导航区提示词",
     "setting_hideIndicator_desp": "隐藏“父：”“子：”等提示词，界面更简洁。如要修改提示词，可到插件所在文件夹/i18n修改语言文件。",
+    "setting_adjustDocIcon_name": "调整文档图标位置",
+    "setting_adjustDocIcon_desp": "插入导航区会导致标题左侧文档图标错位，开启此选项以修复此问题。若与您的自定义设置或主题产生冲突，请在此关闭。",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题"
 }

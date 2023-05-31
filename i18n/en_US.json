@@ -42,5 +42,7 @@
   "setting_sameWidth_desp": "Ensure all document links have a consistent width. Set as <code>0</code> to disable. Unit: em",
   "setting_hideIndicator_name": "Hide hint words",
   "setting_hideIndicator_desp": "Do not display 'Parent: ', 'Children: ' etc. To modify hint words, please go to the i18n/en_US.json file located in the plugin directory.",
+  "setting_adjustDocIcon_name": "Adjust the position of document icon",
+  "setting_adjustDocIcon_desp": "Inserting the navigation pane may cause the document icon on the left side of the title to be misaligned. Enable this option to fix this issue. If it conflicts with your custom settings or theme, please disable it here.",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience"
 }
