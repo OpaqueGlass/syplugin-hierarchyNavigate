@@ -4,7 +4,7 @@
 
 > Most of this document was translated by Google Translate.
 
-> Current Version：v0.2.0 **Development**: Most of features are transformed to official plugin system;  **Enhancement**: Support limit height of navigation area; **Enhancement**: Support ignore the docs with "og-hn-ignore" in attributes.
+> Current Version：v0.2.1 **Development**: Fix can't run in siyuan v2.8.10-dev5;  **Enhancement**: Adjust document icon in default;
 
 Add parent and children documents links under the document title.
 
@@ -12,12 +12,13 @@ Add parent and children documents links under the document title.
 
 - Just turn on the plugin; (`Marketplace`--`Downloaded`--`Plugin`--`HierarchyNavigate`, click switch icon)
 - For more information, please refer to the plugin setting page;  (`Marketplace`--`Downloaded`--`Plugin`--`HierarchyNavigate`-- Click setting icon)
+- Documents with the `og-hn-ignore` attribute or attribute value will be ignored and the hierarchical navigation will not be displayed.
 
 #### Other explanation
 
 - Maybe available in siyuan Android App (in testing);
 
-- After inserting the navigation part, the document icon on the left side of the title will have some misalignment, which can be solved by "Settings - Appearance - Code Snippet - Add css"
+- After inserting the navigation part, the document icon on the left side of the title will have some misalignment, which can be solved by (1) Enable "Adjust the position of document icon" in this plugin settings or (2) "Settings - Appearance - Code Snippet - Add css"
 
   ```css
   .protyle-title__icon {
