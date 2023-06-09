@@ -50,6 +50,8 @@ let g_setting = {
     hideIndicator: null,
     sameWidth: null,
     adjustDocIcon: null, //调整文档图标位置
+    timelyUpdate: null, // 及时响应更新（进入标签页时更新）
+    immediatelyUpdate: null,// 实时响应更新
 };
 let g_setting_default = {
     fontSize: 12,
@@ -69,6 +71,8 @@ let g_setting_default = {
     hideIndicator: false,
     sameWidth: 0,
     adjustDocIcon: true,
+    timelyUpdate: true,
+    immediatelyUpdate: false,
 };
 /**
  * Plugin类
@@ -116,6 +120,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             try {
                 // let settingData = JSON.parse(settingCache);
                 Object.assign(g_setting, settingCache);
+                this.eventBusInnerHandler(); 
             }catch(e){
                 console.warn("HN载入配置时发生错误",e);
             }
@@ -152,7 +157,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             "title": language["setting_panel_title"],
             "content": `
             <div class="b3-dialog__content" style="flex: 1;">
-                <div id="${CONSTANTS.PLUGIN_NAME}-form-content" style="overflow: scroll;"></div>
+                <div id="${CONSTANTS.PLUGIN_NAME}-form-content" style="overflow: auto;"></div>
             </div>
             <div class="b3-dialog__action" id="${CONSTANTS.PLUGIN_NAME}-form-action" style="max-height: 40px">
                 <button class="b3-button b3-button--cancel">${language["button_cancel"]}</button><div class="fn__space"></div>
@@ -162,20 +167,25 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             "width": isMobile() ? "92vw":"1040px",
             "height": isMobile() ? "50vw":"540px",
         });
-        console.log("dialog", settingDialog);
+        // console.log("dialog", settingDialog);
         const actionButtons = settingDialog.element.querySelectorAll(`#${CONSTANTS.PLUGIN_NAME}-form-action button`);
         actionButtons[0].addEventListener("click",()=>{settingDialog.destroy()}),
         actionButtons[1].addEventListener("click",()=>{
             // this.writeStorage('hello.txt', 'world' + Math.random().toFixed(2));
-            console.log('SAVING');
+            debugPush('SAVING');
             let uiSettings = loadUISettings(settingForm);
             // clearTimeout(g_saveTimeout);
             // g_saveTimeout = setTimeout(()=>{
             this.saveData(`settings.json`, JSON.stringify(uiSettings));
             Object.assign(g_setting, uiSettings);
             removeStyle();
-            setStyle();  
-            console.log("SAVED");
+            setStyle();
+            try {
+                this.eventBusInnerHandler(); 
+            }catch(err){
+                console.error("og eventBusError", err);
+            }
+            debugPush("SAVED");
             settingDialog.destroy();
             // }, CONSTANTS.SAVE_TIMEOUT);
         });
@@ -202,25 +212,9 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("maxHeightLimit", "NUMBER", [0, 1024]),
             new SettingProperty("sameWidth", "NUMBER", [0, 1024]),
             new SettingProperty("adjustDocIcon", "SWITCH", null),
-            //TODO: 排序方式
-            // new SettingProperty("docSortMode", "SELECT", [
-            //     {value:0},
-            //     {value:1},
-            //     {value:2},
-            //     {value:3},
-            //     {value:4},
-            //     {value:5},
-            //     {value:6},
-            //     {value:7},
-            //     {value:8},
-            //     {value:9},
-            //     {value:10},
-            //     {value:11},
-            //     {value:12},
-            //     {value:13},
-            //     {value:14},
-            //     {value:15}, // 内部使用
-            // ]),
+            // new SettingProperty("timelyUpdate", "SWITCH", null),
+            new SettingProperty("immediatelyUpdate", "SWITCH", null),
+            // CSS样式组
             new SettingProperty("hideIndicator", "SWITCH", null),
             new SettingProperty("linkDivider", "TEXT", null),
             new SettingProperty("docLinkClass", "TEXT", null),
@@ -232,6 +226,14 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
 
         hello.appendChild(settingForm);
         settingDialog.element.querySelector(`#${CONSTANTS.PLUGIN_NAME}-form-content`).appendChild(hello);
+    }
+
+    eventBusInnerHandler() {
+        if (g_setting.immediatelyUpdate) {
+            this.eventBus.on("ws-main", eventBusHandler);
+        }else{
+            this.eventBus.off("ws-main", eventBusHandler);
+        }
     }
 }
 
@@ -395,12 +397,24 @@ function removeObserver() {
     g_windowObserver?.disconnect();
 }
 
+function eventBusHandler(detail) {
+    // console.log(detail);
+    const cmdType = ["moveDoc", "rename", "removeDoc"];
+    if (cmdType.indexOf(detail.detail.cmd) != -1) {
+        debugPush("由 立即更新 触发");
+        main();
+    }
+}
+
 async function main(targets) {
     // 获取当前文档id
     const docId = getCurrentDocIdF();
     debugPush(docId);
     // 防止重复执行
-    if (window.document.querySelector(`.protyle-title[data-node-id="${docId}"] #og-hn-heading-docs-container`) != null) return;
+    if (!g_setting.timelyUpdate &&
+        window.document.querySelector(`.protyle-title[data-node-id="${docId}"] #og-hn-heading-docs-container`) != null) {
+            return;
+    }
     debugPush("main防重复检查已通过");
     if (docId == null) {
         console.warn("未能读取到打开文档的id");
@@ -621,7 +635,8 @@ function setAndApply(htmlElem, docId) {
         debugPush("安卓端写入完成", docId);
         return;
     }
-    if (window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`) != null) {
+    if (!g_setting.timelyUpdate &&
+        window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`) != null) {
         debugPush("已经插入，不再执行");
         return;
     }
@@ -631,8 +646,19 @@ function setAndApply(htmlElem, docId) {
         debugPush("焦点未聚焦于标签页，尝试对第一个捕获页面添加");
         attrTarget = window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-attr`);
         if (window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`) != null) {
-            debugPush("已经插入，不再执行");
-            return;
+            if (g_setting.timelyUpdate) {
+                window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`).remove();
+                debugPush("已经移除");
+            }else{
+                debugPush("已经插入，不再执行");
+                return;
+            }
+        }
+    }else if (g_setting.timelyUpdate){
+        const test = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`);
+        if (test) {
+            test.remove();
+            debugPush("已经移除");
         }
     }
     if (attrTarget) {
@@ -641,6 +667,7 @@ function setAndApply(htmlElem, docId) {
             elem.addEventListener("click", openRefLink);
             elem.style.marginRight = "10px";
         });
+        debugPush("重写成功");
     }else{
         debugPush("未找到标签页");
     }

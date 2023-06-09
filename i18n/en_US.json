@@ -44,5 +44,7 @@
   "setting_hideIndicator_desp": "Do not display 'Parent: ', 'Children: ' etc. To modify hint words, please go to the i18n/en_US.json file located in the plugin directory.",
   "setting_adjustDocIcon_name": "Adjust the position of document icon",
   "setting_adjustDocIcon_desp": "Inserting the navigation pane may cause the document icon on the left side of the title to be misaligned. Enable this option to fix this issue. If it conflicts with your custom settings or theme, please disable it here.",
+  "setting_immediatelyUpdate_name": "Update immediately",
+  "setting_immediatelyUpdate_desp": "After renaming, deleting, or moving a document, update the document navigation immediately. Due to technical reasons, enabling this function may cause performance issues such as lagging when there is a large amount of input, so please enable it with caution.",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience"
 }
