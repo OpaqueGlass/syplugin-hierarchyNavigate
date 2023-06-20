@@ -4,7 +4,7 @@
 
 > Most of this document was translated by Google Translate.
 
-> Current Version：v0.2.2 **Enhancement**: Update document navigation after switching tabs; **Enhancement**: (Optional feature) Check document changes and update document navigation immediately;
+> Current Version：v0.2.3 **Improvement**: Option: "Hide \"N/A\" when there is no document".
 
 Add parent and children documents links under the document title.
 
