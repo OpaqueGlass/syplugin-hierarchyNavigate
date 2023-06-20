@@ -46,5 +46,7 @@
   "setting_adjustDocIcon_desp": "Inserting the navigation pane may cause the document icon on the left side of the title to be misaligned. Enable this option to fix this issue. If it conflicts with your custom settings or theme, please disable it here.",
   "setting_immediatelyUpdate_name": "Update immediately",
   "setting_immediatelyUpdate_desp": "After renaming, deleting, or moving a document, update the document navigation immediately. Due to technical reasons, enabling this function may cause performance issues such as lagging when there is a large amount of input, so please enable it with caution.",
+  "setting_noneAreaHide_name": "Hide \"N/A\" when there is no document",
+  "setting_noneAreaHide_desp": "When there is no corresponding document, hide the section and do not display \"N/A\". It is not recommended to enable it at the same time as \"Hide hint words\".",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience"
 }

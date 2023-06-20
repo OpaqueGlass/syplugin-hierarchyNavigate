@@ -21,6 +21,7 @@ const CONSTANTS = {
     CHILD_CONTAINER_ID: "og-hierachy-navigate-children-doc-container",
     SIBLING_CONTAINER_ID: "og-hierachy-navigate-sibling-doc-container",
     INDICATOR_CLASS_NAME: "og-hierachy-navigate-doc-indicator",
+    NONE_CLASS_NAME: "og-hierachy-navigate-doc-not-exist",
     POP_NONE: 0,
     POP_LIMIT: 1,
     POP_ALL: 2,
@@ -52,6 +53,7 @@ let g_setting = {
     adjustDocIcon: null, //调整文档图标位置
     timelyUpdate: null, // 及时响应更新（进入标签页时更新）
     immediatelyUpdate: null,// 实时响应更新
+    noneAreaHide: null,
 };
 let g_setting_default = {
     fontSize: 12,
@@ -73,6 +75,7 @@ let g_setting_default = {
     adjustDocIcon: true,
     timelyUpdate: true,
     immediatelyUpdate: false,
+    noneAreaHide: false,
 };
 /**
  * Plugin类
@@ -216,6 +219,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("immediatelyUpdate", "SWITCH", null),
             // CSS样式组
             new SettingProperty("hideIndicator", "SWITCH", null),
+            new SettingProperty("noneAreaHide", "SWITCH", null),
             new SettingProperty("linkDivider", "TEXT", null),
             new SettingProperty("docLinkClass", "TEXT", null),
             new SettingProperty("parentBoxCSS", "TEXTAREA", null),
@@ -526,11 +530,13 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
             htmlElem.appendChild(siblingElem);
         }else{
             siblingElem.innerHTML = siblingElemInnerText + language["none"];
+            siblingElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
             htmlElem.appendChild(siblingElem);
         }
         
     }else{
         parentElem.innerHTML = parentElemInnerText + language["none"];
+        parentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         htmlElem.appendChild(parentElem);
     }
     let childElem = document.createElement("div");
@@ -550,6 +556,7 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
         htmlElem.appendChild(childElem);
     }else{
         childElem.innerHTML = childElemInnerText + language["none"];
+        childElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         htmlElem.appendChild(childElem);
     }
     if (g_DEBUG > 1) {
@@ -691,6 +698,13 @@ function setStyle() {
         top: 25px;
     }
     `:"";
+
+    let noneDisplayStyle = g_setting.noneAreaHide ? `
+    .${CONSTANTS.NONE_CLASS_NAME} {
+        display: none;
+    }
+    ` : "";
+
     const defaultLinkStyle = `
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
         background-color: var(--b3-protyle-code-background);/*var(--b3-protyle-inline-code-background); --b3-protyle-code-background  --b3-theme-surface-light*/
@@ -727,6 +741,8 @@ function setStyle() {
    ${linkWidthRestrict}
 
    ${noIndicatorStyle}
+
+   ${noneDisplayStyle}
 
     .og-hierachy-navigate-doc-container {
         max-height: ${g_setting.maxHeightLimit}em;
