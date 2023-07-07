@@ -271,19 +271,19 @@ function commonPush(str, ...args) {
 
 function debugPush(str, ...args) {
     if (commonPush(str, ...args)) {
-        console.log("ogdb "+str, ...args);
+        console.log("oghn "+str, ...args);
     }
 }
 
 function errorPush(str, ... args) {
     if (commonPush(str, ...args)) {
-        console.error("ogdb "+str, ...args);
+        console.error("oghn "+str, ...args);
     }
 }
 
 function warnPush(str, ... args) {
     if (commonPush(str, ...args)) {
-        console.warn("ogdb "+str, ...args);
+        console.warn("oghn "+str, ...args);
     }
 }
 
@@ -441,7 +441,7 @@ function eventBusHandler(detail) {
 async function main(targets) {
     let retryCount = 0;
     let success = false;
-    while (retryCount < 5) {
+    while (retryCount < 20) {
         retryCount ++ ;
         try {
             if (g_mutex > 0) {
@@ -487,12 +487,14 @@ async function main(targets) {
             g_mutex--;
         }
         if (!success) {
-            debugPush("休息2秒后重新尝试");
-            await sleep(2000);
+            debugPush(`重试中，第${retryCount}次，休息一会儿后重新尝试`);
+            await sleep(200);
+        } else {
+            break;
         }
     }
     if (!success) {
-        throw new Error("已经重试5次，仍然存在错误");
+        throw new Error("已经重试20次，仍然存在错误");
     }
 
 }
@@ -1044,7 +1046,7 @@ async function getCurrentDocIdF() {
 
 function sleep(time){
     return new Promise((resolve) => setTimeout(resolve, time));
-   }
+}
 
 /**
  * 在点击<span data-type="block-ref">时打开思源块/文档
