@@ -50,7 +50,11 @@
   "setting_immediatelyUpdate_desp": "After renaming, deleting, or moving a document, update the document navigation immediately. Due to technical reasons, enabling this function may cause performance issues such as lagging when there is a large amount of input, so please enable it with caution.",
   "setting_noneAreaHide_name": "Hide \"N/A\" when there is no document",
   "setting_noneAreaHide_desp": "When there is no corresponding document, hide the section and do not display \"N/A\". It is not recommended to enable it at the same time as \"Hide hint words\".",
-  "setting_showDocCount_name": "🆕Show the number of documents in the hint words",
-  "setting_showDocCount_desp": "After disabling, you can still hover mouse over the hint words to find out the number of documents. E.g. Sibling (19): ",
-  "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience"
+  "setting_showDocInfo_name": "🆕Show the information of current document",
+  "setting_showDocInfo_desp": "Document information includes: creation time, modification time, number of child-documents, total character count of subdocuments (for the first 128 documents). After disabling, you can still hover mouse over the hint words to find out the number of documents. ",
+  "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience",
+  "create_at": "Create at",
+  "update_at": "Mofify at",
+  "child_count": "Number of child-document %NUM%",
+  "child_word_count": "Total number of characters in the child-document. "
 }

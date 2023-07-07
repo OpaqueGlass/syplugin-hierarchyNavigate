@@ -17,6 +17,7 @@ const CONSTANTS = {
     PLUGIN_NAME: "og_hierachy_navigate",
     SAVE_TIMEOUT: 900,
     CONTAINER_CLASS_NAME: "og-hierachy-navigate-doc-container", 
+    INFO_CONTAINER_CLASS: "og-hierachy-navigate-info-container",
     PARENT_CONTAINER_ID: "og-hierachy-navigate-parent-doc-container",
     CHILD_CONTAINER_ID: "og-hierachy-navigate-children-doc-container",
     SIBLING_CONTAINER_ID: "og-hierachy-navigate-sibling-doc-container",
@@ -54,7 +55,7 @@ let g_setting = {
     timelyUpdate: null, // 及时响应更新（进入标签页时更新）
     immediatelyUpdate: null,// 实时响应更新
     noneAreaHide: null,
-    showDocCount: null,
+    showDocInfo: null,
 };
 let g_setting_default = {
     fontSize: 12,
@@ -77,7 +78,7 @@ let g_setting_default = {
     timelyUpdate: true,
     immediatelyUpdate: false,
     noneAreaHide: false,
-    showDocCount: false,
+    showDocInfo: false,
 };
 /**
  * Plugin类
@@ -220,7 +221,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             // new SettingProperty("timelyUpdate", "SWITCH", null),
             new SettingProperty("immediatelyUpdate", "SWITCH", null),
             // CSS样式组
-            new SettingProperty("showDocCount", "SWITCH", null),
+            new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
             new SettingProperty("noneAreaHide", "SWITCH", null),
             new SettingProperty("linkDivider", "TEXT", null),
@@ -436,9 +437,12 @@ async function main(targets) {
     // TODO: 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
     // 获取文档相关信息
     const [parentDoc, childDoc, siblingDoc] = await getDocumentRelations(docId, sqlResult);
+
+    // 获取字符数
+    const [convertedChildCount, totalWords] = await getChildDocumentsWordCount(childDoc);
     // console.log(parentDoc, childDoc, siblingDoc);
     // 生成插入文本
-    const htmlElem = generateText(parentDoc, childDoc, siblingDoc, docId);
+    const htmlElem = generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords);
     // console.log("FIN",htmlElem);
     // 应用插入
     setAndApply(htmlElem, docId);
@@ -491,16 +495,36 @@ async function getSiblingDocuments(docId, parentSqlResult, sqlResult, noParentFl
     return siblingDocs.files;
 }
 
+async function getChildDocumentsWordCount(childDocs) {
+    let totalWords = 0;
+    let docCount = 0;
+    for (let childDoc of childDocs) {
+        let tempWordsResult = await getTreeStat(childDoc.id);
+        totalWords += tempWordsResult.wordCount;
+        childDoc["wordCount"] = tempWordsResult.wordCount;
+        docCount++;
+        if (docCount > 128) {
+            totalWords = `${totalWords}+`;
+            break;
+        }
+    }
+    return [childDocs, totalWords];
+}
+
 
 
 /**
  * 生成插入文本
  */
-function generateText(parentDoc, childDoc, siblingDoc, docId) {
+function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords) {
     const CONTAINER_STYLE = `padding: 0px 6px;`;
     let htmlElem = document.createElement("div");
     htmlElem.setAttribute("id", "og-hn-heading-docs-container");
     htmlElem.style.fontSize = `${g_setting.fontSize}px`;
+    if (g_setting.showDocInfo) {
+        htmlElem.appendChild(generateInfoLine());
+    }
+
     let parentElem = document.createElement("div");
     parentElem.setAttribute("id", CONSTANTS.PARENT_CONTAINER_ID);
     parentElem.style.cssText = CONTAINER_STYLE;
@@ -515,17 +539,8 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
     let siblingElem = document.createElement("div");
     siblingElem.setAttribute("id", CONSTANTS.SIBLING_CONTAINER_ID);
     siblingElem.style.cssText = CONTAINER_STYLE;
-    let siblingNodesText = language["sibling_nodes"].replace("%NUM%", "");
-    if (g_setting.showDocCount) {
-        siblingNodesText = language["sibling_nodes"]
-            .replace("%NUM%", 
-                siblingDoc && siblingDoc.length > 1 ? 
-                    language["number_span"]
-                        .replace("%NUM%", siblingDoc.length) :
-                    "");
-    }
     let siblingElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}" title="${language["number_count"].replace("%NUM%", siblingDoc.length)}">
-        ${siblingNodesText}
+        ${language["sibling_nodes"]}
         </span>`;
 
     if (parentFlag) {
@@ -553,19 +568,10 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
     }
     let childElem = document.createElement("div");
     childElem.setAttribute("id", CONSTANTS.CHILD_CONTAINER_ID);
-    let childNodeText = language["child_nodes"].replace("%NUM%", "");
-    if (g_setting.showDocCount) {
-        childNodeText = language["child_nodes"]
-            .replace("%NUM%", 
-                childDoc && childDoc.length > 1 ? 
-                    language["number_span"]
-                        .replace("%NUM%", childDoc.length) :
-                    "");
-    }
     
     childElem.style.cssText = CONTAINER_STYLE;
     let childElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}" title="${language["number_count"].replace("%NUM%", childDoc.length)}">
-        ${childNodeText}
+        ${language["child_nodes"]}
         </span>`;
     let childFlag = false;
     for (let doc of childDoc) {
@@ -592,6 +598,38 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
     childElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
     
     return htmlElem;
+    function generateInfoLine() {
+        let thisDocInfos = null;
+        // 检索兄弟文档
+        for (const sibling of siblingDoc) {
+            if (sibling.id == docId) {
+                thisDocInfos = sibling;
+                break;
+            }
+        }
+        let firstLineElem = document.createElement("div");
+        firstLineElem.classList.add(CONSTANTS.INFO_CONTAINER_CLASS);
+        firstLineElem.style.cssText = CONTAINER_STYLE;
+        let infoElemInnerText = `<span class="og-hn-create-at-wrapper">
+            <span class="og-hn-create-at-indicator">${language["create_at"]}</span> 
+            <span class="og-hn-create-at-content">${thisDocInfos["hCtime"]}</span>
+        </span>
+        <span class="og-hn-modify-at-wrapper">
+            <span class="og-hn-modify-at-indicator">${language["update_at"]}</span> 
+            <span class="og-hn-create-at-content">${thisDocInfos["hMtime"]}</span>
+        </span>
+        <span class="og-hn-child-doc-count-wrapper">
+        ${language["child_count"].replace("%NUM%", `<span class="og-hn-child-doc-count-content">${childDoc.length}</span>`)} 
+        </span>
+        <span class="og-hn-child-word-count-wrapper">
+            <span class="og-hn-child-word-count-indicator">${language["child_word_count"]}</span> 
+            <span class="og-hn-child-word-count-content">${totalWords}</span>
+        </span>
+        `;
+        firstLineElem.innerHTML = infoElemInnerText;
+        return firstLineElem;
+    }
+
     function docLinkGenerator(doc) {
         let emojiStr = getEmojiHtmlStr(doc.icon, doc?.subFileCount != 0);
         let docName = isValidStr(doc?.name) ? doc.name.substring(0, doc.name.length - 3) : doc.content;
@@ -746,9 +784,14 @@ function setStyle() {
         transition: var(--b3-transition);
         margin-right: 10px;
         margin-bottom: 3px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {
         margin: 0 auto; /*居中显示*/
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
     `;
 
@@ -764,7 +807,6 @@ function setStyle() {
     #og-hn-heading-docs-container .trimDocName {
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     ${iconAdjustStyle}
@@ -778,6 +820,22 @@ function setStyle() {
     .og-hierachy-navigate-doc-container {
         max-height: ${g_setting.maxHeightLimit}em;
         overflow: scroll;
+    }
+
+    .og-hn-create-at-wrapper, .og-hn-modify-at-wrapper, .og-hn-child-doc-count-wrapper, .og-hn-child-word-count-wrapper {
+        margin-right: 8px;
+    }
+
+    .og-hn-create-at-indicator, .og-hn-modify-at-indicator, .og-hn-child-word-count-indicator {
+        color: var(--b3-theme-on-surface);
+    }
+
+    .og-hn-create-at-content, .og-hn-modify-at-content, .og-hn-child-word-count-content, .og-hn-child-doc-count-content {
+        font-weight: 600;
+    }
+
+    .og-hierachy-navigate-info-container {
+        margin-bottom: 7px;
     }
 
     .${CONSTANTS.CONTAINER_CLASS_NAME} {
@@ -884,6 +942,14 @@ async function sqlAPI(stmt) {
         "stmt": stmt
     };
     let url = `/api/query/sql`;
+    return parseBody(request(url, data));
+}
+
+async function getTreeStat(id) {
+    let data = {
+        "id": id
+    };
+    let url = `/api/block/getTreeStat`;
     return parseBody(request(url, data));
 }
 
