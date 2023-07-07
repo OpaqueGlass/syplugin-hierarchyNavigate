@@ -1,7 +1,9 @@
 {
     "parent_nodes": "父：",
-    "child_nodes": "子：",
-    "sibling_nodes": "兄：",
+    "child_nodes": "子%NUM%：",
+    "sibling_nodes": "兄%NUM%：",
+    "number_span": "（%NUM%）",
+    "number_count": "%NUM%个",
     "none": "无",
     "button_save": "保存",
     "button_cancel": "取消",
@@ -46,5 +48,7 @@
     "setting_immediatelyUpdate_desp": "当发生文档重命名、删除、移动操作后，立即更新文档导航。由于技术原因，可能导致大量输入时卡顿等性能问题，请谨慎启用。",
     "setting_noneAreaHide_name": "不存在文档时隐藏",
     "setting_noneAreaHide_desp": "在无对应文档时，隐藏该区域，不显示“无”。不建议和“隐藏导航区提示词”同时启用。",
+    "setting_showDocCount_name": "🆕在提示词处显示文档个数",
+    "setting_showDocCount_desp": "关闭后，仍可以通过鼠标悬停在提示词处得知文档个数。例：子（19）：",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题"
 }

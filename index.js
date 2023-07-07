@@ -54,6 +54,7 @@ let g_setting = {
     timelyUpdate: null, // 及时响应更新（进入标签页时更新）
     immediatelyUpdate: null,// 实时响应更新
     noneAreaHide: null,
+    showDocCount: null,
 };
 let g_setting_default = {
     fontSize: 12,
@@ -76,6 +77,7 @@ let g_setting_default = {
     timelyUpdate: true,
     immediatelyUpdate: false,
     noneAreaHide: false,
+    showDocCount: false,
 };
 /**
  * Plugin类
@@ -218,6 +220,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             // new SettingProperty("timelyUpdate", "SWITCH", null),
             new SettingProperty("immediatelyUpdate", "SWITCH", null),
             // CSS样式组
+            new SettingProperty("showDocCount", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
             new SettingProperty("noneAreaHide", "SWITCH", null),
             new SettingProperty("linkDivider", "TEXT", null),
@@ -412,7 +415,7 @@ function eventBusHandler(detail) {
 
 async function main(targets) {
     // 获取当前文档id
-    const docId = getCurrentDocIdF();
+    const docId = await getCurrentDocIdF();
     debugPush(docId);
     // 防止重复执行
     if (!g_setting.timelyUpdate &&
@@ -512,8 +515,17 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
     let siblingElem = document.createElement("div");
     siblingElem.setAttribute("id", CONSTANTS.SIBLING_CONTAINER_ID);
     siblingElem.style.cssText = CONTAINER_STYLE;
-    let siblingElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
-        ${language["sibling_nodes"]}
+    let siblingNodesText = language["sibling_nodes"].replace("%NUM%", "");
+    if (g_setting.showDocCount) {
+        siblingNodesText = language["sibling_nodes"]
+            .replace("%NUM%", 
+                siblingDoc && siblingDoc.length > 1 ? 
+                    language["number_span"]
+                        .replace("%NUM%", siblingDoc.length) :
+                    "");
+    }
+    let siblingElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}" title="${language["number_count"].replace("%NUM%", siblingDoc.length)}">
+        ${siblingNodesText}
         </span>`;
 
     if (parentFlag) {
@@ -541,10 +553,19 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
     }
     let childElem = document.createElement("div");
     childElem.setAttribute("id", CONSTANTS.CHILD_CONTAINER_ID);
+    let childNodeText = language["child_nodes"].replace("%NUM%", "");
+    if (g_setting.showDocCount) {
+        childNodeText = language["child_nodes"]
+            .replace("%NUM%", 
+                childDoc && childDoc.length > 1 ? 
+                    language["number_span"]
+                        .replace("%NUM%", childDoc.length) :
+                    "");
+    }
     
     childElem.style.cssText = CONTAINER_STYLE;
-    let childElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
-        ${language["child_nodes"]}
+    let childElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}" title="${language["number_count"].replace("%NUM%", childDoc.length)}">
+        ${childNodeText}
         </span>`;
     let childFlag = false;
     for (let doc of childDoc) {
@@ -587,7 +608,9 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
                     style="font-size: ${g_setting.fontSize}px;"
                     title="${docName}"
                     data-id="${doc.id}">
+                        <span class="og-hn-emoji-and-name">
                         ${emojiStr}<span class="trimDocName">${trimDocName}</span>
+                        </span>
                     </span>`
                 break;
             }
@@ -597,10 +620,12 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
                     style="font-size: ${g_setting.fontSize}px; display: inline-block"
                     title="${docName}"
                     data-id="${doc.id}">
+                        <span class="og-hn-emoji-and-name">
                         <span data-type='block-ref'
                         data-subtype="d"
                         data-id="${doc.id}"
                         >${emojiStr}</span><span class="trimDocName">${trimDocName}</span>
+                        </span>
                     </span>`
                 break;
             }
@@ -610,7 +635,9 @@ function generateText(parentDoc, childDoc, siblingDoc, docId) {
                     style="font-size: ${g_setting.fontSize}px;"
                     title="${docName}"
                     data-id="${doc.id}">
+                    <span class="og-hn-emoji-and-name">
                         ${emojiStr}<span class="trimDocName">${trimDocName}</span>
+                    </span>
                     </span>`
                 break;
             }
@@ -719,7 +746,11 @@ function setStyle() {
         transition: var(--b3-transition);
         margin-right: 10px;
         margin-bottom: 3px;
-    }`;
+    }
+    .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {
+        margin: 0 auto; /*居中显示*/
+    }
+    `;
 
     style.innerHTML = `
     #og-hn-heading-docs-container span.docLinksWrapper:hover {
@@ -856,9 +887,10 @@ async function sqlAPI(stmt) {
     return parseBody(request(url, data));
 }
 
-function getCurrentDocIdF() {
+async function getCurrentDocIdF() {
     let thisDocId;
     thisDocId = window.top.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background")?.getAttribute("data-node-id");
+    debugPush("thisDocId by first id", thisDocId);
     if (!thisDocId && g_isMobile) {
         // UNSTABLE: 面包屑样式变动将导致此方案错误！
         try {
@@ -879,11 +911,25 @@ function getCurrentDocIdF() {
             temp = null;
         }
     }
+    // retry 重新尝试一下下
+    // let retryCount = 20;
+    // while(!thisDocId && retryCount >= 0) {
+    //     thisDocId = window.top.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background")?.getAttribute("data-node-id");
+    //     debugPush(window.top.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"));
+    //     await sleep(1000);
+    //     retryCount--;
+    //     debugPush("重新尝试获取");
+    // }
     if (!thisDocId) {
-        thisDocId = window.top.document.querySelector(".protyle-background")?.getAttribute("data-node-id");
+        thisDocId = window.top.document.querySelector(".protyle.fn__flex-1:not(.fn__none) .protyle-background")?.getAttribute("data-node-id");
+        debugPush("thisDocId by background must match,  id", thisDocId);
     }
     return thisDocId;
 }
+
+function sleep(time){
+    return new Promise((resolve) => setTimeout(resolve, time));
+   }
 
 /**
  * 在点击<span data-type="block-ref">时打开思源块/文档

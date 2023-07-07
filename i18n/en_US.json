@@ -1,7 +1,9 @@
 {
   "parent_nodes": "Parent: ",
-  "child_nodes": "Children: ",
-  "sibling_nodes": "Sibling: ",
+  "child_nodes": "Children%NUM%: ",
+  "sibling_nodes": "Sibling%NUM%: ",
+  "number_span": " (%NUM%)",
+  "number_count": "%NUM%",
   "none": "N/A",
   "button_save": "Save",
   "button_cancel": "Cancel",
@@ -48,5 +50,7 @@
   "setting_immediatelyUpdate_desp": "After renaming, deleting, or moving a document, update the document navigation immediately. Due to technical reasons, enabling this function may cause performance issues such as lagging when there is a large amount of input, so please enable it with caution.",
   "setting_noneAreaHide_name": "Hide \"N/A\" when there is no document",
   "setting_noneAreaHide_desp": "When there is no corresponding document, hide the section and do not display \"N/A\". It is not recommended to enable it at the same time as \"Hide hint words\".",
+  "setting_showDocCount_name": "🆕Show the number of documents in the hint words",
+  "setting_showDocCount_desp": "After disabling, you can still hover mouse over the hint words to find out the number of documents. E.g. Sibling (19): ",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience"
 }
