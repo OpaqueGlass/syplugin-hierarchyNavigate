@@ -36,6 +36,7 @@ let g_tabbarElement = undefined;
 let g_saveTimeout;
 let g_writeStorage;
 let g_isMobile = false;
+let g_mutex = 0;
 let g_setting = {
     fontSize: null,
     parentBoxCSS: null,
@@ -254,7 +255,8 @@ function isDebugMode() {
     if (g_DEBUG == 0 && (window["OpaqueGlassDebug"] != true)) return false;
     return true;
 }
-function debugPush(str, ...args) {
+
+function commonPush(str, ...args) {
     if (!isDebugMode()) return;
     let parsedArgsStr = "";
     for (let arg of args) {
@@ -262,8 +264,26 @@ function debugPush(str, ...args) {
     }
     if (g_DEBUG_ELEM && g_DEBUG > 1) {   
         g_DEBUG_ELEM.innerText = parsedArgsStr;
-    }else{
-        console.log("oghn "+str, ...args);
+        return false;
+    }
+    return true;
+}
+
+function debugPush(str, ...args) {
+    if (commonPush(str, ...args)) {
+        console.log("ogdb "+str, ...args);
+    }
+}
+
+function errorPush(str, ... args) {
+    if (commonPush(str, ...args)) {
+        console.error("ogdb "+str, ...args);
+    }
+}
+
+function warnPush(str, ... args) {
+    if (commonPush(str, ...args)) {
+        console.warn("ogdb "+str, ...args);
     }
 }
 
@@ -409,43 +429,72 @@ function eventBusHandler(detail) {
     // console.log(detail);
     const cmdType = ["moveDoc", "rename", "removeDoc"];
     if (cmdType.indexOf(detail.detail.cmd) != -1) {
-        debugPush("由 立即更新 触发");
-        main();
+        try {
+            debugPush("由 立即更新 触发");
+            main();
+        }catch(err) {
+            errorPush(err);
+        }
     }
 }
 
 async function main(targets) {
-    // 获取当前文档id
-    const docId = await getCurrentDocIdF();
-    debugPush(docId);
-    // 防止重复执行
-    if (!g_setting.timelyUpdate &&
-        window.document.querySelector(`.protyle-title[data-node-id="${docId}"] #og-hn-heading-docs-container`) != null) {
-            return;
+    let retryCount = 0;
+    let success = false;
+    while (retryCount < 5) {
+        retryCount ++ ;
+        try {
+            if (g_mutex > 0) {
+                return;
+            }
+            g_mutex++;
+            // 获取当前文档id
+            const docId = await getCurrentDocIdF();
+            debugPush(docId);
+            // 防止重复执行
+            if (!g_setting.timelyUpdate &&
+                window.document.querySelector(`.protyle-title[data-node-id="${docId}"] #og-hn-heading-docs-container`) != null) {
+                    return;
+            }
+            debugPush("main防重复检查已通过");
+            if (docId == null) {
+                console.warn("未能读取到打开文档的id");
+                return ;
+            }
+            let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
+            debugPush(sqlResult);
+            if (sqlResult && sqlResult.length >= 1 && (sqlResult[0].ial.includes("og-hn-ignore") || sqlResult[0].ial.includes("og文档导航忽略"))) {
+                debugPush("检测到忽略标记，停止处理");
+                return;
+            }
+
+            // TODO: 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
+            // 获取文档相关信息
+            const [parentDoc, childDoc, siblingDoc] = await getDocumentRelations(docId, sqlResult);
+
+            // 获取字符数
+            const [convertedChildCount, totalWords] = await getChildDocumentsWordCount(childDoc);
+            // console.log(parentDoc, childDoc, siblingDoc);
+            // 生成插入文本
+            const htmlElem = generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords);
+            // console.log("FIN",htmlElem);
+            // 应用插入
+            setAndApply(htmlElem, docId);
+            success = true;
+        }catch(err){
+            warnPush(err);
+        }finally{
+            g_mutex--;
+        }
+        if (!success) {
+            debugPush("休息2秒后重新尝试");
+            await sleep(2000);
+        }
     }
-    debugPush("main防重复检查已通过");
-    if (docId == null) {
-        console.warn("未能读取到打开文档的id");
-        return ;
-    }
-    let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
-    if (sqlResult[0].ial.includes("og-hn-ignore") || sqlResult[0].ial.includes("og文档导航忽略")) {
-        debugPush("检测到忽略标记，停止处理");
-        return;
+    if (!success) {
+        throw new Error("已经重试5次，仍然存在错误");
     }
 
-    // TODO: 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
-    // 获取文档相关信息
-    const [parentDoc, childDoc, siblingDoc] = await getDocumentRelations(docId, sqlResult);
-
-    // 获取字符数
-    const [convertedChildCount, totalWords] = await getChildDocumentsWordCount(childDoc);
-    // console.log(parentDoc, childDoc, siblingDoc);
-    // 生成插入文本
-    const htmlElem = generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords);
-    // console.log("FIN",htmlElem);
-    // 应用插入
-    setAndApply(htmlElem, docId);
 }
 
 /**
