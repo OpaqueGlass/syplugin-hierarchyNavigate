@@ -206,9 +206,9 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
         const settingForm = document.createElement("form");
         settingForm.setAttribute("name", CONSTANTS.PLUGIN_NAME);
         settingForm.innerHTML = generateSettingPanelHTML([
+            // 基础设定
             new SettingProperty("fontSize", "NUMBER", [0, 1024]),
             new SettingProperty("sibling", "SWITCH", null),
-            new SettingProperty("replaceWithBreadcrumb", "SWITCH", null),
             new SettingProperty("popupWindow", "SELECT", [
                 {value:0},
                 {value:1},
@@ -220,11 +220,13 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
                 {value:0},
                 {value:1},
                 {value:2}]),
+            // 扩展设定
             new SettingProperty("maxHeightLimit", "NUMBER", [0, 1024]),
             new SettingProperty("sameWidth", "NUMBER", [0, 1024]),
             new SettingProperty("adjustDocIcon", "SWITCH", null),
             // new SettingProperty("timelyUpdate", "SWITCH", null),
             new SettingProperty("immediatelyUpdate", "SWITCH", null),
+            new SettingProperty("replaceWithBreadcrumb", "SWITCH", null),
             // CSS样式组
             new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
@@ -708,10 +710,6 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
             resultArray.push(docInfoResult);
         }
         return resultArray;
-        function getNotebooks() {
-            let notebooks = window.top.siyuan.notebooks;
-            return notebooks;
-        }
     }
     async function generateBreadCrumbElement(pathObjects, docId) {
         const divideArrow = `<span class="og-fake-breadcrumb-arrow-span" data-type="%4%" data-parent-id="%5%"><svg class="${CONSTANTS.ARROW_CLASS_NAME}"
@@ -755,6 +753,14 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         let firstLineElem = document.createElement("div");
         firstLineElem.classList.add(CONSTANTS.INFO_CONTAINER_CLASS);
         firstLineElem.style.cssText = CONTAINER_STYLE;
+        let notebooks = getNotebooks();
+        let box;
+        for (let notebook of notebooks) {
+            if (notebook.id == docSqlResult.box) {
+                box = notebook;
+                break;
+            }
+        }
         let infoElemInnerText = `<span class="og-hn-create-at-wrapper">
             <span class="og-hn-create-at-indicator">${language["create_at"]}</span> 
             <span class="og-hn-create-at-content">${thisDocInfos["hCtime"]}</span>
@@ -769,6 +775,9 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         <span class="og-hn-child-word-count-wrapper">
             <span class="og-hn-child-word-count-indicator">${language["child_word_count"]}</span> 
             <span class="og-hn-child-word-count-content">${totalWords}</span>
+        </span>
+        <span class="og-hn-notebook-wrapper">
+            ${box.name}
         </span>
         `;
         firstLineElem.innerHTML = infoElemInnerText;
@@ -993,6 +1002,10 @@ function setStyle() {
         color: var(--b3-theme-on-background);
     }
 
+    .og-hn-notebook-wrapper {
+        color: var(--b3-theme-on-background);
+    }
+
     .og-hierachy-navigate-info-container {
         margin-bottom: 7px;
     }
@@ -1032,6 +1045,11 @@ function styleEscape(str) {
 
 function removeStyle() {
     document.getElementById(CONSTANTS.STYLE_ID)?.remove();
+}
+
+function getNotebooks() {
+    let notebooks = window.top.siyuan.notebooks;
+    return notebooks;
 }
 
 /**

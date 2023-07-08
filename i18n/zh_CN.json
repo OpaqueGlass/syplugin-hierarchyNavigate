@@ -55,7 +55,7 @@
     "setting_replaceWithBreadcrumb_name": "🧪🆕使用文档面包屑替代父文档部分",
     "setting_replaceWithBreadcrumb_desp": "",
     
-    "setting_experimental": "（实验性功能，不稳定）",
+    "setting_experimental": "（⚠实验性功能，不稳定，可能随时被移除）",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题",
     "create_at": "创建于",
     "update_at": "更新于",

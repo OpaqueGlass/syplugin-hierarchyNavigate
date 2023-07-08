@@ -55,10 +55,10 @@
   "setting_replaceWithBreadcrumb_name": "🧪🆕Using document breadcrumbs to replace the parent document section",
   "setting_replaceWithBreadcrumb_desp": "",
   
-  "setting_experimental": "(Experimental Feature. UNSTABLE) ",
+  "setting_experimental": "(Experimental Feature. UNSTABLE. May be removed at any time) ",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience",
-  "create_at": "Create at",
-  "update_at": "Mofify at",
-  "child_count": "Number of child-document %NUM%",
-  "child_word_count": "Total number of characters in the child-document. "
+  "create_at": "Created at",
+  "update_at": "Modified at",
+  "child_count": "Number of child-docs %NUM%",
+  "child_word_count": "Child-doc character count "
 }
