@@ -17,6 +17,7 @@ const CONSTANTS = {
     PLUGIN_NAME: "og_hierachy_navigate",
     SAVE_TIMEOUT: 900,
     CONTAINER_CLASS_NAME: "og-hierachy-navigate-doc-container", 
+    ARROW_CLASS_NAME: "og-hierachy-navigate-breadcrumb-arrow",
     INFO_CONTAINER_CLASS: "og-hierachy-navigate-info-container",
     PARENT_CONTAINER_ID: "og-hierachy-navigate-parent-doc-container",
     CHILD_CONTAINER_ID: "og-hierachy-navigate-children-doc-container",
@@ -57,6 +58,7 @@ let g_setting = {
     immediatelyUpdate: null,// 实时响应更新
     noneAreaHide: null,
     showDocInfo: null,
+    replaceWithBreadcrumb: null, // 父文档部分使用面包屑替代
 };
 let g_setting_default = {
     fontSize: 12,
@@ -80,6 +82,7 @@ let g_setting_default = {
     immediatelyUpdate: false,
     noneAreaHide: false,
     showDocInfo: false,
+    replaceWithBreadcrumb: true,
 };
 /**
  * Plugin类
@@ -205,6 +208,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
         settingForm.innerHTML = generateSettingPanelHTML([
             new SettingProperty("fontSize", "NUMBER", [0, 1024]),
             new SettingProperty("sibling", "SWITCH", null),
+            new SettingProperty("replaceWithBreadcrumb", "SWITCH", null),
             new SettingProperty("popupWindow", "SELECT", [
                 {value:0},
                 {value:1},
@@ -476,7 +480,7 @@ async function main(targets) {
             const [convertedChildCount, totalWords] = await getChildDocumentsWordCount(childDoc);
             // console.log(parentDoc, childDoc, siblingDoc);
             // 生成插入文本
-            const htmlElem = generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords);
+            const htmlElem = await generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords, sqlResult[0]);
             // console.log("FIN",htmlElem);
             // 应用插入
             setAndApply(htmlElem, docId);
@@ -546,6 +550,11 @@ async function getSiblingDocuments(docId, parentSqlResult, sqlResult, noParentFl
     return siblingDocs.files;
 }
 
+/**
+ * 统计子文档字符数
+ * @param {*} childDocs 
+ * @returns 
+ */
 async function getChildDocumentsWordCount(childDocs) {
     let totalWords = 0;
     let docCount = 0;
@@ -567,7 +576,7 @@ async function getChildDocumentsWordCount(childDocs) {
 /**
  * 生成插入文本
  */
-function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords) {
+async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, docSqlResult) {
     const CONTAINER_STYLE = `padding: 0px 6px;`;
     let htmlElem = document.createElement("div");
     htmlElem.setAttribute("id", "og-hn-heading-docs-container");
@@ -593,11 +602,10 @@ function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords) {
     let siblingElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}" title="${language["number_count"].replace("%NUM%", siblingDoc.length)}">
         ${language["sibling_nodes"]}
         </span>`;
-
-    if (parentFlag) {
+    if (parentFlag && !g_setting.replaceWithBreadcrumb) {
         parentElem.innerHTML = parentElemInnerText;
         htmlElem.appendChild(parentElem);
-    }else if (g_setting.sibling){
+    }else if (g_setting.sibling && !parentFlag){
         for (let doc of siblingDoc) {
             siblingElemInnerText += docLinkGenerator(doc);
         }
@@ -612,9 +620,12 @@ function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords) {
             htmlElem.appendChild(siblingElem);
         }
         
-    }else{
+    }else if (!g_setting.replaceWithBreadcrumb){
         parentElem.innerHTML = parentElemInnerText + language["none"];
         parentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        htmlElem.appendChild(parentElem);
+    }else if (g_setting.replaceWithBreadcrumb){
+        parentElem.appendChild(await generateBreadCrumb());
         htmlElem.appendChild(parentElem);
     }
     let childElem = document.createElement("div");
@@ -649,6 +660,89 @@ function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords) {
     childElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
     
     return htmlElem;
+
+    async function generateBreadCrumb() {
+        const pathObject = await parseDocPath(docSqlResult);
+        debugPush("pathObject", pathObject);
+        const breadcrumbElem = await generateBreadCrumbElement(pathObject);
+        return breadcrumbElem;
+    }
+    async function parseDocPath(docDetail) {
+        let pathArray = docDetail.path.substring(0, docDetail.path.length - 3).split("/");
+        let hpathArray = docDetail.hpath.split("/");
+        let resultArray = [];
+        let notebooks = getNotebooks();
+        let box;
+        for (let notebook of notebooks) {
+            if (notebook.id == docDetail.box) {
+                box = notebook;
+                break;
+            }
+        }
+        let temp = {
+            "name": box.name,
+            "id": box.id,
+            "icon": box.icon,
+            "box": box.id,
+            "path": "/",
+            "type": "NOTEBOOK",
+            "subFileCount": 999
+        }
+        resultArray.push(temp);
+        let temp_path = "";
+        for (let i = 1; i < pathArray.length; i++) {
+            let docInfoResult = await getDocInfo(pathArray[i]);
+            docInfoResult["box"] = box.id; 
+            docInfoResult["path"] = `${temp_path}/${pathArray[i]}.sy`;
+            docInfoResult["type"] = "FILE";
+            docInfoResult["name"] = docInfoResult["name"] + ".sy";
+            // let temp = {
+            //     "name": hpathArray[i],
+            //     "id": pathArray[i],
+            //     "icon": "",
+            //     "path": `${temp_path}/${pathArray[i]}.sy`,
+            //     "box": box.id,
+            //     "type": "FILE",
+            // }
+            temp_path += "/" + pathArray[i];
+            resultArray.push(docInfoResult);
+        }
+        return resultArray;
+        function getNotebooks() {
+            let notebooks = window.top.siyuan.notebooks;
+            return notebooks;
+        }
+    }
+    async function generateBreadCrumbElement(pathObjects, docId) {
+        const divideArrow = `<span class="og-fake-breadcrumb-arrow-span" data-type="%4%" data-parent-id="%5%"><svg class="${CONSTANTS.ARROW_CLASS_NAME}"
+            data-type="%4%" data-parent-id="%5%">
+            <use xlink:href="#iconRight"></use></svg></span>`;
+        const oneItem = `<span class="protyle-breadcrumb__item fake-breadcrumb-click" data-node-id="%0%" data-type="%3%" data-node-names="%NAMES%">
+            <span class="protyle-breadcrumb__text" title="%1%">%2%</span>
+        </span>
+        `;
+        let htmlStr = "";
+        for (let i = 0; i < pathObjects.length; i++) {
+            let onePathObject = pathObjects[i];
+            if ((g_setting.showNotebook && i == 0) || i != 0) {
+                htmlStr += docLinkGenerator(pathObjects[i]);
+            }
+            htmlStr += divideArrow
+                .replaceAll("%4%", onePathObject.type)
+                .replaceAll("%5%", pathObjects[i].id);
+        }
+    
+        let result = document.createElement("div");
+        // let barElement = document.createElement("div");
+        // barElement.classList.add("protyle-breadcrumb__bar");
+        // barElement.classList.add("protyle-breadcrumb__bar--nowrap");
+        result.innerHTML = htmlStr;
+        // result.appendChild(barElement);
+        result.classList.add("og-hn-parent-area-replace-with-breadcrumb");
+        // result.classList.add("protyle-breadcrumb");
+        return result;
+    }
+
     function generateInfoLine() {
         let thisDocInfos = null;
         // 检索兄弟文档
@@ -755,6 +849,12 @@ function setAndApply(htmlElem, docId) {
         [].forEach.call(window.document.querySelectorAll(`#og-hn-heading-docs-container span.refLinks`), (elem)=>{
             elem.addEventListener("click", openRefLink);
         });
+        if (g_setting.replaceWithBreadcrumb) {
+            [].forEach.call(window.document.querySelectorAll(`.og-hn-parent-area-replace-with-breadcrumb .og-fake-breadcrumb-arrow-span[data-type="FILE"], .og-fake-breadcrumb-arrow-span[data-type="NOTEBOOK"]`), (elem)=>{
+                elem.removeEventListener("click", openRelativeMenu);
+                elem.addEventListener("click", openRelativeMenu);
+            });
+        }
         debugPush("安卓端写入完成", docId);
         return;
     }
@@ -788,8 +888,13 @@ function setAndApply(htmlElem, docId) {
         attrTarget.insertAdjacentElement("beforebegin",htmlElem);
         [].forEach.call(window.document.querySelectorAll(`#og-hn-heading-docs-container  span.refLinks`), (elem)=>{
             elem.addEventListener("click", openRefLink);
-            elem.style.marginRight = "10px";
         });
+        if (g_setting.replaceWithBreadcrumb) {
+            [].forEach.call(window.document.querySelectorAll(`.og-hn-parent-area-replace-with-breadcrumb .og-fake-breadcrumb-arrow-span[data-type="FILE"], .og-fake-breadcrumb-arrow-span[data-type="NOTEBOOK"]`), (elem)=>{
+                elem.removeEventListener("click", openRelativeMenu);
+                elem.addEventListener("click", openRelativeMenu);
+            });
+        }
         debugPush("重写成功");
     }else{
         debugPush("未找到标签页");
@@ -833,7 +938,6 @@ function setStyle() {
         padding: 4px 6px;
         border-radius: ${(g_setting.fontSize + 2)}px;
         transition: var(--b3-transition);
-        margin-right: 10px;
         margin-bottom: 3px;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -843,6 +947,9 @@ function setStyle() {
         margin: 0 auto; /*居中显示*/
         text-overflow: ellipsis;
         overflow: hidden;
+    }
+    #og-hierachy-navigate-sibling-doc-container  span.refLinks, #og-hierachy-navigate-children-doc-container span.refLinks {
+        margin-right: 10px;
     }
     `;
 
@@ -893,6 +1000,19 @@ function setStyle() {
     .${CONSTANTS.CONTAINER_CLASS_NAME} {
         text-align: left;
     }
+
+    .${CONSTANTS.ARROW_CLASS_NAME} {
+        height: 10px;
+        width: 10px;
+        color: var(--b3-theme-on-surface-light);
+        margin: 0 4px;
+        flex-shrink: 0;
+    }
+
+    .og-hn-parent-area-replace-with-breadcrumb .docLinksWrapper {
+        margin: 0 auto;
+    }
+
     ${g_setting.docLinkCSS == g_setting_default.docLinkCSS && g_setting.docLinkClass == g_setting_default.docLinkClass? defaultLinkStyle:""}
     #${CONSTANTS.PARENT_CONTAINER_ID} {${styleEscape(g_setting.parentBoxCSS)}}
 
@@ -912,6 +1032,56 @@ function styleEscape(str) {
 
 function removeStyle() {
     document.getElementById(CONSTANTS.STYLE_ID)?.remove();
+}
+
+/**
+ * 完全移植自FakeDocBreadcrumb插件，需要同步更改
+ * @param {*} event 
+ * @returns 
+ */
+async function openRelativeMenu(event) {
+    let id = event.currentTarget.getAttribute("data-parent-id");
+    let rect = event.currentTarget.getBoundingClientRect();
+    event.stopPropagation();
+    event.preventDefault();
+    let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = '${id}'`);
+    if (sqlResult.length == 0) {
+        sqlResult = [{
+            path: "/",
+            box: id
+        }];
+    }
+    let siblings = await getChildDocuments(id, sqlResult);
+    if (siblings.length <= 0) return;
+    const tempMenu = new siyuan.Menu("newMenu");
+    for (let i = 0; i < siblings.length; i++) {
+        let currSibling = siblings[i];
+        currSibling.name = currSibling.name.substring(0, currSibling.name.length - 3);
+        let trimedName = currSibling.name.length > g_setting.nameMaxLength ? 
+            currSibling.name.substring(0, g_setting.nameMaxLength) + "..."
+            : currSibling.name;
+        let tempMenuItemObj = {
+            label: `<span class="${CONSTANTS.MENU_ITEM_CLASS_NAME}" 
+                data-doc-id="${currSibling.id}"
+                title="${currSibling.name}">
+                ${trimedName}
+            </span>`,
+            click: (event)=>{
+                let docId = event.querySelector("[data-doc-id]")?.getAttribute("data-doc-id")
+                openRefLink(undefined, docId, {
+                    ctrlKey: event?.ctrlKey,
+                    shiftKey: event?.shiftKey,
+                    altKey: event?.altKey});
+            }
+        }
+        if (currSibling.icon != "" && currSibling.icon.indexOf(".") == -1) {
+            tempMenuItemObj["icon"] = `icon-${currSibling.icon}`;
+        }
+        tempMenu.addItem(tempMenuItemObj);
+    }
+
+    tempMenu.open({x: rect.left, y: rect.bottom, isLeft:false});
+    
 }
 
 /**
@@ -1002,6 +1172,14 @@ async function getTreeStat(id) {
         "id": id
     };
     let url = `/api/block/getTreeStat`;
+    return parseBody(request(url, data));
+}
+
+async function getDocInfo(id) {
+    let data = {
+        "id": id
+    };
+    let url = `/api/block/getDocInfo`;
     return parseBody(request(url, data));
 }
 
@@ -1138,6 +1316,9 @@ function generateSettingPanelHTML(settingObjectArray) {
     for (let oneSettingProperty of settingObjectArray) {
         let inputElemStr = "";
         oneSettingProperty.desp = oneSettingProperty.desp?.replace(new RegExp("<code>", "g"), "<code class='fn__code'>");
+        if (oneSettingProperty.name.includes("🧪")) {
+            oneSettingProperty.desp = language["setting_experimental"] + oneSettingProperty.desp;
+        }
         let temp = `
         <label class="fn__flex b3-label">
             <div class="fn__flex-1">
