@@ -119,7 +119,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
         let bodyElem = window.document.getElementsByTagName("body");
         g_initFailedMsgTimeout = setTimeout(()=>{
             clearInterval(g_initRetryInterval);
-            pushMsg(language["error_initFailed"]);
+            console.error(language["error_initFailed"]);
         }, 90000);
         
         this.loadData("settings.json").then((settingCache)=>{
@@ -325,12 +325,12 @@ function initRetry() {
         setStyle();
         successFlag = true;
     }catch(e) {
-        console.warn("文档导航插件初始化失败（重试中）", e);
+        warnPush("文档导航插件初始化失败（重试中）", e);
     }
     if (successFlag) {
         clearInterval(g_initRetryInterval);
         clearTimeout(g_initFailedMsgTimeout);
-        console.warn("文档导航插件初始化【重试成功】");
+        warnPush("文档导航插件初始化【重试成功】");
     }
 }
 
@@ -877,12 +877,13 @@ function setStyle() {
         margin-right: 8px;
     }
 
-    .og-hn-create-at-indicator, .og-hn-modify-at-indicator, .og-hn-child-word-count-indicator {
+    .og-hn-create-at-indicator, .og-hn-modify-at-indicator, .og-hn-child-word-count-indicator, .og-hn-child-doc-count-wrapper {
         color: var(--b3-theme-on-surface);
     }
 
     .og-hn-create-at-content, .og-hn-modify-at-content, .og-hn-child-word-count-content, .og-hn-child-doc-count-content {
         font-weight: 600;
+        color: var(--b3-theme-on-background);
     }
 
     .og-hierachy-navigate-info-container {
