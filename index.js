@@ -457,7 +457,7 @@ async function main(targets) {
             debugPush(docId);
             // 防止重复执行
             if (!g_setting.timelyUpdate &&
-                window.document.querySelector(`.protyle-title[data-node-id="${docId}"] #og-hn-heading-docs-container`) != null) {
+                window.document.querySelector(`.protyle-title[data-node-id="${docId}"] .og-hn-heading-docs-container`) != null) {
                     return;
             }
             debugPush("main防重复检查已通过");
@@ -579,14 +579,14 @@ async function getChildDocumentsWordCount(childDocs) {
 async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, docSqlResult) {
     const CONTAINER_STYLE = `padding: 0px 6px;`;
     let htmlElem = document.createElement("div");
-    htmlElem.setAttribute("id", "og-hn-heading-docs-container");
+    htmlElem.classList.add("og-hn-heading-docs-container");
     htmlElem.style.fontSize = `${g_setting.fontSize}px`;
     if (g_setting.showDocInfo) {
         htmlElem.appendChild(generateInfoLine());
     }
 
     let parentElem = document.createElement("div");
-    parentElem.setAttribute("id", CONSTANTS.PARENT_CONTAINER_ID);
+    parentElem.classList.add(CONSTANTS.PARENT_CONTAINER_ID);
     parentElem.style.cssText = CONTAINER_STYLE;
     let parentElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
         ${language["parent_nodes"]}
@@ -597,7 +597,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         parentFlag = true;
     }
     let siblingElem = document.createElement("div");
-    siblingElem.setAttribute("id", CONSTANTS.SIBLING_CONTAINER_ID);
+    siblingElem.classList.add(CONSTANTS.SIBLING_CONTAINER_ID);
     siblingElem.style.cssText = CONTAINER_STYLE;
     let siblingElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}" title="${language["number_count"].replace("%NUM%", siblingDoc.length)}">
         ${language["sibling_nodes"]}
@@ -629,7 +629,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         htmlElem.appendChild(parentElem);
     }
     let childElem = document.createElement("div");
-    childElem.setAttribute("id", CONSTANTS.CHILD_CONTAINER_ID);
+    childElem.classList.add(CONSTANTS.CHILD_CONTAINER_ID);
     
     childElem.style.cssText = CONTAINER_STYLE;
     let childElemInnerText = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}" title="${language["number_count"].replace("%NUM%", childDoc.length)}">
@@ -840,13 +840,13 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
 
 function setAndApply(htmlElem, docId) {
     if (g_isMobile) {
-        window.document.querySelector(`.protyle-background ~ #og-hn-heading-docs-container`)?.remove();
-        // if (window.document.querySelector(`.protyle-background[data-node-id="${docId}"] #og-hn-heading-docs-container`) != null) return;
+        window.document.querySelector(`.protyle-background ~ .og-hn-heading-docs-container`)?.remove();
+        // if (window.document.querySelector(`.protyle-background[data-node-id="${docId}"] .og-hn-heading-docs-container`) != null) return;
         htmlElem.style.paddingLeft = "24px";
         htmlElem.style.paddingRight = "16px";
         htmlElem.style.paddingTop = "16px";
         window.document.querySelector(`.protyle-background[data-node-id]`).insertAdjacentElement("afterend", htmlElem);
-        [].forEach.call(window.document.querySelectorAll(`#og-hn-heading-docs-container span.refLinks`), (elem)=>{
+        [].forEach.call(window.document.querySelectorAll(`.og-hn-heading-docs-container span.refLinks`), (elem)=>{
             elem.addEventListener("click", openRefLink);
         });
         if (g_setting.replaceWithBreadcrumb) {
@@ -859,18 +859,18 @@ function setAndApply(htmlElem, docId) {
         return;
     }
     if (!g_setting.timelyUpdate &&
-        window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`) != null) {
+        window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container`) != null) {
         debugPush("已经插入，不再执行");
         return;
     }
-    // if (window.document.querySelector(`.protyle-title[data-node-id="${docId}"] #og-hn-heading-docs-container`) != null) return;
+    // if (window.document.querySelector(`.protyle-title[data-node-id="${docId}"] .og-hn-heading-docs-container`) != null) return;
     let attrTarget = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-attr`);
     if (!attrTarget) {
         debugPush("焦点未聚焦于标签页，尝试对第一个捕获页面添加");
         attrTarget = window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-attr`);
-        if (window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`) != null) {
+        if (window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container`) != null) {
             if (g_setting.timelyUpdate) {
-                window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`).remove();
+                window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container`).remove();
                 debugPush("已经移除");
             }else{
                 debugPush("已经插入，不再执行");
@@ -878,7 +878,7 @@ function setAndApply(htmlElem, docId) {
             }
         }
     }else if (g_setting.timelyUpdate){
-        const test = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) #og-hn-heading-docs-container`);
+        const test = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container`);
         if (test) {
             test.remove();
             debugPush("已经移除");
@@ -886,7 +886,7 @@ function setAndApply(htmlElem, docId) {
     }
     if (attrTarget) {
         attrTarget.insertAdjacentElement("beforebegin",htmlElem);
-        [].forEach.call(window.document.querySelectorAll(`#og-hn-heading-docs-container  span.refLinks`), (elem)=>{
+        [].forEach.call(window.document.querySelectorAll(`.og-hn-heading-docs-container  span.refLinks`), (elem)=>{
             elem.addEventListener("click", openRefLink);
         });
         if (g_setting.replaceWithBreadcrumb) {
@@ -906,11 +906,11 @@ function setStyle() {
     const style = document.createElement('style');
     style.setAttribute("id", CONSTANTS.STYLE_ID);
     let linkWidthRestrict = g_setting.sameWidth == 0 ? "" : `
-    #og-hn-heading-docs-container span.docLinksWrapper {
+    .og-hn-heading-docs-container span.docLinksWrapper {
         width: ${g_setting.sameWidth}em;
     }`;
     let noIndicatorStyle = g_setting.hideIndicator ? `
-    #og-hn-heading-docs-container .og-hierachy-navigate-doc-indicator {
+    .og-hn-heading-docs-container .og-hierachy-navigate-doc-indicator {
         display:none;
     }
     `:"";
@@ -948,13 +948,13 @@ function setStyle() {
         text-overflow: ellipsis;
         overflow: hidden;
     }
-    #og-hierachy-navigate-sibling-doc-container  span.refLinks, #og-hierachy-navigate-children-doc-container span.refLinks {
+    .og-hierachy-navigate-sibling-doc-container  span.refLinks, .og-hierachy-navigate-children-doc-container span.refLinks {
         margin-right: 10px;
     }
     `;
 
     style.innerHTML = `
-    #og-hn-heading-docs-container span.docLinksWrapper:hover {
+    .og-hn-heading-docs-container span.docLinksWrapper:hover {
         cursor: pointer;
         box-shadow: 0 0 2px var(--b3-list-hover);
         opacity: .86;
@@ -962,18 +962,18 @@ function setStyle() {
         /*text-decoration: underline;*/
     }
 
-    #og-hn-heading-docs-container .trimDocName {
+    .og-hn-heading-docs-container .trimDocName {
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
     ${iconAdjustStyle}
 
-   ${linkWidthRestrict}
+    ${linkWidthRestrict}
 
-   ${noIndicatorStyle}
+    ${noIndicatorStyle}
 
-   ${noneDisplayStyle}
+    ${noneDisplayStyle}
 
     .og-hierachy-navigate-doc-container {
         max-height: ${g_setting.maxHeightLimit}em;
@@ -1014,11 +1014,11 @@ function setStyle() {
     }
 
     ${g_setting.docLinkCSS == g_setting_default.docLinkCSS && g_setting.docLinkClass == g_setting_default.docLinkClass? defaultLinkStyle:""}
-    #${CONSTANTS.PARENT_CONTAINER_ID} {${styleEscape(g_setting.parentBoxCSS)}}
+    .${CONSTANTS.PARENT_CONTAINER_ID} {${styleEscape(g_setting.parentBoxCSS)}}
 
-    #${CONSTANTS.CHILD_CONTAINER_ID} {${styleEscape(g_setting.childBoxCSS)}}
+    .${CONSTANTS.CHILD_CONTAINER_ID} {${styleEscape(g_setting.childBoxCSS)}}
 
-    #${CONSTANTS.SIBLING_CONTAINER_ID} {${styleEscape(g_setting.siblingBoxCSS)}}
+    .${CONSTANTS.SIBLING_CONTAINER_ID} {${styleEscape(g_setting.siblingBoxCSS)}}
 
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper {${styleEscape(g_setting.docLinkCSS)}}
     `;
