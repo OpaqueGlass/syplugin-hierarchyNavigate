@@ -633,13 +633,13 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
             siblingElem.innerHTML = siblingElemInnerText;
             htmlElem.appendChild(siblingElem);
         }else{
-            siblingElem.innerHTML = siblingElemInnerText + language["none"];
+            siblingElem.innerHTML = siblingElemInnerText + `<span class="og-hn-doc-none-word">${language["none"]}</span>`;
             siblingElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
             htmlElem.appendChild(siblingElem);
         }
         
     }else if (!g_setting.replaceWithBreadcrumb){
-        parentElem.innerHTML = parentElemInnerText + language["none"];
+        parentElem.innerHTML = parentElemInnerText + `<span class="og-hn-doc-none-word">${language["none"]}</span>`;
         parentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         htmlElem.appendChild(parentElem);
     }else if (g_setting.replaceWithBreadcrumb){
@@ -662,7 +662,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         childElem.innerHTML = childElemInnerText;
         htmlElem.appendChild(childElem);
     }else{
-        childElem.innerHTML = childElemInnerText + language["none"];
+        childElem.innerHTML = childElemInnerText + `<span class="og-hn-doc-none-word">${language["none"]}</span>`;
         childElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         htmlElem.appendChild(childElem);
     }
@@ -825,7 +825,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
             case CONSTANTS.POP_LIMIT:{
                 result = `<span class="refLinks docLinksWrapper ${g_setting.docLinkClass == null ? "":escapeClass(g_setting.docLinkClass)}"
                     data-subtype="d"
-                    style="font-size: ${g_setting.fontSize}px; display: inline-block"
+                    style="font-size: ${g_setting.fontSize}px; "
                     title="${docName}"
                     data-id="${doc.id}">
                         <span class="og-hn-emoji-and-name">
@@ -979,6 +979,26 @@ function setStyle() {
     `;
 
     style.innerHTML = `
+
+    .og-hn-doc-none-word {
+        background-color: #d23f3155;/*var(--b3-protyle-inline-code-background); --b3-protyle-code-background  --b3-theme-surface-light*/
+        width: 2.5em;
+        text-align: center;
+        display: inline-grid !important;
+        color: var(--b3-theme-on-background);
+        line-height: ${g_setting.fontSize + 2}px;
+        font-weight: 400;
+        align-items: center;
+        box-sizing: border-box;
+        padding: 4px 6px;
+        border-radius: ${(g_setting.fontSize + 2)}px;
+        transition: var(--b3-transition);
+        margin-bottom: 3px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
     .og-hn-heading-docs-container span.docLinksWrapper:hover {
         cursor: pointer;
         box-shadow: 0 0 2px var(--b3-list-hover);
