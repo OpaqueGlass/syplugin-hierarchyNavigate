@@ -59,6 +59,7 @@ let g_setting = {
     noneAreaHide: null,
     showDocInfo: null,
     replaceWithBreadcrumb: null, // 父文档部分使用面包屑替代
+    // retryForNewDoc: null, // 出错重试，目前是禁用状态
 };
 let g_setting_default = {
     fontSize: 12,
@@ -83,6 +84,7 @@ let g_setting_default = {
     noneAreaHide: false,
     showDocInfo: false,
     replaceWithBreadcrumb: true,
+    // retryForNewDoc: null,
 };
 /**
  * Plugin类
@@ -447,7 +449,7 @@ function eventBusHandler(detail) {
 async function main(targets) {
     let retryCount = 0;
     let success = false;
-    while (retryCount < 20) {
+    do {
         retryCount ++ ;
         try {
             if (g_mutex > 0) {
@@ -479,7 +481,7 @@ async function main(targets) {
             const [parentDoc, childDoc, siblingDoc] = await getDocumentRelations(docId, sqlResult);
 
             // 获取字符数
-            const [convertedChildCount, totalWords] = await getChildDocumentsWordCount(childDoc);
+            const [convertedChildCount, totalWords] = await getChildDocumentsWordCount(childDoc, docId);
             // console.log(parentDoc, childDoc, siblingDoc);
             // 生成插入文本
             const htmlElem = await generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords, sqlResult[0]);
@@ -498,9 +500,10 @@ async function main(targets) {
         } else {
             break;
         }
-    }
+    }while (retryCount < 20 && g_setting.retryForNewDoc);
+
     if (!success) {
-        throw new Error("已经重试20次，仍然存在错误");
+        throw new Error("已经重试，仍然存在错误");
     }
 
 }
@@ -557,20 +560,31 @@ async function getSiblingDocuments(docId, parentSqlResult, sqlResult, noParentFl
  * @param {*} childDocs 
  * @returns 
  */
-async function getChildDocumentsWordCount(childDocs) {
+async function getChildDocumentsWordCount(childDocs, docId) {
     let totalWords = 0;
-    let docCount = 0;
-    for (let childDoc of childDocs) {
-        let tempWordsResult = await getTreeStat(childDoc.id);
-        totalWords += tempWordsResult.wordCount;
-        childDoc["wordCount"] = tempWordsResult.wordCount;
-        docCount++;
-        if (docCount > 128) {
-            totalWords = `${totalWords}+`;
-            break;
-        }
+    const sqlResult = await sqlAPI(`
+        SELECT SUM(length) AS count
+        FROM blocks
+        WHERE
+            path like "%/${docId}/%"
+        `);
+    if (sqlResult[0].count) {
+        return [childDocs, sqlResult[0].count];
     }
-    return [childDocs, totalWords];
+    return [childDocs, 0];
+    // let totalWords = 0;
+    // let docCount = 0;
+    // for (let childDoc of childDocs) {
+    //     let tempWordsResult = await getTreeStat(childDoc.id);
+    //     totalWords += tempWordsResult.wordCount;
+    //     childDoc["wordCount"] = tempWordsResult.wordCount;
+    //     docCount++;
+    //     if (docCount > 128) {
+    //         totalWords = `${totalWords}+`;
+    //         break;
+    //     }
+    // }
+    // return [childDocs, totalWords];
 }
 
 
