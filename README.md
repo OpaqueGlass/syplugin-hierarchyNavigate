@@ -4,7 +4,7 @@
 
 > Most of this document was translated by Google Translate.
 
-> Current Version：v0.2.3 **Improvement**: Option: "Hide \"N/A\" when there is no document".
+> Current Version：v0.2.4 **New**: Display document information row; **New**: Support using document breadcrumbs as a replacement for the parent document area; **Fixed**: Fixed an issue where the navigation area displayed incorrect information for newly created documents (now, worst case scenario is it won't display, but no longer shows errors).
 
 Add parent and children documents links under the document title.
 
