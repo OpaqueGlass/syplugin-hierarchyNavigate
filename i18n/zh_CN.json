@@ -51,7 +51,7 @@
     "setting_noneAreaHide_name": "不存在文档时隐藏",
     "setting_noneAreaHide_desp": "在无对应文档时，隐藏该区域，不显示“无”。不建议和“隐藏导航区提示词”同时启用。",
     "setting_showDocInfo_name": "🆕显示文档信息",
-    "setting_showDocInfo_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（含Markdown标记符）；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数。",
+    "setting_showDocInfo_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值）；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数。",
     "setting_replaceWithBreadcrumb_name": "🧪🆕使用文档面包屑替代父文档部分",
     "setting_replaceWithBreadcrumb_desp": "",
     

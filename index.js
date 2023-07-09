@@ -568,7 +568,7 @@ async function getChildDocumentsWordCount(childDocs, docId) {
         WHERE
             path like "%/${docId}/%"
             AND 
-            type = "p"
+            type in ("p", "h", "c")
         `);
     if (sqlResult[0].count) {
         return [childDocs, sqlResult[0].count];
