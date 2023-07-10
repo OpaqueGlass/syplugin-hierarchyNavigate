@@ -788,10 +788,12 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         <span class="og-hn-child-doc-count-wrapper">
         ${language["child_count"].replace("%NUM%", `<span class="og-hn-child-doc-count-content">${childDoc.length}</span>`)} 
         </span>
-        <span class="og-hn-child-word-count-wrapper">
+        ${childDoc.length == 0 ? "" : 
+        `<span class="og-hn-child-word-count-wrapper">
             <span class="og-hn-child-word-count-indicator">${language["child_word_count"]}</span> 
             <span class="og-hn-child-word-count-content">${totalWords}</span>
-        </span>
+        </span>`}
+        
         <span class="og-hn-notebook-wrapper">
             ${box.name}
         </span>
