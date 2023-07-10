@@ -51,7 +51,7 @@
   "setting_noneAreaHide_name": "Hide \"N/A\" when there is no document",
   "setting_noneAreaHide_desp": "When there is no corresponding document, hide the section and do not display \"N/A\". It is not recommended to enable it at the same time as \"Hide hint words\".",
   "setting_showDocInfo_name": "🆕Show the information of current document",
-  "setting_showDocInfo_desp": "Document information includes: creation time, modification time, number of child-documents, total character count of subdocuments (estimated value). After disabling, you can still hover mouse over the hint words to find out the number of documents. ",
+  "setting_showDocInfo_desp": "Document information includes: creation time, modification time, number of child-documents, total character count of subdocuments (estimated value, including OCR results, space, characters in the coding block). After disabling, you can still hover mouse over the hint words to find out the number of documents. ",
   "setting_replaceWithBreadcrumb_name": "🧪🆕Using document breadcrumbs to replace the parent document section",
   "setting_replaceWithBreadcrumb_desp": "",
   

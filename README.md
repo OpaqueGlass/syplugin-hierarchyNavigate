@@ -4,7 +4,7 @@
 
 > Most of this document was translated by Google Translate.
 
-> Current Version：v0.2.4 **New**: Display document information row; **New**: Support using document breadcrumbs as a replacement for the parent document area; **Fixed**: Fixed an issue where the navigation area displayed incorrect information for newly created documents (now, worst case scenario is it won't display, but no longer shows errors).
+> Current Version：v0.2.5 **Fix**: Problem of misalignment between the "Parent", "Child" prompts and links; **Fix**: Problem of incorrect calculation of total character count in the child-docs; **Improvement**: Style of "N/A" when there are no documents.
 
 Add parent and children documents links under the document title.
 
