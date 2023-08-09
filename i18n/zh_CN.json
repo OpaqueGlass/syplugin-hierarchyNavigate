@@ -54,6 +54,8 @@
     "setting_showDocInfo_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数。",
     "setting_replaceWithBreadcrumb_name": "🧪🆕使用文档面包屑替代父文档部分",
     "setting_replaceWithBreadcrumb_desp": "",
+    "setting_listChildDocs_name": "🧪🆕对于空白的文档，使用listChildDocs挂件替代子文档部分",
+    "setting_listChildDocs_desp": "",
     
     "setting_experimental": "（⚠实验性功能，不稳定，可能随时被移除）",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题",

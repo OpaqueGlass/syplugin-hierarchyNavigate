@@ -60,6 +60,7 @@ let g_setting = {
     showDocInfo: null,
     replaceWithBreadcrumb: null, // 父文档部分使用面包屑替代
     // retryForNewDoc: null, // 出错重试，目前是禁用状态
+    listChildDocs: null, // 对于空白文档，使用列出子文档挂件替代
 };
 let g_setting_default = {
     fontSize: 12,
@@ -85,6 +86,7 @@ let g_setting_default = {
     showDocInfo: false,
     replaceWithBreadcrumb: true,
     // retryForNewDoc: null,
+    listChildDocs: false, // 对于空白文档，使用列出子文档挂件替代
 };
 /**
  * Plugin类
@@ -229,6 +231,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             // new SettingProperty("timelyUpdate", "SWITCH", null),
             new SettingProperty("immediatelyUpdate", "SWITCH", null),
             new SettingProperty("replaceWithBreadcrumb", "SWITCH", null),
+            new SettingProperty("listChildDocs", "SWITCH", null),
             // CSS样式组
             new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
@@ -449,6 +452,7 @@ function eventBusHandler(detail) {
 async function main(targets) {
     let retryCount = 0;
     let success = false;
+    let errorTemp;
     do {
         retryCount ++ ;
         try {
@@ -459,6 +463,10 @@ async function main(targets) {
             // 获取当前文档id
             const docId = await getCurrentDocIdF();
             debugPush(docId);
+            if (!isValidStr(docId)) {
+                warnPush("没有获取到文档id，已终止");
+                return;
+            }
             // 防止重复执行
             if (!g_setting.timelyUpdate &&
                 window.document.querySelector(`.protyle-title[data-node-id="${docId}"] .og-hn-heading-docs-container`) != null) {
@@ -469,6 +477,7 @@ async function main(targets) {
                 console.warn("未能读取到打开文档的id");
                 return ;
             }
+            // 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
             let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
             debugPush(sqlResult);
             if (sqlResult && sqlResult.length >= 1 && (sqlResult[0].ial.includes("og-hn-ignore") || sqlResult[0].ial.includes("og文档导航忽略"))) {
@@ -476,21 +485,37 @@ async function main(targets) {
                 return;
             }
 
-            // TODO: 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
             // 获取文档相关信息
             const [parentDoc, childDoc, siblingDoc] = await getDocumentRelations(docId, sqlResult);
 
             // 获取字符数
             const [convertedChildCount, totalWords] = await getChildDocumentsWordCount(childDoc, docId);
             // console.log(parentDoc, childDoc, siblingDoc);
+            let widgetMode = false;
+            // TODO: 检查用户设置 检查文档是否为空
+            if (g_setting.listChildDocs && await isDocEmpty(docId)) {
+                widgetMode = true;
+            }
+            // TODO: 
+
+            // TODO: 插入挂件
+
+            // TODO: 需要注意：对于已经存在了挂件的，不应当更新挂件，应当只更新父文档部分【对应修改删除逻辑】另外，优化挂件删除的相关内容，挂件删除之后需要清除设置
+
+            // TODO: 最好直接generateText不生成子文档的部分，减少耗时
             // 生成插入文本
-            const htmlElem = await generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords, sqlResult[0]);
+            const htmlElem = await generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords, sqlResult[0], widgetMode);
             // console.log("FIN",htmlElem);
+            
             // 应用插入
             setAndApply(htmlElem, docId);
+            if (widgetMode) {
+                applyWidget();
+            }
             success = true;
         }catch(err){
             warnPush(err);
+            errorTemp = err;
         }finally{
             g_mutex--;
         }
@@ -503,7 +528,7 @@ async function main(targets) {
     }while (retryCount < 20 && g_setting.retryForNewDoc);
 
     if (!success) {
-        throw new Error("已经重试，仍然存在错误");
+        throw errorTemp;
     }
 
 }
@@ -594,7 +619,7 @@ async function getChildDocumentsWordCount(childDocs, docId) {
 /**
  * 生成插入文本
  */
-async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, docSqlResult) {
+async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, docSqlResult, widgetMode) {
     const CONTAINER_STYLE = `padding: 0px 6px;`;
     let htmlElem = document.createElement("div");
     htmlElem.classList.add("og-hn-heading-docs-container");
@@ -645,6 +670,12 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     }else if (g_setting.replaceWithBreadcrumb){
         parentElem.appendChild(await generateBreadCrumb());
         htmlElem.appendChild(parentElem);
+    }
+    // 如果插入挂件，则不处理子文档部分
+    if (widgetMode) {
+        parentElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        siblingElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        return htmlElem;
     }
     let childElem = document.createElement("div");
     childElem.classList.add(CONSTANTS.CHILD_CONTAINER_ID);
@@ -865,6 +896,47 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     }
 }
 
+function applyWidget() {
+    const htmleText = `
+    <div class="og-hn-widget-container ${g_isMobile ? "og-hn-mobile": ""}">
+    <iframe src="/plugins/syplugin-hierarchyNavigate/listChildDocs-dev" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${window.screen.availWidth - 75}px;"></iframe>
+    </div>
+    `;
+    if (g_isMobile) {
+        // 移动端需要重写
+        window.document.querySelector(`.protyle-background ~ .og-hn-widget-container`)?.remove();
+        window.document.querySelector(`.og-hn-heading-docs-container`).insertAdjacentHTML("afterend", htmleText);
+        return;
+    }
+    if (window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-widget-container`) != null) {
+        debugPush("挂件：已经插入，不再执行");
+        return;
+    }
+
+    let attrTarget = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-attr`);
+    if (!attrTarget) {
+        debugPush("焦点未聚焦于标签页，尝试对第一个捕获页面添加");
+        attrTarget = window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-attr`);
+        if (window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .og-hn-widget-container`) != null) {
+           debugPush("挂件已存在");
+            return;
+        }
+    }else if (g_setting.timelyUpdate){
+        const test = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-widget-container`);
+        if (test) {
+            debugPush("挂件已存在");
+            return;
+        }
+    }
+    if (attrTarget) {
+        attrTarget.insertAdjacentHTML("beforebegin", htmleText);
+        debugPush("插入挂件成功");
+    }else{
+        debugPush("未找到标签页");
+    }
+    
+}
+
 function setAndApply(htmlElem, docId) {
     if (g_isMobile) {
         window.document.querySelector(`.protyle-background ~ .og-hn-heading-docs-container`)?.remove();
@@ -891,10 +963,10 @@ function setAndApply(htmlElem, docId) {
         return;
     }
     // if (window.document.querySelector(`.protyle-title[data-node-id="${docId}"] .og-hn-heading-docs-container`) != null) return;
-    let attrTarget = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-attr`);
-    if (!attrTarget) {
+    let titleTarget = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-title__input`);
+    if (!titleTarget) {
         debugPush("焦点未聚焦于标签页，尝试对第一个捕获页面添加");
-        attrTarget = window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-attr`);
+        titleTarget = window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-title__input`);
         if (window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container`) != null) {
             if (g_setting.timelyUpdate) {
                 window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container`).remove();
@@ -911,8 +983,9 @@ function setAndApply(htmlElem, docId) {
             debugPush("已经移除");
         }
     }
-    if (attrTarget) {
-        attrTarget.insertAdjacentElement("beforebegin",htmlElem);
+    if (titleTarget) {
+        debugPush("重写的htmlElem", htmlElem)
+        titleTarget.insertAdjacentElement("afterend",htmlElem);
         [].forEach.call(window.document.querySelectorAll(`.og-hn-heading-docs-container  span.refLinks`), (elem)=>{
             elem.addEventListener("click", openRefLink);
         });
@@ -1063,6 +1136,16 @@ function setStyle() {
     .og-hn-parent-area-replace-with-breadcrumb .docLinksWrapper {
         margin: 0 auto;
     }
+
+    .og-hn-widget-container {
+        padding: 0px 6px;
+    }
+
+    .og-hn-widget-container.og-hn-mobile {
+        padding-top: 16px;
+        padding-left: 24px;
+        padding-right: 16px;
+    } 
 
     ${g_setting.docLinkCSS == g_setting_default.docLinkCSS && g_setting.docLinkClass == g_setting_default.docLinkClass? defaultLinkStyle:""}
     .${CONSTANTS.PARENT_CONTAINER_ID} {${styleEscape(g_setting.parentBoxCSS)}}
@@ -1237,6 +1320,62 @@ async function getDocInfo(id) {
     };
     let url = `/api/block/getDocInfo`;
     return parseBody(request(url, data));
+}
+
+async function getKramdown(blockid){
+    let data = {
+        "id": blockid
+    };
+    let url = "/api/block/getBlockKramdown";
+    let response = await parseBody(request(url, data));
+    if (response) {
+        return response.kramdown;
+    }
+}
+
+async function isDocEmpty(docId) {
+    // 检查父文档是否为空
+    let treeStat = await getTreeStat(docId);
+    if (treeStat.wordCount != 0 && treeStat.imageCount != 0) {
+        debugPush("treeStat判定文档非空，不插入挂件");
+        return false;
+    }
+    let sqlResult = await sqlAPI(`SELECT markdown FROM blocks WHERE 
+        root_id like '${docId}' 
+        AND type != 'd' 
+        AND (type != 'p' 
+           OR (type = 'p' AND length != 0)
+           )
+        LIMIT 5`);
+    if (sqlResult.length <= 0) {
+        return true;
+    } else {
+        debugPush("sql判定文档非空，不插入挂件");
+        return false;
+    }
+    // 获取父文档内容
+    let parentDocContent = await getKramdown(docId);
+    // 简化判断，过长的父文档内容必定有文本，不插入 // 作为参考，空文档的kramdown长度约为400
+    if (parentDocContent.length > 1000) {
+        debugPush("父文档较长，认为非空，不插入挂件", parentDocContent.length);
+        return;
+    }
+    // console.log(parentDocContent);
+    // 清理ial和换行、空格
+    let parentDocPlainText = parentDocContent;
+    // 清理ial中的对象信息（例：文档块中的scrool字段），防止后面匹配ial出现遗漏
+    parentDocPlainText = parentDocPlainText.replace(new RegExp('\\"{[^\n]*}\\"', "gm"), "\"\"")
+    // console.log("替换内部对象中间结果", parentDocPlainText);
+    // 清理ial
+    parentDocPlainText = parentDocPlainText.replace(new RegExp('{:[^}]*}', "gm"), "");
+    // 清理换行
+    parentDocPlainText = parentDocPlainText.replace(new RegExp('\n', "gm"), "");
+    // 清理空格
+    parentDocPlainText = parentDocPlainText.replace(new RegExp(' +', "gm"), "");
+    debugPush(`父文档文本（+标记）为 ${parentDocPlainText}`);
+    debugPush(`父文档内容为空？${parentDocPlainText == ""}`);
+    if (parentDocPlainText != "") return false;
+    return true;
 }
 
 async function getCurrentDocIdF() {

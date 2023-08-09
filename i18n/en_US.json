@@ -54,6 +54,8 @@
   "setting_showDocInfo_desp": "Document information includes: creation time, modification time, number of child-documents, total character count of subdocuments (estimated value, including OCR results, space, characters in the coding block). After disabling, you can still hover mouse over the hint words to find out the number of documents. ",
   "setting_replaceWithBreadcrumb_name": "🧪🆕Using document breadcrumbs to replace the parent document section",
   "setting_replaceWithBreadcrumb_desp": "",
+  "setting_listChildDocs_name": "🧪🆕For empty doc, user listChildDocs widget to replace the child document section",
+  "setting_listChildDocs_desp": "Sorry that this widget do not support English",
   
   "setting_experimental": "(Experimental Feature. UNSTABLE. May be removed at any time) ",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience",
