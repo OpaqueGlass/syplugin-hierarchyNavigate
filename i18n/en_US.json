@@ -55,7 +55,7 @@
   "setting_replaceWithBreadcrumb_name": "🧪🆕Using document breadcrumbs to replace the parent document section",
   "setting_replaceWithBreadcrumb_desp": "",
   "setting_listChildDocs_name": "🧪🆕For empty doc, user listChildDocs widget to replace the child document section",
-  "setting_listChildDocs_desp": "Sorry that this widget do not support English",
+  "setting_listChildDocs_desp": "Sorry that this widget is not fully support English yet. It's recommended that enable 'Auto Height' in the 'Global Settings' of the 'listChildDocs'",
   
   "setting_experimental": "(Experimental Feature. UNSTABLE. May be removed at any time) ",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience",

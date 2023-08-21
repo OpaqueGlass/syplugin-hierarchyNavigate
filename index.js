@@ -492,17 +492,10 @@ async function main(targets) {
             const [convertedChildCount, totalWords] = await getChildDocumentsWordCount(childDoc, docId);
             // console.log(parentDoc, childDoc, siblingDoc);
             let widgetMode = false;
-            // TODO: 检查用户设置 检查文档是否为空
+            // 检查用户设置 检查文档是否为空
             if (g_setting.listChildDocs && await isDocEmpty(docId)) {
                 widgetMode = true;
             }
-            // TODO: 
-
-            // TODO: 插入挂件
-
-            // TODO: 需要注意：对于已经存在了挂件的，不应当更新挂件，应当只更新父文档部分【对应修改删除逻辑】另外，优化挂件删除的相关内容，挂件删除之后需要清除设置
-
-            // TODO: 最好直接generateText不生成子文档的部分，减少耗时
             // 生成插入文本
             const htmlElem = await generateText(parentDoc, convertedChildCount, siblingDoc, docId, totalWords, sqlResult[0], widgetMode);
             // console.log("FIN",htmlElem);
@@ -510,7 +503,26 @@ async function main(targets) {
             // 应用插入
             setAndApply(htmlElem, docId);
             if (widgetMode) {
-                applyWidget();
+                // 计算
+                let subCountResult = await sqlAPI(`SELECT count(*) as count FROM blocks WHERE path like "%${docId}/%" and type = 'd'`);
+                debugPush("子块计数", subCountResult);
+                if (subCountResult && subCountResult[0].count > 0) {
+                    applyWidget(docId);
+                }
+            } else if (g_isMobile) {
+                // 移动端切换到其他文档后，如果不更新挂件，则需要移除已有的挂件
+                window.document.querySelector(`.protyle-background ~ .og-hn-widget-container`)?.remove();
+            } else {
+                // 电脑端移除widget
+                const titleTarget = window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .protyle-title .og-hn-widget-container`);
+                if (titleTarget) {
+                    titleTarget.remove();
+                } else {
+                    const test = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-widget-container`);
+                    if (test) {
+                        test.remove();
+                    }
+                }
             }
             success = true;
         }catch(err){
@@ -896,10 +908,10 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     }
 }
 
-function applyWidget() {
+function applyWidget(docId) {
     const htmleText = `
     <div class="og-hn-widget-container ${g_isMobile ? "og-hn-mobile": ""}">
-    <iframe src="/plugins/syplugin-hierarchyNavigate/listChildDocs-dev" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${window.screen.availWidth - 75}px;"></iframe>
+    <iframe src="/widgets/listChildDocs-dev" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${window.screen.availWidth - 75}px;"></iframe>
     </div>
     `;
     if (g_isMobile) {
@@ -929,6 +941,10 @@ function applyWidget() {
         }
     }
     if (attrTarget) {
+        if (attrTarget.parentElement.dataset.nodeId != docId) {
+            debugPush("挂件插入已定位标签页，但不匹配，停止", attrTarget, attrTarget.parentElement.dataset.nodeId, docId);
+            return;
+        }
         attrTarget.insertAdjacentHTML("beforebegin", htmleText);
         debugPush("插入挂件成功");
     }else{
@@ -967,6 +983,10 @@ function setAndApply(htmlElem, docId) {
     if (!titleTarget) {
         debugPush("焦点未聚焦于标签页，尝试对第一个捕获页面添加");
         titleTarget = window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .protyle-title .protyle-title__input`);
+        if (titleTarget.parentElement.dataset.nodeId != docId) {
+            debugPush("已定位标签页，但不匹配", titleTarget.parentElement.dataset.nodeId, docId);
+            return;
+        }
         if (window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container`) != null) {
             if (g_setting.timelyUpdate) {
                 window.document.querySelector(`.protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container`).remove();
@@ -984,6 +1004,11 @@ function setAndApply(htmlElem, docId) {
         }
     }
     if (titleTarget) {
+        // 判断目标是否一致
+        if (titleTarget.parentElement.dataset.nodeId != docId) {
+            debugPush("已定位标签页，但不匹配", titleTarget.parentElement.dataset.nodeId, docId);
+            return;
+        }
         debugPush("重写的htmlElem", htmlElem)
         titleTarget.insertAdjacentElement("afterend",htmlElem);
         [].forEach.call(window.document.querySelectorAll(`.og-hn-heading-docs-container  span.refLinks`), (elem)=>{
