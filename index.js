@@ -31,13 +31,13 @@ const CONSTANTS = {
 let g_observerRetryInterval;
 let g_observerStartupRefreshTimeout;
 let g_initRetryInterval;
-let g_initFailedMsgTimeout;
 let g_TIMER_LABLE_NAME_COMPARE = "文档导航插件";
 let g_tabbarElement = undefined;
 let g_saveTimeout;
 let g_writeStorage;
 let g_isMobile = false;
 let g_mutex = 0;
+let g_initFlag = false;
 let g_setting = {
     fontSize: null,
     parentBoxCSS: null,
@@ -97,15 +97,15 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
 
     onload() {
         // 设置语言
-        try {
-            g_tabbarElement = window.siyuan.layout.centerLayout.element.querySelectorAll("[data-type='wnd'] ul.layout-tab-bar");
-        }catch(err) {
-            console.warn(`hn启动测试未通过`);
-            g_tabbarElement = undefined;
-        }
-        if (g_tabbarElement == undefined) {
-            g_isMobile = true;
-        }
+        // try {
+        //     g_tabbarElement = window.siyuan.layout.centerLayout.element.querySelectorAll("[data-type='wnd'] ul.layout-tab-bar");
+        // }catch(err) {
+        //     logPush(`hn启动测试未通过`);
+        //     g_tabbarElement = undefined;
+        // }
+        // if (g_tabbarElement == undefined) {
+        //     g_isMobile = true;
+        // }
         g_isMobile = isMobile();
         // 语言切换
         // let siyuanLanguage;
@@ -124,10 +124,6 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
         // TODO: 读取配置API变更
         Object.assign(g_setting, g_setting_default);
         let bodyElem = window.document.getElementsByTagName("body");
-        g_initFailedMsgTimeout = setTimeout(()=>{
-            clearInterval(g_initRetryInterval);
-            console.error(language["error_initFailed"]);
-        }, 90000);
         
         this.loadData("settings.json").then((settingCache)=>{
             // 解析并载入配置
@@ -146,21 +142,37 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             //     setStyle();
             // }catch(e) {
             //     console.error("文档导航插件首次初始化失败", e);
-                g_initRetryInterval = setInterval(initRetry, 2500);
+                // g_initRetryInterval = setInterval(initRetry, 2500);
+                // if (window.siyuan.layout.centerLayout) {
+                //     initRetry();
+                // }
             // }
         }, (e)=> {
-            console.log("配置文件读入失败", e);
+            debugPush("配置文件读入失败", e);
         });
 
         g_writeStorage = this.saveData;
         
         console.log('HierarchyNavigatorPluginInited');
     }
+    onLayoutReady() {
+        // 貌似只会在启动时调用一次
+        debugPush("LayoutReady");
+        if (!g_initFlag) {
+            if (!initRetry()) {
+                errorPush("初始化失败");
+            }
+        }
+    }
 
     onunload() {
         this.el && this.el.remove();
         removeObserver();
         removeStyle();
+        // 善后：关闭插件后移除已经插入的层级导航容器
+        [].forEach.call(document.querySelectorAll(".og-hn-widget-container, .og-hn-heading-docs-container"), (elem)=>{
+            elem.remove();
+        });
     }
     // TODO: 重写载入设置
     openSetting() {
@@ -260,41 +272,50 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
 
 
 // debug push
-let g_DEBUG = 0; // 2 写入前台 1 只控制台
-let g_DEBUG_ELEM = null;
-function isDebugMode() {
-    if (g_DEBUG == 0 && (window["OpaqueGlassDebug"] != true)) return false;
-    return true;
+let g_DEBUG = 2;
+const g_NAME = "hn";
+const g_FULLNAME = "层级导航";
+
+/*
+LEVEL 0 忽略所有
+LEVEL 1 仅Error
+LEVEL 2 Err + Warn
+LEVEL 3 Err + Warn + Info
+LEVEL 4 Err + Warn + Info + Log
+LEVEL 5 Err + Warn + Info + Log + Debug
+*/
+function commonPushCheck() {
+    if (window.top["OpaqueGlassDebugV2"] == undefined || window.top["OpaqueGlassDebugV2"][g_NAME] == undefined) {
+        return g_DEBUG;
+    }
+    return window.top["OpaqueGlassDebugV2"][g_NAME];
 }
 
-function commonPush(str, ...args) {
-    if (!isDebugMode()) return;
-    let parsedArgsStr = "";
-    for (let arg of args) {
-        parsedArgsStr += arg;
-    }
-    if (g_DEBUG_ELEM && g_DEBUG > 1) {   
-        g_DEBUG_ELEM.innerText = parsedArgsStr;
-        return false;
-    }
-    return true;
+function isDebugMode() {
+    return commonPushCheck() > g_DEBUG;
 }
 
 function debugPush(str, ...args) {
-    if (commonPush(str, ...args)) {
-        console.log("oghn "+str, ...args);
+    if (commonPushCheck() >= 5) {
+        console.debug(`${g_FULLNAME}[D] ${new Date().toLocaleString()} ${str}`, ...args);
+    }
+}
+
+function logPush(str, ...args) {
+    if (commonPushCheck() >= 4) {
+        console.log(`${g_FULLNAME}[L] ${new Date().toLocaleString()} ${str}`, ...args);
     }
 }
 
 function errorPush(str, ... args) {
-    if (commonPush(str, ...args)) {
-        console.error("oghn "+str, ...args);
+    if (commonPushCheck() >= 1) {
+        console.error(`${g_FULLNAME}[E] ${new Date().toLocaleString()} ${str}`, ...args);
     }
 }
 
 function warnPush(str, ... args) {
-    if (commonPush(str, ...args)) {
-        console.warn("oghn "+str, ...args);
+    if (commonPushCheck() >= 2) {
+        console.warn(`${g_FULLNAME}[W] ${new Date().toLocaleString()} ${str}`, ...args);
     }
 }
 
@@ -336,13 +357,15 @@ function initRetry() {
         setStyle();
         successFlag = true;
     }catch(e) {
-        warnPush("文档导航插件初始化失败（重试中）", e);
+        warnPush("文档导航插件初始化失败", e);
     }
     if (successFlag) {
         clearInterval(g_initRetryInterval);
-        clearTimeout(g_initFailedMsgTimeout);
-        warnPush("文档导航插件初始化【重试成功】");
+        logPush("文档导航插件初始化");
+        g_initFlag = true;
+        return true;
     }
+    return false;
 }
 
 
@@ -357,6 +380,7 @@ function setObserver() {
                 setTimeout(async () => {
                     if (isDebugMode()) console.time(g_TIMER_LABLE_NAME_COMPARE);
                     try{
+                        debugPush("移动端切换文档触发");
                         // TODO: 改为动态获取id
                         await main([mutation.target]);
                     }catch(err) {
@@ -368,7 +392,12 @@ function setObserver() {
         });
         g_switchTabObserver.observe(window.document.querySelector(".protyle-background[data-node-id]"), {"attributes": true, "attributeFilter": ["data-node-id"]});
         debugPush("MOBILE_LOADED");
-        main();
+        try {
+            debugPush("移动端立即执行触发");
+            main();
+        } catch(err) {
+            debugPush("移动端立即main执行", err);
+        }
         return;
     }
     g_switchTabObserver = new MutationObserver(async (mutationList) => {
@@ -377,6 +406,7 @@ function setObserver() {
             setTimeout(async () => {
                 if (isDebugMode()) console.time(g_TIMER_LABLE_NAME_COMPARE);
                 try{
+                    debugPush("由页签切换事件触发");
                     // TODO: 改为动态获取id
                     await main([mutation.target]);
                 }catch(err) {
@@ -400,6 +430,7 @@ function setObserver() {
         }
         
     });
+    clearInterval(g_observerRetryInterval);
     g_observerRetryInterval = setInterval(observerRetry, CONSTANTS.OBSERVER_RETRY_INTERVAL);
     g_windowObserver.observe(window.siyuan.layout.centerLayout.element, {childList: true});
 }
@@ -407,17 +438,19 @@ function setObserver() {
  * 重试页签监听
  */
 function observerRetry() {
-    g_tabbarElement = window.siyuan.layout.centerLayout.element.querySelectorAll("[data-type='wnd'] ul.layout-tab-bar");
+    g_tabbarElement = window.siyuan.layout.centerLayout.element.querySelectorAll("[data-type='wnd'] ul.layout-tab-bar.fn__flex");
     if (g_tabbarElement.length > 0) {
-        // console.log("重新监视页签变化");
+        g_switchTabObserver.disconnect();
+        // debugPush("重新监视页签变化g_tabbarElem", g_tabbarElement);
         g_tabbarElement.forEach((element)=>{
             g_switchTabObserver.observe(element, {"attributes": true, "attributeFilter": ["data-activetime"], "subtree": true});
-            
+            clearInterval(g_observerRetryInterval);
             // 重启监听后立刻执行检查
             if (element.children.length > 0) {
                 g_observerStartupRefreshTimeout = setTimeout(async () => {
                     // console.time(g_TIMER_LABLE_NAME_COMPARE);
                     try{
+                        debugPush("由重设页签监听后刷新触发");
                         // TODO
                         await main(element.children);
                     }catch (err) {
@@ -427,7 +460,6 @@ function observerRetry() {
                 }, Math.round(Math.random() * CONSTANTS.OBSERVER_RANDOM_DELAY) + CONSTANTS.OBSERVER_RANDOM_DELAY_ADD);
             }
         });
-        clearInterval(g_observerRetryInterval);
     }
 }
 
@@ -453,6 +485,7 @@ async function main(targets) {
     let retryCount = 0;
     let success = false;
     let errorTemp;
+    debugPush("MAIN函数执行");
     do {
         retryCount ++ ;
         try {
@@ -537,7 +570,8 @@ async function main(targets) {
         } else {
             break;
         }
-    }while (retryCount < 20 && g_setting.retryForNewDoc);
+        // retryCount < 1 && g_setting.retryForNewDoc
+    }while (false);
 
     if (!success) {
         throw errorTemp;
