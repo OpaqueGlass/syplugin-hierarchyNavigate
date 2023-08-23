@@ -96,35 +96,17 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
     tabOpenObserver =  null;
 
     onload() {
-        // 设置语言
-        // try {
-        //     g_tabbarElement = window.siyuan.layout.centerLayout.element.querySelectorAll("[data-type='wnd'] ul.layout-tab-bar");
-        // }catch(err) {
-        //     logPush(`hn启动测试未通过`);
-        //     g_tabbarElement = undefined;
-        // }
-        // if (g_tabbarElement == undefined) {
-        //     g_isMobile = true;
-        // }
         g_isMobile = isMobile();
-        // 语言切换
-        // let siyuanLanguage;
-        // try{
-        //     siyuanLanguage = window.top.siyuan.config.lang;
-        // }catch (err){
-        //     console.warn("读取语言信息失败");
-        // }
-        // if (siyuanLanguage != "zh_CN" && siyuanLanguage != undefined) {
-        //     language = en_US;
-        // }else {
-        //     language = zh_CN;
-        // }
         language = this.i18n;
         // 读取配置
         // TODO: 读取配置API变更
         Object.assign(g_setting, g_setting_default);
-        let bodyElem = window.document.getElementsByTagName("body");
+
+        g_writeStorage = this.saveData;
         
+        logPush('HierarchyNavigatorPluginInited');
+    }
+    onLayoutReady() {
         this.loadData("settings.json").then((settingCache)=>{
             // 解析并载入配置
             try {
@@ -134,8 +116,6 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             }catch(e){
                 console.warn("HN载入配置时发生错误",e);
             }
-            // console.log("LOADED",settingData);
-            // console.log("LOADED_R", g_setting);
             // 开始运行
             // try {
             //     setObserver();
@@ -147,22 +127,12 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
                 //     initRetry();
                 // }
             // }
-        }, (e)=> {
-            debugPush("配置文件读入失败", e);
-        });
-
-        g_writeStorage = this.saveData;
-        
-        console.log('HierarchyNavigatorPluginInited');
-    }
-    onLayoutReady() {
-        // 貌似只会在启动时调用一次
-        debugPush("LayoutReady");
-        if (!g_initFlag) {
             if (!initRetry()) {
                 errorPush("初始化失败");
             }
-        }
+        }, (e)=> {
+            debugPush("配置文件读入失败", e);
+        });
     }
 
     onunload() {
