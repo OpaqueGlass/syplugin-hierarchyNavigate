@@ -1167,6 +1167,11 @@ function setStyle() {
     }
 
     .og-hn-widget-container {
+        border-bottom: solid 1px var(--b3-border-color);
+
+    }
+
+    .og-hn-widget-container {
         padding: 0px 6px;
     }
 

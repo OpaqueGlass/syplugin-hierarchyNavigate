@@ -55,7 +55,7 @@
     "setting_replaceWithBreadcrumb_name": "🧪🆕使用文档面包屑替代父文档部分",
     "setting_replaceWithBreadcrumb_desp": "",
     "setting_listChildDocs_name": "🧪🆕对于空白的文档，使用listChildDocs挂件替代子文档部分",
-    "setting_listChildDocs_desp": "可考虑将listChildDocs全局设置-自动高度打开。插件、挂件的listChildDocs全局设置是隔离的、互不影响。",
+    "setting_listChildDocs_desp": "挂件需要另外下载。建议将listChildDocs全局设置-自动高度打开。插件、挂件的listChildDocs全局设置是隔离的、互不影响。",
     
     "setting_experimental": "（⚠实验性功能，不稳定，可能随时被移除）",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题",
