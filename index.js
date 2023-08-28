@@ -24,6 +24,7 @@ const CONSTANTS = {
     SIBLING_CONTAINER_ID: "og-hierachy-navigate-sibling-doc-container",
     INDICATOR_CLASS_NAME: "og-hierachy-navigate-doc-indicator",
     NONE_CLASS_NAME: "og-hierachy-navigate-doc-not-exist",
+    NEXT_CONTAINER_CLASS_NAME: "og-hierachy-navigate-next-doc-container",
     POP_NONE: 0,
     POP_LIMIT: 1,
     POP_ALL: 2,
@@ -61,6 +62,7 @@ let g_setting = {
     replaceWithBreadcrumb: null, // 父文档部分使用面包屑替代
     // retryForNewDoc: null, // 出错重试，目前是禁用状态
     listChildDocs: null, // 对于空白文档，使用列出子文档挂件替代
+    previousAndNext: null, // 上一篇、下一篇
 };
 let g_setting_default = {
     fontSize: 12,
@@ -87,6 +89,7 @@ let g_setting_default = {
     replaceWithBreadcrumb: true,
     // retryForNewDoc: null,
     listChildDocs: false, // 对于空白文档，使用列出子文档挂件替代
+    previousAndNext: false, // 上一篇、下一篇
 };
 /**
  * Plugin类
@@ -214,6 +217,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("immediatelyUpdate", "SWITCH", null),
             new SettingProperty("replaceWithBreadcrumb", "SWITCH", null),
             new SettingProperty("listChildDocs", "SWITCH", null),
+            new SettingProperty("previousAndNext", "SWITCH", null),
             // CSS样式组
             new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
@@ -636,7 +640,7 @@ async function getChildDocumentsWordCount(childDocs, docId) {
  * 生成插入文本
  */
 async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, docSqlResult, widgetMode) {
-    const CONTAINER_STYLE = `padding: 0px 6px;`;
+    const CONTAINER_STYLE = ``;
     let htmlElem = document.createElement("div");
     htmlElem.classList.add("og-hn-heading-docs-container");
     htmlElem.style.fontSize = `${g_setting.fontSize}px`;
@@ -687,6 +691,38 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         parentElem.appendChild(await generateBreadCrumb());
         htmlElem.appendChild(parentElem);
     }
+    
+    // 同一层级上下文档
+    let nextDocElem = document.createElement("div");
+    let nextDocInnerText = "";
+    let iCurrentDoc = -1;
+    if (g_setting.previousAndNext) {
+        for (let iSibling = 0; iSibling < siblingDoc.length; iSibling++) {
+            if (siblingDoc[iSibling].id === docId) {
+                iCurrentDoc = iSibling;
+                break;
+            }
+        }
+        if (iCurrentDoc >= 0) {
+            let flag = false;
+            if (iCurrentDoc > 0) {
+                siblingDoc[iCurrentDoc - 1]["ogSimpleName"] = language["previous_doc"] + siblingDoc[iCurrentDoc - 1]["name"];
+                nextDocInnerText += docLinkGenerator(siblingDoc[iCurrentDoc - 1]);
+                flag = true;
+            }
+            if (iCurrentDoc + 1 < siblingDoc.length) {
+                siblingDoc[iCurrentDoc + 1]["ogSimpleName"] = language["next_doc"] + siblingDoc[iCurrentDoc + 1]["name"];
+                nextDocInnerText += docLinkGenerator(siblingDoc[iCurrentDoc + 1]);
+                flag = true;
+            }
+            if (flag) {
+                nextDocElem.innerHTML = nextDocInnerText;
+                nextDocElem.classList.add(CONSTANTS.NEXT_CONTAINER_CLASS_NAME);
+                htmlElem.appendChild(nextDocElem);
+            }
+        }
+    }
+
     // 如果插入挂件，则不处理子文档部分
     if (widgetMode) {
         parentElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
@@ -723,6 +759,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     parentElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
     siblingElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
     childElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+    nextDocElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
     
     return htmlElem;
 
@@ -854,8 +891,12 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         let docName = isValidStr(doc?.name) ? doc.name.substring(0, doc.name.length - 3) : doc.content;
         // docName = Lute.EscapeHTMLStr(docName);
         let trimDocName = docName;
+        if (doc["ogSimpleName"]) {
+            trimDocName = doc["ogSimpleName"];
+        }
         // 文件名长度限制
-        if (docName.length > g_setting.nameMaxLength && g_setting.nameMaxLength != 0) trimDocName = docName.substring(0, g_setting.nameMaxLength) + "...";
+        if (docName.length > g_setting.nameMaxLength && g_setting.nameMaxLength != 0) trimDocName = trimDocName.substring(0, g_setting.nameMaxLength) + "...";
+
         let result = "";
         switch (parseInt(g_setting.popupWindow)) {
             case CONSTANTS.POP_ALL: {
@@ -1114,6 +1155,9 @@ function setStyle() {
     .og-hn-heading-docs-container .trimDocName {
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    .og-hn-heading-docs-container {
+        padding: 0px 6px;
     }
 
     ${iconAdjustStyle}
