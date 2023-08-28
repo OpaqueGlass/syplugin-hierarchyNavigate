@@ -55,7 +55,7 @@
     "setting_replaceWithBreadcrumb_name": "🧪使用文档面包屑替代父文档部分",
     "setting_replaceWithBreadcrumb_desp": "",
     "setting_listChildDocs_name": "🧪🆕对于空白的文档，使用listChildDocs挂件替代子文档部分",
-    "setting_listChildDocs_desp": "挂件需要另外下载。建议将listChildDocs全局设置-自动高度打开。插件、挂件的listChildDocs全局设置是隔离的、互不影响。",
+    "setting_listChildDocs_desp": "挂件需要另外下载，请使用v0.2.2及以上版本。建议将listChildDocs全局设置-自动高度打开。插件、挂件的listChildDocs全局设置是隔离的、互不影响。",
     "setting_previousAndNext_name": "🆕显示上一篇、下一篇链接",
     "setting_previousAndNext_desp": "启用后，将根据文档树获取和本文档同级的上一篇文档、下一篇文档。",
     
