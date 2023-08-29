@@ -1200,12 +1200,18 @@ function setStyle() {
         text-align: left;
     }
 
-    .${CONSTANTS.ARROW_CLASS_NAME} {
+    /* 面包屑箭头 */
+    .og-hn-heading-docs-container .og-fake-breadcrumb-arrow-span .${CONSTANTS.ARROW_CLASS_NAME} {
         height: 10px;
         width: 10px;
         color: var(--b3-theme-on-surface-light);
         margin: 0 4px;
         flex-shrink: 0;
+    }
+
+    .og-hn-heading-docs-container .og-fake-breadcrumb-arrow-span {
+        display: inline-block;
+        cursor: pointer;
     }
 
     .og-hn-parent-area-replace-with-breadcrumb .docLinksWrapper {
