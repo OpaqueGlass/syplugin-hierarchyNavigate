@@ -65,6 +65,6 @@
   "update_at": "Modified at",
   "child_count": "Number of child-docs %NUM%",
   "child_word_count": "Child-doc character count ",
-  "previous_doc": "<<<PREVIOUS·",
-  "next_doc": ">>>NEXT·"
+  "previous_doc": "<PREVIOUS·",
+  "next_doc": ">NEXT·"
 }

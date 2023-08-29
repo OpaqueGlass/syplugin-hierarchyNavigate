@@ -706,12 +706,14 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         if (iCurrentDoc >= 0) {
             let flag = false;
             if (iCurrentDoc > 0) {
-                siblingDoc[iCurrentDoc - 1]["ogSimpleName"] = language["previous_doc"] + siblingDoc[iCurrentDoc - 1]["name"];
+                let simpleName = language["previous_doc"] + siblingDoc[iCurrentDoc - 1]["name"];
+                siblingDoc[iCurrentDoc - 1]["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 nextDocInnerText += docLinkGenerator(siblingDoc[iCurrentDoc - 1]);
                 flag = true;
             }
             if (iCurrentDoc + 1 < siblingDoc.length) {
-                siblingDoc[iCurrentDoc + 1]["ogSimpleName"] = language["next_doc"] + siblingDoc[iCurrentDoc + 1]["name"];
+                let simpleName = language["next_doc"] + siblingDoc[iCurrentDoc + 1]["name"];
+                siblingDoc[iCurrentDoc + 1]["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 nextDocInnerText += docLinkGenerator(siblingDoc[iCurrentDoc + 1]);
                 flag = true;
             }

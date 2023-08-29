@@ -65,6 +65,6 @@
     "update_at": "更新于",
     "child_count": "%NUM%篇子文档",
     "child_word_count": "子文档字符总数 ",
-    "previous_doc": "<<<上一篇·",
-    "next_doc": ">>>下一篇·"
+    "previous_doc": "<上一篇·",
+    "next_doc": ">下一篇·"
 }
