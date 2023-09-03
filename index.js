@@ -131,7 +131,8 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
                 // }
             // }
             if (!initRetry()) {
-                errorPush("初始化失败");
+                errorPush("初始化失败，2秒后执行一次重试");
+                setTimeout(initRetry, 2000);
             }
         }, (e)=> {
             debugPush("配置文件读入失败", e);
