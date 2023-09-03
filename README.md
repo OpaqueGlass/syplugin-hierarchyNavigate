@@ -4,8 +4,6 @@
 
 > Most of this document was translated by Google Translate.
 
-> Current Version：v0.2.5 **Fix**: Problem of misalignment between the "Parent", "Child" prompts and links; **Fix**: Problem of incorrect calculation of total character count in the child-docs; **Improvement**: Style of "N/A" when there are no documents.
-
 Add parent and children documents links under the document title.
 
 ### Quick Start
