@@ -106,6 +106,20 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
         Object.assign(g_setting, g_setting_default);
 
         g_writeStorage = this.saveData;
+
+        this.addCommand({
+            langKey: "go_up",
+            hotkey: "⇧⌘B",
+            editorCallback: () => {
+                goUpShortcutHandler();
+            },
+            dockCallback: ()=>{
+                goUpShortcutHandler();
+            },
+            fileTreeCallback: () => {
+                goUpShortcutHandler();
+            }
+        });
         
         logPush('HierarchyNavigatorPluginInited');
     }
@@ -730,6 +744,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     if (widgetMode) {
         parentElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
         siblingElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        nextDocElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
         return htmlElem;
     }
     let childElem = document.createElement("div");
@@ -1308,6 +1323,35 @@ async function openRelativeMenu(event) {
 
     tempMenu.open({x: rect.left, y: rect.bottom, isLeft:false});
     
+}
+
+async function goUpShortcutHandler() {
+    const docId = await getCurrentDocIdF();
+    if (docId == null) {
+        console.warn("未能读取到打开文档的id");
+        return ;
+    }
+    // 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
+    let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
+    let paths;
+    if (sqlResult && sqlResult.length >= 1) {
+        paths = sqlResult[0].path.split("/");
+    } else {
+        return;
+    }
+    if (paths.length < 2) {
+        return;
+    }
+    if (isValidStr(paths[paths.length - 2])) {
+        let docId = paths[paths.length - 2];
+        docId = docId.replace(".sy", "");
+        openRefLink(undefined, docId, {
+            ctrlKey: false,
+            shiftKey: false,
+            altKey: false});
+    } else {
+        pushMsg(language["is_top_document"], 2000)
+    }
 }
 
 /**

@@ -65,6 +65,8 @@
   "update_at": "Modified at",
   "child_count": "Number of child-docs %NUM%",
   "child_word_count": "Child-doc character count ",
-  "previous_doc": "<PREVIOUS·",
-  "next_doc": ">NEXT·"
+  "previous_doc": "&lt;PREVIOUS·",
+  "next_doc": "&gt;NEXT·",
+  "go_up": "Go up to parent doc",
+  "is_top_document": "Already at the top-level document, cannot go up."
 }

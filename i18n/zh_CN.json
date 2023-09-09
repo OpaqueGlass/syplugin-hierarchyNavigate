@@ -65,6 +65,8 @@
     "update_at": "更新于",
     "child_count": "%NUM%篇子文档",
     "child_word_count": "子文档字符总数 ",
-    "previous_doc": "<上一篇·",
-    "next_doc": ">下一篇·"
+    "previous_doc": "&lt;上一篇·",
+    "next_doc": "&gt;下一篇·",
+    "go_up": "打开父文档",
+    "is_top_document": "已经是顶层文档，无法向上跳转"
 }
