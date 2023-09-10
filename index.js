@@ -1188,7 +1188,11 @@ function setStyle() {
 
     .og-hierachy-navigate-doc-container {
         max-height: ${g_setting.maxHeightLimit}em;
-        overflow: scroll;
+        overflow: auto;
+    }
+
+    .og-hierachy-navigate-doc-container + .og-hierachy-navigate-doc-container {
+        padding-top: 3px;
     }
 
     .og-hn-create-at-wrapper, .og-hn-modify-at-wrapper, .og-hn-child-doc-count-wrapper, .og-hn-child-word-count-wrapper {
