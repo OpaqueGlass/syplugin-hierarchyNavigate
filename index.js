@@ -109,7 +109,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
 
         this.addCommand({
             langKey: "go_up",
-            hotkey: "⇧⌘B",
+            hotkey: "⌥⌘←",
             editorCallback: () => {
                 goUpShortcutHandler();
             },
