@@ -1136,7 +1136,9 @@ function setStyle() {
         text-overflow: ellipsis;
         overflow: hidden;
     }
-    .og-hierachy-navigate-sibling-doc-container  span.refLinks, .og-hierachy-navigate-children-doc-container span.refLinks {
+    .og-hierachy-navigate-sibling-doc-container  span.refLinks, 
+    .og-hierachy-navigate-children-doc-container span.refLinks,
+    .og-hierachy-navigate-next-doc-container span.refLinks {
         margin-right: 10px;
     }
     `;
