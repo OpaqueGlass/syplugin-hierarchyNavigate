@@ -68,5 +68,6 @@
     "previous_doc": "&lt;上一篇·",
     "next_doc": "&gt;下一篇·",
     "go_up": "打开父文档",
-    "is_top_document": "已经是顶层文档，无法向上跳转"
+    "is_top_document": "已经是顶层文档，无法向上跳转",
+    "insert_lcd": "插入lcd挂件"
 }

@@ -120,6 +120,14 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
                 goUpShortcutHandler();
             }
         });
+
+        this.addCommand({
+            langKey: "insert_lcd",
+            hotkey: "",
+            editorCallback: (protyle) => {
+                addWidgetShortcutHandler(protyle);
+            }
+        });
         
         logPush('HierarchyNavigatorPluginInited');
     }
@@ -1334,7 +1342,7 @@ async function openRelativeMenu(event) {
 async function goUpShortcutHandler() {
     const docId = await getCurrentDocIdF();
     if (docId == null) {
-        console.warn("未能读取到打开文档的id");
+        warnPush("未能读取到打开文档的id");
         return ;
     }
     // 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
@@ -1358,6 +1366,88 @@ async function goUpShortcutHandler() {
     } else {
         pushMsg(language["is_top_document"], 2000)
     }
+}
+
+async function addWidgetShortcutHandler(protyle) {
+    const docId = await getCurrentDocIdF();
+    if (docId == null) {
+        console.warn("未能读取到打开文档的id");
+        return ;
+    }
+    const focusedBlockId = getFocusedBlockId();
+    if (!isValidStr(focusedBlockId)) {
+        return;
+    }
+    const WIDGET_HTML = `<iframe src="/widgets/listChildDocs" data-src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 1500px; height: 350px;"></iframe>`;
+    debugPush("shortCut,PROTYLE", protyle);
+    protyle.getInstance()?.insert(WIDGET_HTML, true)
+}
+
+function getFocusedBlock() {
+    if (document.activeElement.classList.contains('protyle-wysiwyg')) {
+        /* 光标在编辑区内 */
+        let block = window.getSelection()?.focusNode?.parentElement; // 当前光标
+        while (block != null && block?.dataset?.nodeId == null) block = block.parentElement;
+        return block;
+    }
+    else return null;
+}
+
+function getFocusedBlockId() {
+    const focusedBlock = getFocusedBlock();
+    if (focusedBlock == null) {
+        return null;
+    }
+    return focusedBlock.dataset.nodeId;
+}
+
+/**
+ * 插入块（返回值有删减）
+ * @param {string} text 文本
+ * @param {string} blockid 指定的块
+ * @param {string} textType 插入的文本类型，"markdown" or "dom"
+ * @param {string} addType 插入到哪里？默认插入为指定块之后，NEXT 为插入到指定块之前， PARENT 为插入为指定块的子块
+ * @return 对象，为response.data[0].doOperations[0]的值，返回码为-1时也返回null
+ */
+async function insertBlockAPI(text, blockid, addType = "previousID", textType = "markdown", ){
+    let url = "/api/block/insertBlock";
+    let data = {dataType: textType, data: text};
+    switch (addType) {
+        case "parentID":
+        case "PARENT":
+        case "parentId": {
+            data["parentID"] = blockid;
+            break;
+        }
+        case "nextID":
+        case "NEXT":
+        case "nextId": {
+            data["nextID"] = blockid;
+            break;
+        }
+        case "previousID":
+        case "PREVIOUS":
+        case "previousId": 
+        default: {
+            data["previousID"] = blockid;
+            break;
+        }
+    }
+    let response = await request(url, data);
+    try{
+        if (response.code == 0 && response.data != null && isValidStr(response.data[0].doOperations[0].id)){
+            return response.data[0].doOperations[0];
+        }
+        if (response.code == -1){
+            console.warn("插入块失败", response.msg);
+            return null;
+        }
+    }catch(err){
+        console.error(err);
+        console.warn(response.msg);
+    }
+    return null;
+
 }
 
 /**

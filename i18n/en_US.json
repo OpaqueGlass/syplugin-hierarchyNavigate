@@ -68,5 +68,6 @@
   "previous_doc": "&lt;PREVIOUS·",
   "next_doc": "&gt;NEXT·",
   "go_up": "Go up to parent doc",
-  "is_top_document": "Already at the top-level document, cannot go up."
+  "is_top_document": "Already at the top-level document, cannot go up.",
+  "insert_lcd": "Insert the listChildDocs widget"
 }
