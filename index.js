@@ -63,6 +63,7 @@ let g_setting = {
     // retryForNewDoc: null, // 出错重试，目前是禁用状态
     listChildDocs: null, // 对于空白文档，使用列出子文档挂件替代
     previousAndNext: null, // 上一篇、下一篇
+    alwaysShowSibling: null, // 一直显示兄弟文档区域
 };
 let g_setting_default = {
     fontSize: 12,
@@ -90,6 +91,7 @@ let g_setting_default = {
     // retryForNewDoc: null,
     listChildDocs: false, // 对于空白文档，使用列出子文档挂件替代
     previousAndNext: false, // 上一篇、下一篇
+    alwaysShowSibling: false, // 始终显示同级文档
 };
 /**
  * Plugin类
@@ -241,6 +243,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("replaceWithBreadcrumb", "SWITCH", null),
             new SettingProperty("listChildDocs", "SWITCH", null),
             new SettingProperty("previousAndNext", "SWITCH", null),
+            new SettingProperty("alwaysShowSibling", "SWITCH", null),
             // CSS样式组
             new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
@@ -691,11 +694,33 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     if (parentFlag && !g_setting.replaceWithBreadcrumb) {
         parentElem.innerHTML = parentElemInnerText;
         htmlElem.appendChild(parentElem);
-    }else if (g_setting.sibling && !parentFlag){
-        for (let doc of siblingDoc) {
-            siblingElemInnerText += docLinkGenerator(doc);
+    }else if (!g_setting.replaceWithBreadcrumb){
+        // do nothing #17代码调整遗留，确认不影响后可删除
+        // parentElem.innerHTML = parentElemInnerText + `<span class="og-hn-doc-none-word">${language["none"]}</span>`;
+        // parentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        // htmlElem.appendChild(parentElem);
+    }else if (g_setting.replaceWithBreadcrumb){
+        parentElem.appendChild(await generateBreadCrumb());
+        htmlElem.appendChild(parentElem);
+    }
+    // 同级文档始终显示或首层级显示
+    if ((g_setting.sibling && !parentFlag) || g_setting.alwaysShowSibling){
+        if (siblingDoc.length > 1) {
+            for (let doc of siblingDoc) {
+                let temp = docLinkGenerator(doc);
+                // 对当前文档加入新样式
+                if (doc.id == docId) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(temp, "text/html");
+                    let tempElement = doc.body.firstChild;
+                    tempElement.classList.add("og-hn-docLinksWrapper-hl");
+                    temp = tempElement.outerHTML;
+                }
+                siblingElemInnerText += temp;
+            }
         }
-        if (siblingElemInnerText != `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
+        
+        if (siblingDoc.length > 1 && siblingElemInnerText != `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
           ${language["sibling_nodes"]}
           </span>`) {
             siblingElem.innerHTML = siblingElemInnerText;
@@ -706,13 +731,6 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
             htmlElem.appendChild(siblingElem);
         }
         
-    }else if (!g_setting.replaceWithBreadcrumb){
-        parentElem.innerHTML = parentElemInnerText + `<span class="og-hn-doc-none-word">${language["none"]}</span>`;
-        parentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
-        htmlElem.appendChild(parentElem);
-    }else if (g_setting.replaceWithBreadcrumb){
-        parentElem.appendChild(await generateBreadCrumb());
-        htmlElem.appendChild(parentElem);
     }
     
     // 同一层级上下文档
@@ -1139,6 +1157,11 @@ function setStyle() {
         white-space: nowrap;
         overflow: hidden;
     }
+    .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper.og-hn-docLinksWrapper-hl {
+        background-color: color-mix(in srgb, var(--b3-protyle-code-background) 95%, var(--b3-theme-on-background));
+        border: 0.55px dashed color-mix(in srgb, var(--b3-protyle-code-background) 35%, var(--b3-theme-on-background));
+    }
+
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {
         margin: 0 auto; /*居中显示*/
         text-overflow: ellipsis;
