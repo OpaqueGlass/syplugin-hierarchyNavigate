@@ -60,6 +60,8 @@
     "setting_previousAndNext_desp": "启用后，将根据文档树获取和本文档同级的上一篇文档、下一篇文档。",
     "setting_alwaysShowSibling_name": "🧪🆕始终显示同级文档（兄：）部分",
     "setting_alwaysShowSibling_desp": "",
+    "setting_mainRetry_name": "🧪🆕超时重试次数",
+    "setting_mainRetry_desp": "如果未能显示，将间隔200ms进行重试。由于新创建的文档未入数据库，该设置对新创建的文档无效。",
     
     "setting_experimental": "（⚠实验性功能，不稳定，可能随时被移除）",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题",

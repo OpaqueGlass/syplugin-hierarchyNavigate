@@ -64,6 +64,7 @@ let g_setting = {
     listChildDocs: null, // 对于空白文档，使用列出子文档挂件替代
     previousAndNext: null, // 上一篇、下一篇
     alwaysShowSibling: null, // 一直显示兄弟文档区域
+    mainRetry: null, // 主函数重试次数
 };
 let g_setting_default = {
     fontSize: 12,
@@ -92,6 +93,7 @@ let g_setting_default = {
     listChildDocs: false, // 对于空白文档，使用列出子文档挂件替代
     previousAndNext: false, // 上一篇、下一篇
     alwaysShowSibling: false, // 始终显示同级文档
+    mainRetry: 5, // 主函数重试次数
 };
 /**
  * Plugin类
@@ -244,6 +246,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("listChildDocs", "SWITCH", null),
             new SettingProperty("previousAndNext", "SWITCH", null),
             new SettingProperty("alwaysShowSibling", "SWITCH", null),
+            new SettingProperty("mainRetry", "NUMBER", [0, 20]),
             // CSS样式组
             new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
@@ -410,7 +413,7 @@ function setObserver() {
                     // TODO: 改为动态获取id
                     await main([mutation.target]);
                 }catch(err) {
-                    console.error(err);
+                    errorPush(err);
                 }
                 if (isDebugMode()) console.timeEnd(g_TIMER_LABLE_NAME_COMPARE);
             }, Math.round(Math.random() * CONSTANTS.OBSERVER_RANDOM_DELAY) + CONSTANTS.OBSERVER_RANDOM_DELAY_ADD);
@@ -484,35 +487,43 @@ function eventBusHandler(detail) {
 async function main(targets) {
     let retryCount = 0;
     let success = false;
+    let failDueToEmptyId = false;
     let errorTemp;
     debugPush("MAIN函数执行");
     do {
-        retryCount ++ ;
+        retryCount++ ;
+        if (g_mutex > 0) {
+            debugPush("发现多实例运行，已停止");
+            return;
+        }
         try {
-            if (g_mutex > 0) {
-                return;
-            }
             g_mutex++;
             // 获取当前文档id
             const docId = await getCurrentDocIdF();
             debugPush(docId);
             if (!isValidStr(docId)) {
-                warnPush("没有获取到文档id，已终止");
-                return;
+                failDueToEmptyId = true;
+                debugPush(`第${retryCount}次获取文档id失败，休息一会儿后重新尝试`);
+                await sleep(200);
+                continue;
             }
+            failDueToEmptyId = false;
             // 防止重复执行
             if (!g_setting.timelyUpdate &&
                 window.document.querySelector(`.protyle-title[data-node-id="${docId}"] .og-hn-heading-docs-container`) != null) {
                     return;
             }
             debugPush("main防重复检查已通过");
-            if (docId == null) {
-                console.warn("未能读取到打开文档的id");
-                return ;
-            }
             // 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
             let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
-            debugPush(sqlResult);
+            debugPush("sqlResult", sqlResult);
+            if (!sqlResult || sqlResult.length <= 0) {
+                // debugPush(`第${retryCount}次获取文档信息失败，该文档可能是刚刚创建，休息一会儿后重新尝试`);
+                // await sleep(200);
+                // continue;
+                logPush("文档似乎是刚刚创建，无法获取上下文信息，停止处理");
+                return;
+            }
             if (sqlResult && sqlResult.length >= 1 && (sqlResult[0].ial.includes("og-hn-ignore") || sqlResult[0].ial.includes("og文档导航忽略"))) {
                 debugPush("检测到忽略标记，停止处理");
                 return;
@@ -564,19 +575,21 @@ async function main(targets) {
         }finally{
             g_mutex--;
         }
-        if (!success) {
-            debugPush(`重试中，第${retryCount}次，休息一会儿后重新尝试`);
-            await sleep(200);
-        } else {
+        if (errorTemp) {
+            debugPush("由于出现错误，终止重试", errorTemp);
             break;
         }
-        // retryCount < 1 && g_setting.retryForNewDoc
-    }while (false);
-
-    if (!success) {
-        throw errorTemp;
+        if (success) {
+            break;
+        }
+    }while (isValidStr(g_setting.mainRetry) && retryCount < parseInt(g_setting.mainRetry));
+    if (!success && failDueToEmptyId) {
+        logPush("未能获取文档id，且重试次数已达上限，停止重试");
+    } else if (!success) {
+        logPush("重试次数已达上限，停止重试");
+        // 抛出是为了防止后续错误
+        throw new Error(errorTemp);
     }
-
 }
 
 /**
@@ -1890,7 +1903,19 @@ function loadUISettings(formElement) {
     let numbers = formElement.querySelectorAll("input[type='number']");
     // console.log(numbers);
     for (let number of numbers) {
-        result[number.name] = parseFloat(number.value);
+        let minValue = number.getAttribute("min");
+        let maxValue = number.getAttribute("max");
+        let value = parseFloat(number.value);
+
+        if (minValue !== null && value < parseFloat(minValue)) {
+            number.value = minValue;
+            result[number.name] = parseFloat(minValue);
+        } else if (maxValue !== null && value > parseFloat(maxValue)) {
+            number.value = maxValue;
+            result[number.name] = parseFloat(maxValue);
+        } else {
+            result[number.name] = value;
+        }
     }
 
     debugPush("UI SETTING", result);
