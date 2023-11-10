@@ -191,7 +191,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             </div>
             `,
             "width": isMobile() ? "92vw":"1040px",
-            "height": isMobile() ? "50vw":"540px",
+            "height": isMobile() ? "50vw":"80vh",
         });
         // console.log("dialog", settingDialog);
         const actionButtons = settingDialog.element.querySelectorAll(`#${CONSTANTS.PLUGIN_NAME}-form-action button`);
@@ -428,6 +428,7 @@ function setObserver() {
                 g_switchTabObserver.disconnect();
                 clearInterval(g_observerRetryInterval);
                 g_observerRetryInterval = setInterval(observerRetry, CONSTANTS.OBSERVER_RETRY_INTERVAL);
+                observerRetry()
             }
             
         }
@@ -435,6 +436,7 @@ function setObserver() {
     });
     clearInterval(g_observerRetryInterval);
     g_observerRetryInterval = setInterval(observerRetry, CONSTANTS.OBSERVER_RETRY_INTERVAL);
+    observerRetry()
     g_windowObserver.observe(window.siyuan.layout.centerLayout.element, {childList: true});
 }
 /**
@@ -581,6 +583,8 @@ async function main(targets) {
         }
         if (success) {
             break;
+        } else {
+            await sleep(200);
         }
     }while (isValidStr(g_setting.mainRetry) && retryCount < parseInt(g_setting.mainRetry));
     if (!success && failDueToEmptyId) {
@@ -746,7 +750,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         
     }
     
-    // 同一层级上下文档
+    // 同一层级上下文档 紧邻的文档
     let nextDocElem = document.createElement("div");
     let nextDocInnerText = "";
     let iCurrentDoc = -1;
@@ -772,7 +776,8 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
                 flag = true;
             }
             if (flag) {
-                nextDocElem.innerHTML = nextDocInnerText;
+                nextDocElem.innerHTML = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
+                ${language["neighbor_nodes"]}</span>` + nextDocInnerText;
                 nextDocElem.classList.add(CONSTANTS.NEXT_CONTAINER_CLASS_NAME);
                 htmlElem.appendChild(nextDocElem);
             }
