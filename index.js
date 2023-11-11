@@ -776,8 +776,10 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
                 flag = true;
             }
             if (flag) {
+                // emm 宽度不一这个bug是由于其他提示词文字后面有空格导致的
                 nextDocElem.innerHTML = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
-                ${language["neighbor_nodes"]}</span>` + nextDocInnerText;
+                ${language["neighbor_nodes"]}
+            </span>` + nextDocInnerText;
                 nextDocElem.classList.add(CONSTANTS.NEXT_CONTAINER_CLASS_NAME);
                 htmlElem.appendChild(nextDocElem);
             }
@@ -788,6 +790,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     if (widgetMode) {
         parentElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
         siblingElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        siblingElem.classList.add("og-hn-container-multiline");
         nextDocElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
         return htmlElem;
     }
@@ -820,7 +823,9 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     
     parentElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
     siblingElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+    siblingElem.classList.add("og-hn-container-multiline");
     childElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+    childElem.classList.add("og-hn-container-multiline");
     nextDocElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
     
     return htmlElem;
@@ -1157,6 +1162,27 @@ function setStyle() {
         display: none;
     }
     ` : "";
+    // 第二行后对齐链接文本，（向内缩进： #21）
+    let alignStyle = `
+    .og-hn-container-multiline {
+        text-indent: -2.28em;
+        padding-left: 2.28em;
+        overflow-x: hidden;
+        padding-right: 2.28em;
+        width: 100%;
+    }
+    .og-hn-container-multiline .og-hierachy-navigate-doc-indicator {
+        
+    }
+    .og-hn-container-multiline .og-hn-emoji-and-name {
+        text-indent: 0px;
+    }
+
+    .og-hn-container-multiline .og-hn-doc-none-word {
+        text-indent: 0px;
+    }
+    
+    `;
 
     const defaultLinkStyle = `
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
@@ -1237,9 +1263,11 @@ function setStyle() {
 
     ${noneDisplayStyle}
 
+    ${g_setting.hideIndicator ? "" : alignStyle}
+
     .og-hierachy-navigate-doc-container {
         max-height: ${g_setting.maxHeightLimit}em;
-        overflow: auto;
+        overflow-y: auto;
     }
 
     .og-hierachy-navigate-doc-container + .og-hierachy-navigate-doc-container {
