@@ -63,6 +63,7 @@ let g_setting = {
     replaceWithBreadcrumb: null, // 父文档部分使用面包屑替代
     // retryForNewDoc: null, // 出错重试，目前是禁用状态
     listChildDocs: null, // 对于空白文档，使用列出子文档挂件替代
+    lcdEmptyDocThreshold: null, // 插入列出子文档挂件的空文档段落块个数判定阈值
     previousAndNext: null, // 上一篇、下一篇
     alwaysShowSibling: null, // 一直显示兄弟文档区域
     mainRetry: null, // 主函数重试次数
@@ -92,6 +93,7 @@ let g_setting_default = {
     replaceWithBreadcrumb: true,
     // retryForNewDoc: null,
     listChildDocs: false, // 对于空白文档，使用列出子文档挂件替代
+    lcdEmptyDocThreshold: 0, // 插入列出子文档挂件的空文档判定阈值（段落块）,-1为不限制、对所有父文档插入
     previousAndNext: false, // 上一篇、下一篇
     alwaysShowSibling: false, // 始终显示同级文档
     mainRetry: 5, // 主函数重试次数
@@ -285,6 +287,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("immediatelyUpdate", "SWITCH", null),
             new SettingProperty("replaceWithBreadcrumb", "SWITCH", null),
             new SettingProperty("listChildDocs", "SWITCH", null),
+            new SettingProperty("lcdEmptyDocThreshold", "NUMBER", [-1, 1024]), // -1为不限制
             new SettingProperty("previousAndNext", "SWITCH", null),
             new SettingProperty("alwaysShowSibling", "SWITCH", null),
             new SettingProperty("mainRetry", "NUMBER", [0, 20]),
@@ -580,7 +583,7 @@ async function main(targets) {
             // console.log(parentDoc, childDoc, siblingDoc);
             let widgetMode = false;
             // 检查用户设置 检查文档是否为空
-            if (g_setting.listChildDocs && await isDocEmpty(docId)) {
+            if (g_setting.listChildDocs && (await isDocEmpty(docId, g_setting.lcdEmptyDocThreshold) || g_setting.lcdEmptyDocThreshold === -1)) {
                 widgetMode = true;
             }
             // 生成插入文本
@@ -1751,13 +1754,24 @@ async function getKramdown(blockid){
     }
 }
 
-async function isDocEmpty(docId) {
+async function isDocEmpty(docId, blockCountThreshold = 0) {
     // 检查父文档是否为空
     let treeStat = await getTreeStat(docId);
-    if (treeStat.wordCount != 0 && treeStat.imageCount != 0) {
+    if (blockCountThreshold == 0 && treeStat.wordCount != 0 && treeStat.imageCount != 0) {
         debugPush("treeStat判定文档非空，不插入挂件");
         return false;
     }
+    if (blockCountThreshold != 0) {
+        let blockCountSqlResult = await sqlAPI(`SELECT count(*) as bcount FROM blocks WHERE root_id like '${docId}' AND type in ('p', 'c', 'iframe', 'html', 'video', 'audio', 'widget', 'query_embed', 't')`);
+        if (blockCountSqlResult.length > 0) {
+            if (blockCountSqlResult[0].bcount > blockCountThreshold) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+    
     let sqlResult = await sqlAPI(`SELECT markdown FROM blocks WHERE 
         root_id like '${docId}' 
         AND type != 'd' 

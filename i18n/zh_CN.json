@@ -63,6 +63,8 @@
     "setting_alwaysShowSibling_desp": "",
     "setting_mainRetry_name": "🧪🆕超时重试次数",
     "setting_mainRetry_desp": "如果未能显示，将间隔200ms进行重试。由于新创建的文档未入数据库，该设置对新创建的文档无效。",
+    "setting_lcdEmptyDocThreshold_name": "🧪🆕空白文档判定阈值",
+    "setting_lcdEmptyDocThreshold_desp": "当文档块数小于该值时，判定为空白文档，设置为-1则将所有文档判定为空白文档。该设置只影响“listChildDocs”的显示。单位：块数",
     
     "setting_experimental": "（⚠实验性功能，不稳定，可能随时被移除）",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题",
