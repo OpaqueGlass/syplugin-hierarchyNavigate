@@ -74,5 +74,9 @@
     "next_doc": "&gt;下一篇·",
     "go_up": "打开父文档",
     "is_top_document": "已经是顶层文档，无法向上跳转",
-    "insert_lcd": "插入lcd挂件"
+    "insert_lcd": "插入lcd挂件",
+    "go_to_previous_doc": "前往上一篇",
+    "go_to_next_doc": "前往下一篇",
+    "is_first_document": "已经是第一篇",
+    "is_last_document": "已经是最后一篇"
 }

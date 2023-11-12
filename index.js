@@ -39,6 +39,7 @@ let g_writeStorage;
 let g_isMobile = false;
 let g_mutex = 0;
 let g_initFlag = false;
+let g_app;
 let g_setting = {
     fontSize: null,
     parentBoxCSS: null,
@@ -105,6 +106,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
     onload() {
         g_isMobile = isMobile();
         language = this.i18n;
+        g_app = this.app;
         // 读取配置
         // TODO: 读取配置API变更
         Object.assign(g_setting, g_setting_default);
@@ -114,15 +116,18 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
         this.addCommand({
             langKey: "go_up",
             hotkey: "⌥⌘←",
-            editorCallback: () => {
+            callback: () => {
                 goUpShortcutHandler();
             },
-            dockCallback: ()=>{
-                goUpShortcutHandler();
-            },
-            fileTreeCallback: () => {
-                goUpShortcutHandler();
-            }
+            // editorCallback: () => {
+            //     goUpShortcutHandler();
+            // },
+            // dockCallback: ()=>{
+            //     goUpShortcutHandler();
+            // },
+            // fileTreeCallback: () => {
+            //     goUpShortcutHandler();
+            // }
         });
 
         this.addCommand({
@@ -131,6 +136,42 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             editorCallback: (protyle) => {
                 addWidgetShortcutHandler(protyle);
             }
+        });
+
+        this.addCommand({
+            langKey: "go_to_previous_doc",
+            hotkey: "⌥⌘↑",
+            callback: () => {
+                goToPreviousDocShortcutHandler(null);
+            }
+            // editorCallback: (protyle) => {
+            //     goToPreviousDocShortcutHandler(protyle);
+            // },
+            // dockCallback: ()=>{
+            //     goToPreviousDocShortcutHandler(null);
+            // },
+            // fileTreeCallback: () => {
+            //     goToPreviousDocShortcutHandler(null);
+            // }
+        });
+
+
+        this.addCommand({
+            langKey: "go_to_next_doc",
+            hotkey: "⌥⌘↓",
+            callback: () => {
+                goToNextDocShortcutHandler(null);
+            },
+            // 连续切换时，使用下述多个callback并不能胜任，原因未知
+            // editorCallback: (protyle) => {
+            //     goToNextDocShortcutHandler(protyle);
+            // },
+            // dockCallback: ()=>{
+            //     goToNextDocShortcutHandler(null);
+            // },
+            // fileTreeCallback: () => {
+            //     goToNextDocShortcutHandler(null);
+            // }
         });
         
         logPush('HierarchyNavigatorPluginInited');
@@ -1437,10 +1478,91 @@ async function goUpShortcutHandler() {
     }
 }
 
+async function goToPreviousDocShortcutHandler(protyle) {
+    debugPush("前往上一篇文档", protyle);
+    const previousDoc = await getSiblingDocsForNeighborShortcut(protyle, false);
+    debugPush("previousDoc", previousDoc);
+    if (previousDoc) {
+        // 打开
+        // openRefLink(undefined, previousDoc.id);
+        await siyuan.openTab({
+            app: g_app,
+            doc: {
+                id: previousDoc.id,
+            }
+        });
+    } else {
+        // 提示
+        pushMsg(language["is_first_document"], 2000);
+    }
+}
+
+async function goToNextDocShortcutHandler(protyle) {
+    const nextDoc = await getSiblingDocsForNeighborShortcut(protyle, true);
+    debugPush("nextDoc", nextDoc);
+    if (nextDoc) {
+        // openRefLink(undefined, nextDoc.id);
+        await siyuan.openTab({
+            app: g_app,
+            doc: {
+                id: nextDoc.id,
+            }
+        });
+    } else {
+        // 提示
+        pushMsg(language["is_last_document"], 2000);
+    }
+}
+
+async function getSiblingDocsForNeighborShortcut(protyle, isNext) {
+    let siblingDocs = null;
+    let docId;
+    if (protyle) {
+        docId = protyle.block.rootID;
+        const parentSqlResult = await getParentDocument(protyle.block.rootID, [{box: protyle.notebookId, path: protyle.path}]);
+        debugPush("parentSQLRESULT", parentSqlResult);
+        siblingDocs = await getSiblingDocuments(protyle.block.rootID, parentSqlResult, [{box: protyle.notebookId, path: protyle.path}], parentSqlResult.length == 0 ? true : false);
+    } else {
+        docId = await getCurrentDocIdF();
+        let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
+        if (!sqlResult || sqlResult.length <= 0) {
+            // debugPush(`第${retryCount}次获取文档信息失败，该文档可能是刚刚创建，休息一会儿后重新尝试`);
+            // await sleep(200);
+            // continue;
+            debugPush("文档似乎是刚刚创建，无法获取上下文信息，停止处理");
+            return;
+        }
+        const parentSqlResult = await getParentDocument(docId, sqlResult);
+        siblingDocs = await getSiblingDocuments(docId, parentSqlResult, sqlResult, parentSqlResult.length == 0 ? true : false);
+    }
+    // 处理sibling docs
+    if (siblingDocs == null || siblingDocs.length == 1) {
+        debugPush("仅此一个文档，停止处理");
+        return null;
+    }
+    let iCurrentDoc = -1;
+    for (let iSibling = 0; iSibling < siblingDocs.length; iSibling++) {
+        if (siblingDocs[iSibling].id === docId) {
+            iCurrentDoc = iSibling;
+            break;
+        }
+    }
+    if (iCurrentDoc >= 0) {
+        if (iCurrentDoc > 0 && isNext == false) {
+            return siblingDocs[iCurrentDoc - 1];
+        }
+        if (iCurrentDoc + 1 < siblingDocs.length && isNext == true) {
+            return siblingDocs[iCurrentDoc + 1];
+        }
+        return null;
+    }
+    return null;
+}
+
 async function addWidgetShortcutHandler(protyle) {
     const docId = await getCurrentDocIdF();
     if (docId == null) {
-        console.warn("未能读取到打开文档的id");
+        warnPush("未能读取到打开文档的id");
         return ;
     }
     const focusedBlockId = getFocusedBlockId();
