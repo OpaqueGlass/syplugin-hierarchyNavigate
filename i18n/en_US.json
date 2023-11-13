@@ -65,6 +65,8 @@
   "setting_mainRetry_desp": "If unable to display, retry specified number of times with an interval of 200ms.",
   "setting_lcdEmptyDocThreshold_name": "🧪🆕Empty doc threshold",
   "setting_lcdEmptyDocThreshold_desp": "When the number of document blocks is less than this value, it is judged as blank document, and when it is set to -1, all documents are judged as blank documents. This setting affects only the display of listChildDocs. Unit: Number of blocks",
+  "setting_noChildIfHasAv_name": "🧪🆕No child document area when database found",
+  "setting_noChildIfHasAv_desp": "When enabled, child document area are not displayed in documents found to contain databases. This feature may be removed if the custom hierarchy navigation display is updated later.",
   
   "setting_experimental": "(Experimental Feature. UNSTABLE. May be removed at any time) ",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience",

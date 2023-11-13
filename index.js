@@ -67,6 +67,7 @@ let g_setting = {
     previousAndNext: null, // 上一篇、下一篇
     alwaysShowSibling: null, // 一直显示兄弟文档区域
     mainRetry: null, // 主函数重试次数
+    noChildIfHasAv: null,
 };
 let g_setting_default = {
     fontSize: 12,
@@ -97,6 +98,7 @@ let g_setting_default = {
     previousAndNext: false, // 上一篇、下一篇
     alwaysShowSibling: false, // 始终显示同级文档
     mainRetry: 5, // 主函数重试次数
+    noChildIfHasAv: false, // 检查文档是否包含数据库，如果有，则不显示子文档区域
 };
 /**
  * Plugin类
@@ -291,6 +293,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("previousAndNext", "SWITCH", null),
             new SettingProperty("alwaysShowSibling", "SWITCH", null),
             new SettingProperty("mainRetry", "NUMBER", [0, 20]),
+            new SettingProperty("noChildIfHasAv", "SWITCH", null),
             // CSS样式组
             new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
@@ -583,7 +586,9 @@ async function main(targets) {
             // console.log(parentDoc, childDoc, siblingDoc);
             let widgetMode = false;
             // 检查用户设置 检查文档是否为空
-            if (g_setting.listChildDocs && (await isDocEmpty(docId, g_setting.lcdEmptyDocThreshold) || g_setting.lcdEmptyDocThreshold === -1)) {
+            if (g_setting.listChildDocs 
+                && (await isDocEmpty(docId, g_setting.lcdEmptyDocThreshold) || g_setting.lcdEmptyDocThreshold === -1)
+                && !(g_setting.noChildIfHasAv && await isDocHasAv(docId))) {
                 widgetMode = true;
             }
             // 生成插入文本
@@ -831,7 +836,8 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     }
 
     // 如果插入挂件，则不处理子文档部分
-    if (widgetMode) {
+    // 新：判断是否启用并包含数据库
+    if (widgetMode || (g_setting.noChildIfHasAv && await isDocHasAv(docId))) {
         parentElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
         siblingElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
         siblingElem.classList.add("og-hn-container-multiline");
@@ -1455,7 +1461,7 @@ async function openRelativeMenu(event) {
 async function goUpShortcutHandler() {
     const docId = await getCurrentDocIdF();
     if (docId == null) {
-        warnPush("未能读取到打开文档的id");
+        logPush("未能读取到打开文档的id");
         return ;
     }
     // 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
@@ -1565,7 +1571,7 @@ async function getSiblingDocsForNeighborShortcut(protyle, isNext) {
 async function addWidgetShortcutHandler(protyle) {
     const docId = await getCurrentDocIdF();
     if (docId == null) {
-        warnPush("未能读取到打开文档的id");
+        logPush("未能读取到打开文档的id");
         return ;
     }
     const focusedBlockId = getFocusedBlockId();
@@ -1751,6 +1757,20 @@ async function getKramdown(blockid){
     let response = await parseBody(request(url, data));
     if (response) {
         return response.kramdown;
+    }
+}
+
+async function isDocHasAv(docId) {
+    let sqlResult = await sqlAPI(`
+    SELECT count(*) as avcount FROM blocks WHERE root_id = '${docId}'
+    AND type = 'av'
+    `);
+    debugPush("文档 av判断", sqlResult);
+    if (sqlResult.length > 0 && sqlResult[0].avcount > 0) {
+        return true;
+    } else {
+        
+        return false;
     }
 }
 
