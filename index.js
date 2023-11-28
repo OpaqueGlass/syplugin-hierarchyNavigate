@@ -1218,8 +1218,9 @@ function setStyle() {
         text-indent: -2.28em;
         padding-left: 2.28em;
         overflow-x: hidden;
-        padding-right: 2.28em;
-        width: 100%;
+        /* #30 2.28em与100%导致宽度溢出 */
+        padding-right: 0em;
+        width: auto;
     }
     .og-hn-container-multiline .og-hierachy-navigate-doc-indicator {
         
@@ -1280,7 +1281,8 @@ function setStyle() {
         font-weight: 400;
         align-items: center;
         box-sizing: border-box;
-        padding: 4px 6px;
+        /* #30 调整padding左右，尽量避免换行导致右侧大量留白 */
+        padding: 4px 4px;
         border-radius: ${(g_setting.fontSize + 2)}px;
         transition: var(--b3-transition);
         margin-bottom: 3px;
