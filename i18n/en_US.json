@@ -3,6 +3,7 @@
   "child_nodes": "↓: ",
   "sibling_nodes": "=: ",
   "neighbor_nodes": "↔: ",
+  "backlink_nodes": "🔗: ",
   "number_span": " (%NUM%)",
   "number_count": "%NUM%",
   "none": "N/A",
@@ -67,6 +68,8 @@
   "setting_lcdEmptyDocThreshold_desp": "When the number of document blocks is less than this value, it is judged as blank document, and when it is set to -1, all documents are judged as blank documents. This setting affects only the display of listChildDocs. Unit: Number of blocks",
   "setting_noChildIfHasAv_name": "🧪🆕No child document area when database found",
   "setting_noChildIfHasAv_desp": "When enabled, child document area are not displayed in documents found to contain databases. This feature may be removed if the custom hierarchy navigation display is updated later.",
+  "setting_showBackLinksArea_name": "🧪🆕Show back links area",
+  "setting_showBackLinksArea_desp": "",
   
   "setting_experimental": "(Experimental Feature. UNSTABLE. May be removed at any time) ",
   "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience",

@@ -25,6 +25,7 @@ const CONSTANTS = {
     INDICATOR_CLASS_NAME: "og-hierachy-navigate-doc-indicator",
     NONE_CLASS_NAME: "og-hierachy-navigate-doc-not-exist",
     NEXT_CONTAINER_CLASS_NAME: "og-hierachy-navigate-next-doc-container",
+    BACKLINK_CONTAINER_CLASS_NAME: "og-hierachy-navigate-backlink-doc-container",
     POP_NONE: 0,
     POP_LIMIT: 1,
     POP_ALL: 2,
@@ -68,6 +69,7 @@ let g_setting = {
     alwaysShowSibling: null, // 一直显示兄弟文档区域
     mainRetry: null, // 主函数重试次数
     noChildIfHasAv: null,
+    showBackLinksArea: null,
 };
 let g_setting_default = {
     fontSize: 12,
@@ -99,6 +101,7 @@ let g_setting_default = {
     alwaysShowSibling: false, // 始终显示同级文档
     mainRetry: 5, // 主函数重试次数
     noChildIfHasAv: false, // 检查文档是否包含数据库，如果有，则不显示子文档区域
+    showBackLinksArea: false, // 显示反链区域
 };
 /**
  * Plugin类
@@ -294,6 +297,7 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("alwaysShowSibling", "SWITCH", null),
             new SettingProperty("mainRetry", "NUMBER", [0, 20]),
             new SettingProperty("noChildIfHasAv", "SWITCH", null),
+            new SettingProperty("showBackLinksArea", "SWITCH", null),
             // CSS样式组
             new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
@@ -835,6 +839,37 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         }
     }
 
+    // 反链区域
+    let backLinkElem = document.createElement("div");
+    if (g_setting.showBackLinksArea) {
+        const backlinkResponse = await getBackLink2(docId);
+        let backlinkInnerText = "";
+        debugPush("backlinkResponse", backlinkResponse);
+        for (let i = 0; i < backlinkResponse.backlinks.length; i++) {
+            const oneBacklinkItem = backlinkResponse.backlinks[i];
+            if (oneBacklinkItem.nodeType === "NodeDocument") {
+                let tempDocItem = {
+                    "ogSimpleName": oneBacklinkItem.name,
+                    "name": oneBacklinkItem.name + ".sy",
+                    "icon": "",
+                    "id": oneBacklinkItem.id
+                };
+                debugPush("docLinkCheck", docLinkGenerator(tempDocItem));
+                backlinkInnerText += docLinkGenerator(tempDocItem);
+            }
+        }
+        if (backlinkInnerText === "") {
+            backlinkInnerText = `<span class="og-hn-doc-none-word">${language["none"]}</span>`;
+            backLinkElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        }
+        backLinkElem.innerHTML = `<span class="${CONSTANTS.INDICATOR_CLASS_NAME}">
+        ${language["backlink_nodes"]}
+        </span>` + backlinkInnerText;
+        backLinkElem.classList.add(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME);
+        htmlElem.appendChild(backLinkElem);
+    }
+    // 反链区域END
+
     // 如果插入挂件，则不处理子文档部分
     // 新：判断是否启用并包含数据库
     if (widgetMode || (g_setting.noChildIfHasAv && await isDocHasAv(docId))) {
@@ -842,6 +877,8 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         siblingElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
         siblingElem.classList.add("og-hn-container-multiline");
         nextDocElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        backLinkElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        backLinkElem.classList.add("og-hn-container-multiline");
         return htmlElem;
     }
     let childElem = document.createElement("div");
@@ -864,6 +901,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         childElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         htmlElem.appendChild(childElem);
     }
+
     if (g_DEBUG > 1) {
         let debug = window.document.createElement("div");
         debug.setAttribute("id", "og-debug");
@@ -877,6 +915,8 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     childElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
     childElem.classList.add("og-hn-container-multiline");
     nextDocElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+    backLinkElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+    backLinkElem.classList.add("og-hn-container-multiline");
     
     return htmlElem;
 
@@ -1725,6 +1765,18 @@ async function listDocsByPath({path, notebook = undefined, sort = undefined, max
     let url = '/api/filetree/listDocsByPath';
     return parseBody(request(url, data));
     //文档hepath与Markdown 内容
+}
+
+async function getBackLink2(id, sort = "3", msort= "3", k = "", mk = "") {
+    let data = {
+        "id": id,
+        "sort": sort,
+        "msort": msort,
+        "k": k,
+        "mk": mk
+    };
+    let url = `/api/ref/getBacklink2`;
+    return parseBody(request(url, data));
 }
 
 async function sqlAPI(stmt) {
