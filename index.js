@@ -601,12 +601,18 @@ async function main(targets) {
             
             // 应用插入
             setAndApply(htmlElem, docId);
+            // TODO: 挂件插入逻辑需要重构
             if (widgetMode) {
                 // 计算
                 let subCountResult = await sqlAPI(`SELECT count(*) as count FROM blocks WHERE path like "%${docId}/%" and type = 'd'`);
                 debugPush("子块计数", subCountResult);
                 if (subCountResult && subCountResult[0].count > 0) {
+                    if (g_isMobile) {
+                        window.document.querySelector(`.protyle-background ~ .og-hn-widget-container`)?.remove();
+                    }
                     applyWidget(docId);
+                } else if (g_isMobile) {
+                    window.document.querySelector(`.protyle-background ~ .og-hn-widget-container`)?.remove();
                 }
             } else if (g_isMobile) {
                 // 移动端切换到其他文档后，如果不更新挂件，则需要移除已有的挂件
