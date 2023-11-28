@@ -29,6 +29,9 @@ const CONSTANTS = {
     POP_NONE: 0,
     POP_LIMIT: 1,
     POP_ALL: 2,
+    BACKLINK_NONE: 0,
+    BACKLINK_NORMAL: 1,
+    BACKLINK_DOC_ONLY: 2,
 }
 let g_observerRetryInterval;
 let g_observerStartupRefreshTimeout;
@@ -101,7 +104,7 @@ let g_setting_default = {
     alwaysShowSibling: false, // 始终显示同级文档
     mainRetry: 5, // 主函数重试次数
     noChildIfHasAv: false, // 检查文档是否包含数据库，如果有，则不显示子文档区域
-    showBackLinksArea: false, // 显示反链区域
+    showBackLinksArea: CONSTANTS.BACKLINK_NONE, // 显示反链区域
 };
 /**
  * Plugin类
@@ -297,7 +300,10 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
             new SettingProperty("alwaysShowSibling", "SWITCH", null),
             new SettingProperty("mainRetry", "NUMBER", [0, 20]),
             new SettingProperty("noChildIfHasAv", "SWITCH", null),
-            new SettingProperty("showBackLinksArea", "SWITCH", null),
+            new SettingProperty("showBackLinksArea", "SELECT", [
+                {value:0},
+                {value:1},
+                {value:2}]),
             // CSS样式组
             new SettingProperty("showDocInfo", "SWITCH", null),
             new SettingProperty("hideIndicator", "SWITCH", null),
@@ -847,23 +853,44 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
 
     // 反链区域
     let backLinkElem = document.createElement("div");
-    if (g_setting.showBackLinksArea) {
-        const backlinkResponse = await getBackLink2(docId);
+    if (g_setting.showBackLinksArea != CONSTANTS.BACKLINK_NONE) {
+        // 区分：是否只保留块引本文档
         let backlinkInnerText = "";
-        debugPush("backlinkResponse", backlinkResponse);
-        for (let i = 0; i < backlinkResponse.backlinks.length; i++) {
-            const oneBacklinkItem = backlinkResponse.backlinks[i];
-            if (oneBacklinkItem.nodeType === "NodeDocument") {
-                let tempDocItem = {
-                    "ogSimpleName": oneBacklinkItem.name,
-                    "name": oneBacklinkItem.name + ".sy",
-                    "icon": "",
-                    "id": oneBacklinkItem.id
-                };
-                debugPush("docLinkCheck", docLinkGenerator(tempDocItem));
-                backlinkInnerText += docLinkGenerator(tempDocItem);
+        if (g_setting.showBackLinksArea == CONSTANTS.BACKLINK_NORMAL) {
+            const backlinkResponse = await getBackLink2(docId);
+            debugPush("backlinkResponse", backlinkResponse);
+            for (let i = 0; i < backlinkResponse.backlinks.length; i++) {
+                const oneBacklinkItem = backlinkResponse.backlinks[i];
+                if (oneBacklinkItem.nodeType === "NodeDocument") {
+                    let tempDocItem = {
+                        "ogSimpleName": oneBacklinkItem.name,
+                        "name": oneBacklinkItem.name + ".sy",
+                        "icon": "",
+                        "id": oneBacklinkItem.id
+                    };
+                    backlinkInnerText += docLinkGenerator(tempDocItem);
+                }
+            }
+        } else if (g_setting.showBackLinksArea == CONSTANTS.BACKLINK_DOC_ONLY) {
+            const backlinkDocSqlResponse = await sqlAPI(`SELECT id, content FROM blocks WHERE id in (
+                SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${docId}"
+                ) AND type = "d" ORDER BY updated DESC;`);
+            if (backlinkDocSqlResponse != null) {
+                for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
+                    const oneBacklinkItem = backlinkDocSqlResponse[i];
+                    let tempDocItem = {
+                        "ogSimpleName": oneBacklinkItem.content,
+                        "name": oneBacklinkItem.content + ".sy",
+                        "icon": "",
+                        "id": oneBacklinkItem.id
+                    };
+                    debugPush("docLinkCheck", docLinkGenerator(tempDocItem));
+                    backlinkInnerText += docLinkGenerator(tempDocItem);
+                }
             }
         }
+        
+
         if (backlinkInnerText === "") {
             backlinkInnerText = `<span class="og-hn-doc-none-word">${language["none"]}</span>`;
             backLinkElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
@@ -1310,7 +1337,8 @@ function setStyle() {
     }
     .og-hierachy-navigate-sibling-doc-container  span.refLinks, 
     .og-hierachy-navigate-children-doc-container span.refLinks,
-    .og-hierachy-navigate-next-doc-container span.refLinks {
+    .og-hierachy-navigate-next-doc-container span.refLinks,
+    .og-hierachy-navigate-backlink-doc-container span.refLinks {
         margin-right: 10px;
     }
     `;
