@@ -875,6 +875,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
             const backlinkDocSqlResponse = await sqlAPI(`SELECT id, content FROM blocks WHERE id in (
                 SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${docId}"
                 ) AND type = "d" ORDER BY updated DESC;`);
+            debugPush("backlinkSQLResponse", backlinkDocSqlResponse);
             if (backlinkDocSqlResponse != null) {
                 for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
                     const oneBacklinkItem = backlinkDocSqlResponse[i];
