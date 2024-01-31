@@ -85,7 +85,7 @@ let g_setting_default = {
     sibling: false, // 为true则在父文档不存在时清除
     nameMaxLength: 20,// 文档名称最大长度 0不限制
     docMaxNum: 512, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
-    limitPopUpScope: false,// 限制浮窗触发范围
+    // limitPopUpScope: false,// 限制浮窗触发范围
     linkDivider: "", // 前缀
     popupWindow: CONSTANTS.POP_LIMIT,
     maxHeightLimit: 10,
@@ -670,7 +670,7 @@ async function getDocumentRelations(docId, sqlResult) {
     let parentDoc = await getParentDocument(docId, sqlResult);
     
     // 获取子文档
-    let childDocs = await getChildDocuments(docId, sqlResult);
+    let childDocs = await getChildDocuments(docId, sqlResult, 0);
 
     let noParentFlag = false;
     if (parentDoc.length == 0) {
@@ -679,13 +679,13 @@ async function getDocumentRelations(docId, sqlResult) {
     // 获取同级文档
     let siblingDocs = await getSiblingDocuments(docId, parentDoc, sqlResult, noParentFlag);
 
-    // 超长部分裁剪
-    if (childDocs.length > g_setting.docMaxNum && g_setting.docMaxNum != 0) {
-        childDocs = childDocs.slice(0, g_setting.docMaxNum);
-    }
-    if (siblingDocs.length > g_setting.docMaxNum && g_setting.docMaxNum != 0) {
-        siblingDocs = siblingDocs.slice(0, g_setting.docMaxNum);
-    }
+    // 超长部分裁剪 该部分移动到输出generateText处理
+    // if (childDocs.length > g_setting.docMaxNum && g_setting.docMaxNum != 0) {
+    //     childDocs = childDocs.slice(0, g_setting.docMaxNum);
+    // }
+    // if (siblingDocs.length > g_setting.docMaxNum && g_setting.docMaxNum != 0) {
+    //     siblingDocs = siblingDocs.slice(0, g_setting.docMaxNum);
+    // }
 
     // 返回结果
     return [ parentDoc, childDocs, siblingDocs ];
@@ -698,13 +698,17 @@ async function getParentDocument(docId, sqlResult) {
     return parentSqlResult;
 }
 
-async function getChildDocuments(docId, sqlResult) {
-    let childDocs = await listDocsByPath({path: sqlResult[0].path, notebook: sqlResult[0].box});
+async function getChildDocuments(docId, sqlResult, maxListCount = g_setting.docMaxNum) {
+    let childDocs = await listDocsByPath({path: sqlResult[0].path, notebook: sqlResult[0].box, maxListLength: maxListCount});
+    if (maxListCount > 0) {
+        childDocs.files = childDocs.files.slice(0, g_setting.docMaxNum);
+    }
+    
     return childDocs.files;
 }
 
 async function getSiblingDocuments(docId, parentSqlResult, sqlResult, noParentFlag) {
-    let siblingDocs = await listDocsByPath({path: noParentFlag ? "/" : parentSqlResult[0].path, notebook: sqlResult[0].box});
+    let siblingDocs = await listDocsByPath({path: noParentFlag ? "/" : parentSqlResult[0].path, notebook: sqlResult[0].box, maxListLength: 0});
     return siblingDocs.files;
 }
 
@@ -788,7 +792,8 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     // 同级文档始终显示或首层级显示
     if ((g_setting.sibling && !parentFlag) || g_setting.alwaysShowSibling){
         if (siblingDoc.length > 1) {
-            for (let doc of siblingDoc) {
+            for (let i = 0; i < siblingDoc.length && i < g_setting.docMaxNum; i++) {
+                let doc = siblingDoc[i];
                 let temp = docLinkGenerator(doc);
                 // 对当前文档加入新样式
                 if (doc.id == docId) {
@@ -923,7 +928,8 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         ${language["child_nodes"]}
         </span>`;
     let childFlag = false;
-    for (let doc of childDoc) {
+    for (let i = 0; i < childDoc.length && i < g_setting.docMaxNum; i++) {
+        let doc = childDoc[i];
         childElemInnerText += docLinkGenerator(doc);
         childFlag = true;
     }
@@ -1792,14 +1798,21 @@ async function listDocsByPath({path, notebook = undefined, sort = undefined, max
     };
     if (notebook) data["notebook"] = notebook;
     if (sort) data["sort"] = sort;
-    if (g_setting.docMaxNum != 0) {
-        data["maxListCount"] = g_setting.docMaxNum >= 32 ? g_setting.docMaxNum : 32;
-    } else {
+    if (maxListLength == 0) {
         data["maxListCount"] = 0;
+        // data["maxListCount"] = g_setting.docMaxNum >= 32 ? g_setting.docMaxNum : 32;
     }
     let url = '/api/filetree/listDocsByPath';
-    return parseBody(request(url, data));
-    //文档hepath与Markdown 内容
+    const listResponse = await parseBody(request(url, data));
+    if (listResponse) {
+        let result = listResponse;
+        if (maxListLength != 0) {
+            result.files = result.files.slice(0, maxListLength);
+        }
+        return result;
+    } else {
+        return null;
+    }
 }
 
 async function getBackLink2(id, sort = "3", msort= "3", k = "", mk = "") {
