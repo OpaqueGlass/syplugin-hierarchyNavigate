@@ -141,6 +141,14 @@ class HierachyNavigatePlugin extends siyuan.Plugin {
         });
 
         this.addCommand({
+            langKey: "go_down",
+            hotkey: "⌥⌘→",
+            callback: (protyle) => {
+                goDownShortcutHandler();
+            }
+        });
+
+        this.addCommand({
             langKey: "insert_lcd",
             hotkey: "",
             editorCallback: (protyle) => {
@@ -1567,6 +1575,26 @@ async function goUpShortcutHandler() {
             altKey: false});
     } else {
         pushMsg(language["is_top_document"], 2000)
+    }
+}
+
+async function goDownShortcutHandler() {
+    const docId = await getCurrentDocIdF();
+    let sqlResult = await sqlAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
+    if (sqlResult && sqlResult.length >= 1) {
+        // TODO: 如果可以忽略超过范围的提示，再将这里的限制修改为3以下
+        const childDocsList = await getChildDocuments(docId, sqlResult, 0);
+        if (childDocsList && childDocsList.length >= 1) {
+            const childDoc = childDocsList[0];
+            openRefLink(undefined, childDoc.id, {
+                ctrlKey: false,
+                shiftKey: false,
+                altKey: false});
+        } else {
+            pushMsg(language["no_child_document"], 2000);
+        }
+    } else {
+        pushMsg(language["canot_open_child_doc"], 2000);
     }
 }
 
