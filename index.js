@@ -800,7 +800,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
     // 同级文档始终显示或首层级显示
     if ((g_setting.sibling && !parentFlag) || g_setting.alwaysShowSibling){
         if (siblingDoc.length > 1) {
-            for (let i = 0; i < siblingDoc.length && i < g_setting.docMaxNum; i++) {
+            for (let i = 0; i < siblingDoc.length && (i < g_setting.docMaxNum || g_setting.docMaxNum == 0); i++) {
                 let doc = siblingDoc[i];
                 let temp = docLinkGenerator(doc);
                 // 对当前文档加入新样式
@@ -936,7 +936,7 @@ async function generateText(parentDoc, childDoc, siblingDoc, docId, totalWords, 
         ${language["child_nodes"]}
         </span>`;
     let childFlag = false;
-    for (let i = 0; i < childDoc.length && i < g_setting.docMaxNum; i++) {
+    for (let i = 0; i < childDoc.length && (i < g_setting.docMaxNum || g_setting.docMaxNum == 0); i++) {
         let doc = childDoc[i];
         childElemInnerText += docLinkGenerator(doc);
         childFlag = true;
