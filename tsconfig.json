@@ -1,0 +1,53 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "module": "ESNext",
+        "lib": [
+            "ES2020",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "skipLibCheck": true,
+        /* Bundler mode */
+        "moduleResolution": "Node",
+        // "allowImportingTsExtensions": true,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "preserve",
+        /* Linting */
+        "strict": false,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        /* svelte 过去的设置*/
+        "allowJs": true,
+        "checkJs": true,
+        "types": [
+            "node",
+            "vite/client",
+            "vue"
+        ],
+        // "baseUrl": "./src",
+        "paths": {
+            "@/*": ["./src/*"],
+            "@/libs/*": ["./src/libs/*"],
+        },
+        "typeRoots": ["./src/types"]
+    },
+    "include": [
+        "tools/**/*.ts",
+        "src/**/*.ts",
+        "src/**/*.d.ts",
+        "src/**/*.tsx",
+        "src/**/*.vue"
+    ],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ],
+    "root": "."
+}
