@@ -2,6 +2,7 @@
  * 设置、设置标签页定义
  * 请注意，设置项的初始化应该在语言文件加载后进行
  */
+import { debugPush } from "@/logger";
 import { isValidStr } from "./commonCheck";
 import { lang } from "./lang";
 
@@ -11,7 +12,7 @@ interface IConfigProperty {
     min?: number, // 设置项最小值
     max?: number, // 设置项最大值
     btndo?: () => void,  // 按钮设置项的调用函数(callback)
-    options?: number, // 选项数量，选项名称由语言文件中_option_i决定，建议整一个CONST对应每个选项取得数字值
+    options?: Array<string>, // 选项key数组，元素顺序决定排序顺序，请勿使用非法字符串
 }
 
 export class ConfigProperty {
@@ -20,7 +21,7 @@ export class ConfigProperty {
     min?: number;
     max?: number;
     btndo?: () => void;
-    options?: number;
+    options?: Array<string>;
 
     configName: string;
     description: string;
@@ -34,15 +35,15 @@ export class ConfigProperty {
         this.min = min;
         this.max = max;
         this.btndo = btndo;
-        this.options = options;
+        this.options = options ?? new Array<string>();
 
         this.configName = lang(`setting_${key}_name`);
         this.description = lang(`setting_${key}_desp`);
         // this.tips = lang(`setting_${key}_tips`);
-
+        
         this.optionNames = new Array<string>();
-        for(let i = 0; i < options; i++){
-            this.optionNames.push(lang(`setting_${key}_option_${i}`));
+        for(let optionKey of this.options){
+            this.optionNames.push(lang(`setting_${key}_option_${optionKey}`));
         }
     }
 
