@@ -22,7 +22,7 @@
                                 <Switch v-model="g_setting[item.key]"></Switch>
                             </template>
                             <template v-else-if="item.type == 'SELECT'">
-                                <Select :option-names="getSelectOptions(item.key, item.options)"
+                                <Select :option-names="item.optionNames" :option-keys="item.options"
                                     v-model="g_setting[item.key]"></Select>
                             </template>
                             <template v-else-if="item.type == 'NUMBER'">
@@ -61,7 +61,7 @@
   
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { lang, settingLang, getSelectOptions, settingPageLang } from '@/utils/lang';
+import { settingLang, settingPageLang } from '@/utils/lang';
 import Page from './page.vue';
 import Block from "./block.vue";
 import Item from './item.vue';

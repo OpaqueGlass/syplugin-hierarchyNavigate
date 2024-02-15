@@ -35,7 +35,13 @@ export function settingPageLang(key: string) {
     let pageSettingName: string = lang(`settingpage_${key}_name`);
     return [pageSettingName];
 }
-
+/**
+ * 
+ * @deprecated 创建configproperty时读取了language，不再需要这里获取
+ * @param key 
+ * @param optionCount 
+ * @returns 
+ */
 export function getSelectOptions(key: string, optionCount: number) {
     let options = new Array<string>();
     for (let i = 0; i < optionCount; i++) {

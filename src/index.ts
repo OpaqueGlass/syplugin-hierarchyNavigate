@@ -22,6 +22,7 @@ import { debugPush, logPush } from "./logger";
 import { initSettingProperty } from './manager/settingManager';
 import { setPluginInstance } from "./utils/getInstance";
 import { loadSettings } from "./manager/settingManager";
+import EventHandler from "./worker/eventHandler";
 
 const STORAGE_NAME = "menu-config";
 const TAB_TYPE = "custom_tab";
@@ -35,6 +36,7 @@ export default class OGPluginTemplate extends Plugin {
     private customTab: () => IModel;
     private isMobile: boolean;
     private settingPanel;
+    private myEventHandler: EventHandler;
 
     async onload() {
         this.data[STORAGE_NAME] = {readonlyText: "Readonly"};
@@ -43,7 +45,7 @@ export default class OGPluginTemplate extends Plugin {
         setPluginInstance(this);
         initSettingProperty();
         // 载入设置项，此项必须在setPluginInstance之后被调用
-        
+        this.myEventHandler = new EventHandler();
         
         const frontEnd = getFrontend();
         this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";
@@ -133,6 +135,11 @@ export default class OGPluginTemplate extends Plugin {
 
     onLayoutReady(): void {
         loadSettings();
+        this.myEventHandler.bindHandler();
+    }
+
+    onunload(): void {
+        this.myEventHandler.unbindHandler();
     }
 
     openSetting() {
