@@ -23,6 +23,7 @@ import { initSettingProperty } from './manager/settingManager';
 import { setPluginInstance } from "./utils/getInstance";
 import { loadSettings } from "./manager/settingManager";
 import EventHandler from "./worker/eventHandler";
+import { removeStyle, setStyle } from "./worker/setStyle";
 
 const STORAGE_NAME = "menu-config";
 const TAB_TYPE = "custom_tab";
@@ -134,12 +135,17 @@ export default class OGPluginTemplate extends Plugin {
     }
 
     onLayoutReady(): void {
-        loadSettings();
-        this.myEventHandler.bindHandler();
+        loadSettings().then(()=>{
+            this.myEventHandler.bindHandler();
+            setStyle();
+        }).catch(()=>{
+            showMessage("文档层级导航插件载入设置项失败。Load plugin settings faild. syplugin-hierarchy-navigate");
+        });
     }
 
     onunload(): void {
         this.myEventHandler.unbindHandler();
+        removeStyle();
     }
 
     openSetting() {

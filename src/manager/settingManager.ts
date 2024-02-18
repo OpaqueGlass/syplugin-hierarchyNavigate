@@ -3,7 +3,8 @@ import { createApp, ref, watch } from "vue";
 import settingVue from "../components/settings/setting.vue";
 import { getPluginInstance } from "@/utils/getInstance";
 import { debugPush, logPush } from "@/logger";
-import { CONSTANTS } from "@/const";
+import { CONSTANTS } from "@/constants";
+import { setStyle } from "@/worker/setStyle";
 
 // const pluginInstance = getPluginInstance();
 
@@ -58,12 +59,15 @@ watch(setting, (newVal) => {
     if (updateTimeout) {
         clearTimeout(updateTimeout);
     }
+    logPush("检查到变化");
     updateTimeout = setTimeout(() => {
         // updateSingleSetting(key, newVal);
         saveSettings(newVal);
+        logPush("保存设置项");
+        setStyle();
         updateTimeout = null;
     }, 1000);
-}, {deep: true});
+}, {deep: true, immediate: true});
 
 /**
  * 设置项初始化
@@ -88,7 +92,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "nameMaxLength", "type": "NUMBER"}),
             new ConfigProperty({"key": "adjustDocIcon", "type": "SWITCH"}),
             new ConfigProperty({"key": "immediatelyUpdate", "type": "SWITCH"}),
-            new ConfigProperty({"key": "icon", "type": "SWITCH"}),
+            new ConfigProperty({"key": "icon", "type": "SELECT", options: [CONSTANTS.ICON_NONE, CONSTANTS.ICON_CUSTOM_ONLY, CONSTANTS.ICON_ALL]}),
             new ConfigProperty({"key": "linkDivider", "type": "NUMBER"}),
         ]}),
         new TabProperty({"key": "appearance", props: [
@@ -155,7 +159,17 @@ export async function loadSettings() {
 }
 
 export function getGSettings() {
+    // logPush("getConfig", setting.value, setting);
+    // 改成 setting._rawValue不行
     return setting;
+}
+
+export function getReadOnlyGSettings() {
+    return setting._rawValue;
+}
+
+export function getDefaultSettings() {
+    return defaultSetting;
 }
 
 export function getSettingPanelApp() {

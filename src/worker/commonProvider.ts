@@ -45,8 +45,11 @@ async function getDocumentRelations(sqlResult:any) {
 
 async function getParentDocument(sqlResult:SqlResult) {
     let splitText = sqlResult.path.split("/");
-    if (splitText.length <= 2) return [];
+    if (splitText.length <= 2) return null;
     let parentSqlResponse = await queryAPI(`SELECT * FROM blocks WHERE id = "${splitText[splitText.length - 2]}"`);
+    if (parentSqlResponse.length == 0) {
+        return null;
+    }
     return parentSqlResponse[0];
 }
 

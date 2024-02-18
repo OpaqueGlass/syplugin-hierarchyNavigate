@@ -1,4 +1,4 @@
-import { queryAPI } from ".";
+import { queryAPI, listDocsByPathT } from ".";
 
 /**
  * 统计子文档字符数
@@ -31,4 +31,19 @@ export async function getChildDocumentsWordCount(docId:string) {
     //     }
     // }
     // return [childDocs, totalWords];
+}
+
+export async function getChildDocuments(sqlResult:SqlResult, maxListCount: number): Promise<IFile[]> {
+    let childDocs = await listDocsByPathT({path: sqlResult.path, notebook: sqlResult.box, maxListCount: maxListCount});
+    return childDocs;
+}
+
+export async function isChildDocExist(id: string) {
+    const sqlResponse = await queryAPI(`
+        SELECT * FROM blocks WHERE path like '%${id}/%' LIMIT 3
+        `);
+    if (sqlResponse && sqlResponse.length > 0) {
+        return true;
+    }
+    return false;
 }

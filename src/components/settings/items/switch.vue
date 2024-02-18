@@ -5,5 +5,4 @@
 import { debugPush } from '@/logger';
 
 const model = defineModel({ type: Boolean});
-debugPush("model", model);
 </script>

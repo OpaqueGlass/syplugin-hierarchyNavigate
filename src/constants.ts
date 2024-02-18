@@ -6,21 +6,27 @@ export class CONSTANTS {
     public static readonly ICON_CUSTOM_ONLY: number = 1;
     public static readonly PLUGIN_NAME: string = "og_hierachy_navigate";
     public static readonly SAVE_TIMEOUT: number = 900;
-    public static readonly CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-doc-container";
+    public static readonly TOP_CONTAINER_CLASS_NAME: string = "og-hn-heading-docs-container"; // 最上层的
+    public static readonly CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-doc-container"; // 包括链接的子容器
     public static readonly ARROW_CLASS_NAME: string = "og-hierachy-navigate-breadcrumb-arrow";
     public static readonly INFO_CONTAINER_CLASS: string = "og-hierachy-navigate-info-container";
     public static readonly PARENT_CONTAINER_ID: string = "og-hierachy-navigate-parent-doc-container";
     public static readonly CHILD_CONTAINER_ID: string = "og-hierachy-navigate-children-doc-container";
     public static readonly SIBLING_CONTAINER_ID: string = "og-hierachy-navigate-sibling-doc-container";
     public static readonly INDICATOR_CLASS_NAME: string = "og-hierachy-navigate-doc-indicator";
+    public static readonly BREADCRUMB_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-breadcrumb-container";
+    public static readonly CONTAINER_MULTILINE_STYLE_CLASS_NAME: string = "og-hn-container-multiline";
+    
+    public static readonly MENU_ITEM_CLASS_NAME: string = "og-hn-breadcrumb-menu-item-container";
+
     public static readonly NONE_CLASS_NAME: string = "og-hierachy-navigate-doc-not-exist";
     public static readonly NEXT_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-next-doc-container";
     public static readonly BACKLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-backlink-doc-container";
-    public static readonly POP_NONE: number = 0;
-    public static readonly POP_LIMIT: number = 1;
-    public static readonly POP_ALL: number = 2;
-    public static readonly BACKLINK_NONE: number = 0;
-    public static readonly BACKLINK_NORMAL: number = 1;
-    public static readonly BACKLINK_DOC_ONLY: number = 2;
+    public static readonly POP_NONE: string = "disable"; // 0
+    public static readonly POP_LIMIT: string = "icon_only"; // 1
+    public static readonly POP_ALL: string = "all"; // 2
+    public static readonly BACKLINK_NONE: string = "disable";
+    public static readonly BACKLINK_NORMAL: string = "all";
+    public static readonly BACKLINK_DOC_ONLY: string = "only_doc";
   }
   

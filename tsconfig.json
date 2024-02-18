@@ -4,7 +4,7 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "lib": [
-            "ES2020",
+            "ES2021", //ES2020.String不支持.replaceAll
             "DOM",
             "DOM.Iterable"
         ],

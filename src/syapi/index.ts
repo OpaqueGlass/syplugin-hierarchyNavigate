@@ -9,7 +9,7 @@ import { logPush, warnPush, errorPush, debugPush } from "@/logger"
  * @param data 传递的信息（body）
  * @param url 请求的地址
  */
-export async function postRequest(data, url){
+export async function postRequest(data: any, url:string){
     let result;
     await fetch(url, {
         body: JSON.stringify(data),
@@ -24,7 +24,8 @@ export async function postRequest(data, url){
     return result;
 }
 
-export async function getResponseData(response){
+export async function getResponseData(promiseResponse){
+    const response = await promiseResponse;
     if (response.code != 0 || response.data == null){
         return null;
     }else{
@@ -759,6 +760,27 @@ export async function getDocInfo(id) {
         "id": id
     };
     let url = `/api/block/getDocInfo`;
+    return getResponseData(postRequest(data, url));
+}
+
+/**
+ * 反向链接面板用的API（标注有T，该API不是正式API）
+ * @param id 
+ * @param sort 
+ * @param msort 
+ * @param k 
+ * @param mk 看起来是提及部分的关键词
+ * @returns 
+ */
+export async function getBackLink2T(id, sort = "3", msort= "3", k = "", mk = "") {
+    let data = {
+        "id": id,
+        "sort": sort,
+        "msort": msort,
+        "k": k,
+        "mk": mk
+    };
+    let url = `/api/ref/getBacklink2`;
     return getResponseData(postRequest(data, url));
 }
 
