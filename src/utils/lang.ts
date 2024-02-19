@@ -22,9 +22,9 @@ export function lang(key: string) {
  * @returns [设置项名称，设置项描述，设置项按钮名称（如果有）]
  */
 export function settingLang(key: string) {
-    let settingName: string = lang(`settings_${key}_name`);
-    let settingDesc: string = lang(`settings_${key}_desp`);
-    let settingBtnName: string = lang(`settings_${key}_btn`)
+    let settingName: string = lang(`setting_${key}_name`);
+    let settingDesc: string = lang(`setting_${key}_desp`);
+    let settingBtnName: string = lang(`setting_${key}_btn`)
     if (settingName == "Undefined" || settingDesc == "Undefined") {
         throw new Error(`设置文本${key}未定义`);
     }
@@ -34,18 +34,4 @@ export function settingLang(key: string) {
 export function settingPageLang(key: string) {
     let pageSettingName: string = lang(`settingpage_${key}_name`);
     return [pageSettingName];
-}
-/**
- * 
- * @deprecated 创建configproperty时读取了language，不再需要这里获取
- * @param key 
- * @param optionCount 
- * @returns 
- */
-export function getSelectOptions(key: string, optionCount: number) {
-    let options = new Array<string>();
-    for (let i = 0; i < optionCount; i++) {
-        options.push(lang(`settings_${key}_option_${i}`));
-    }
-    return options;
 }

@@ -10,6 +10,7 @@ export default class ContentApplyer {
         this.protyleEnvInfo = protyleEnvInfo;
         this.protyleElement = protyleElement;
     }
+    // TODO: 各个部分依次替换，并能获取哪个部分不替换的信息
     async apply(finalElement: HTMLElement) {
         // 应用内容
         // 本组目前只支持PC端插入

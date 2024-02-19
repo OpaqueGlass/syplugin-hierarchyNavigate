@@ -28,5 +28,15 @@ export class CONSTANTS {
     public static readonly BACKLINK_NONE: string = "disable";
     public static readonly BACKLINK_NORMAL: string = "all";
     public static readonly BACKLINK_DOC_ONLY: string = "only_doc";
-  }
+}
+
+export class PRINTER_NAME {
+    public static readonly PARENT: string = "parent";
+    public static readonly CHILD: string = "child";
+    public static readonly SIBLING: string = "sibling";
+    public static readonly PREV_NEXT: string = "previousAndNext";
+    public static readonly BACKLINK: string = "backlinks";
+    public static readonly BREADCRUMB: string = "breadcrumb";
+    public static readonly INFO: string = "info";
+}
   

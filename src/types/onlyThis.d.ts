@@ -26,3 +26,9 @@ interface IDocLinkGenerateInfo {
     subFileCount?: number; // 请注意，不指出此项将是认为有子文档，但数量未知
     content?: string;
 }
+
+interface IAllPrinterResult {
+    elements: Array<HTMLElement>, // 最终生成的各个部分元素
+    onlyOnce: Array<boolean>, // 如果有，则该部分不做替换
+    relateContentKey: Array<string>, // 相关的各个部分内容key
+}

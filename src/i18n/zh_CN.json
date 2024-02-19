@@ -73,6 +73,20 @@
     "setting_showBackLinksArea_option_0": "禁用",
     "setting_showBackLinksArea_option_1": "常规",
     "setting_showBackLinksArea_option_2": "仅文档",
+
+    "setting_openDocContentGroup_name": "通用内容顺序显示控制",
+    "setting_openDocContentGroup_desp": "可以通过拖拽下方的无序列表项，控制“打开文档”时显示的内容模块顺序",
+    "setting_openDocContentGroup_option_parent": "父文档",
+    "setting_openDocContentGroup_option_sibling": "同级文档",
+    "setting_openDocContentGroup_option_child": "子文档",
+    "setting_openDocContentGroup_option_breadcrumb": "文档面包屑",
+    "setting_openDocContentGroup_option_backlinks": "反链",
+    "setting_openDocContentGroup_option_previousAndNext": "上一篇、下一篇",
+    "setting_openDocContentGroup_option_info": "文档信息行",
+
+
+    "order_panel_enable": "启用/显示：",
+    "order_panel_disable": "禁用/不显示：",
     
     "setting_experimental": "（⚠实验性功能，不稳定，可能随时被移除）",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题",

@@ -85,31 +85,6 @@ export default class OGPluginTemplate extends Plugin {
 
 
         const textareaElement = document.createElement("textarea");
-        // this.setting = new Setting({
-        //     confirmCallback: () => {
-        //         this.saveData(STORAGE_NAME, {readonlyText: textareaElement.value});
-        //     }
-        // });
-        // this.setting.addItem({
-        //     title: "Readonly text",
-        //     createActionElement: () => {
-        //         textareaElement.className = "b3-text-field fn__block";
-        //         textareaElement.placeholder = "Readonly text in the menu";
-        //         textareaElement.value = this.data[STORAGE_NAME].readonlyText;
-        //         return textareaElement;
-        //     },
-        // });
-        // const btnaElement = document.createElement("button");
-        // btnaElement.className = "b3-button b3-button--outline fn__flex-center fn__size200";
-        // btnaElement.textContent = "Open";
-        // btnaElement.addEventListener("click", () => {
-        //     window.open("https://github.com/siyuan-note/plugin-sample-vite-svelte");
-        // });
-        // this.setting.addItem({
-        //     title: "Open plugin url",
-        //     description: "Open plugin url in browser",
-        //     actionElement: btnaElement,
-        // });
         
 
         //
@@ -153,7 +128,7 @@ export default class OGPluginTemplate extends Plugin {
         const uid = crypto.randomUUID();
         // 创建dialog
         const settingDialog = new siyuan.Dialog({
-            "title": "setting_panel_title",
+            "title": this.i18n["setting_panel_title"],
             "content": `
             <div id="og_plugintemplate_${uid}" style="overflow: hidden; position: relative"></div>
             `,

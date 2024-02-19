@@ -28,7 +28,8 @@
         "types": [
             "node",
             "vite/client",
-            "vue"
+            "vue",
+            "sortablejs"
         ],
         // "baseUrl": "./src",
         "paths": {

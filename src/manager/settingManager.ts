@@ -3,7 +3,7 @@ import { createApp, ref, watch } from "vue";
 import settingVue from "../components/settings/setting.vue";
 import { getPluginInstance } from "@/utils/getInstance";
 import { debugPush, logPush } from "@/logger";
-import { CONSTANTS } from "@/constants";
+import { CONSTANTS, PRINTER_NAME } from "@/constants";
 import { setStyle } from "@/worker/setStyle";
 
 // const pluginInstance = getPluginInstance();
@@ -47,6 +47,7 @@ let defaultSetting: any = {
     mainRetry: 5, // 主函数重试次数
     noChildIfHasAv: false, // 检查文档是否包含数据库，如果有，则不显示子文档区域
     showBackLinksArea: CONSTANTS.BACKLINK_NONE, // 显示反链区域
+    openDocContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
 }
 
 
@@ -76,6 +77,7 @@ watch(setting, (newVal) => {
 export function initSettingProperty() {
     tabProperties.push(
         new TabProperty({key: "content", props:[
+            new ConfigProperty({"key": "openDocContentGroup", type: "ORDER", "options": Object.values(PRINTER_NAME)}),
             new ConfigProperty({"key": "showDocInfo", "type": "SWITCH"}),
             new ConfigProperty({"key": "enableParentArea", "type": "SWITCH"}),
             new ConfigProperty({"key": "enableSiblingArea", "type": "SELECT", "options": ["none", "auto", "always"]}),
@@ -153,6 +155,8 @@ export async function loadSettings() {
         loadResult = defaultSetting;
     }
     // 如果有必要，判断设置项是否对当前设备生效
+    // TODO: 对于Order，switch需要进行检查，防止版本问题导致选项不存在，不存在的用默认值
+    // TODO: switch旧版需要迁移，另外引出迁移逻辑
     setting.value = Object.assign(defaultSetting, loadResult);
     logPush("载入设置项", setting.value);
     // return loadResult;
