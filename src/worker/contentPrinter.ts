@@ -11,6 +11,7 @@ import { Menu } from "siyuan";
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
     private protyleBasicInfo: IProtyleEnvInfo;
+    // 这里如果只给出方法，可能需要另外bind(this)
     private printerList: Record<string, typeof BasicContentPrinter> = {
         [PRINTER_NAME.INFO]: DocInfoContentPrinter,
         [PRINTER_NAME.BREADCRUMB]: BreadcrumbContentPrinter,
@@ -19,6 +20,7 @@ export default class ContentPrinter {
         [PRINTER_NAME.PREV_NEXT]: NeighborContentPrinter,
         [PRINTER_NAME.BACKLINK]: BackLinkContentPrinter,
         [PRINTER_NAME.CHILD]: ChildContentPrinter,
+        [PRINTER_NAME.WIDGET]: WidgetContentPrinter
     }
     
     constructor(basicInfo:IBasicInfo, protyleBasicInfo:IProtyleEnvInfo) {
@@ -26,9 +28,15 @@ export default class ContentPrinter {
         this.protyleBasicInfo = protyleBasicInfo;
     }
     // 考虑到部分Printer还是需要自己判断状态，这里async
-    async print():Promise<HTMLElement> {
-        const result = document.createElement("div");
-        result.classList.add("og-hn-heading-docs-container");
+    async print():Promise<IAllPrinterResult> {
+        
+        // const result = document.createElement("div");
+        // result.classList.add("og-hn-heading-docs-container");
+        let result: IAllPrinterResult = {
+            elements: new Array(), // 最终生成的各个部分元素
+            onlyOnce: new Array(), // 如果有，则该部分不做替换
+            relateContentKeys: new Array(), // 相关的各个部分内容key
+        }
         const g_setting = getReadOnlyGSettings();
         // TODO: 根据basicInfo选择不同的constentGroupList
         
@@ -36,8 +44,12 @@ export default class ContentPrinter {
             const printer = this.printerList[printerName];
             if (printer) {
                 const printerResult = await printer.getBindedElement(this.basicInfo);
+                const isOnlyOnce = await printer.isOnlyOnce(this.basicInfo);
                 if (printerResult) {
-                    result.appendChild(printerResult);
+                    printerResult.dataset.ogContentType = printerName;
+                    result.elements.push(printerResult);
+                    result.onlyOnce.push(isOnlyOnce);
+                    result.relateContentKeys.push(printerName);
                 }
             }
         }
@@ -52,8 +64,24 @@ class BasicContentPrinter {
         this.basicInfo = basicInfo;
     }
     //TODO: 修饰符还有顺序？！java有吗？没关注过
+    /**
+     * 获取已经绑定了元素内操作的HTMLElement
+     * 子类必须实现该方法
+     * @param basicInfo 基本信息对象
+     * @returns 装有该部分内容的一个HTMLElement
+     */
     static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
         throw new Error("需子类覆盖实现");
+    }
+
+    /**
+     * 获取对应部分是否只插入一次
+     * 默认会进行更新
+     * @param basicInfo 
+     * @returns true: 该元素如果已经存在，则不会二次插入 false: 该元素会进行更新
+     */
+    static async isOnlyOnce(basicInfo:IBasicInfo): Promise<boolean> {
+        return false
     }
 
     static bindAction(element:HTMLElement): HTMLElement {
@@ -61,6 +89,13 @@ class BasicContentPrinter {
         return element;
     }
     
+    /**
+     * 获取基础对象
+     * @param uniqueClassName 基础对象独立类名
+     * @param classNames 附加类名，如果不传该参数，默认添加多行与container容器类名
+     * @param indicatorLang 区域提示词
+     * @returns HTMLElement
+     */
     static getBasicElement(uniqueClassName: string, classNames: string[], indicatorLang?: string):HTMLElement {
         const contentElem = document.createElement("div");
         // 这里有点重复，看看再说
@@ -519,7 +554,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 if (previousElem) {
                     result.appendChild(previousElem);
                 }
-                if (result) {
+                if (nextElem) {
                     result.appendChild(nextElem);
                 }
                 result.classList.add(CONSTANTS.NEXT_CONTAINER_CLASS_NAME);
@@ -538,5 +573,8 @@ class WidgetContentPrinter extends BasicContentPrinter {
         result.classList.add("og-hn-widget-container");
         result.innerHTML = `<iframe src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${window.screen.availWidth - 75}px;"></iframe>`;
         return result;
+    }
+    static async isOnlyOnce(basicInfo: IBasicInfo): Promise<boolean> {
+        return true;    
     }
 }

@@ -24,6 +24,7 @@ import { setPluginInstance } from "./utils/getInstance";
 import { loadSettings } from "./manager/settingManager";
 import EventHandler from "./worker/eventHandler";
 import { removeStyle, setStyle } from "./worker/setStyle";
+// import "source-map-support/register";
 
 const STORAGE_NAME = "menu-config";
 const TAB_TYPE = "custom_tab";

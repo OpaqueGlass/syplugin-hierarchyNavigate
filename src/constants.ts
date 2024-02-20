@@ -38,5 +38,6 @@ export class PRINTER_NAME {
     public static readonly BACKLINK: string = "backlinks";
     public static readonly BREADCRUMB: string = "breadcrumb";
     public static readonly INFO: string = "info";
+    public static readonly WIDGET: string = "widget";
 }
   

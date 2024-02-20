@@ -6,10 +6,12 @@ import ContentPrinter from "@/worker/contentPrinter";
 import { getProtyleInfo } from "@/utils/onlyThisUtil"
 import ContentApplyer from "./contentApplyer";
 import Mutex from "@/utils/mutex";
+import { getReadOnlyGSettings } from "@/manager/settingManager";
+import { sleep } from "@/utils/common";
 export default class EventHandler {
     private handlerBindList: Record<string, (arg1: CustomEvent)=>void> = {
-        "loaded-protyle-static": this.loadedProtyleHandler.bind(this), // mutex需要访问EventHandler的属性
-        "switch-protyle": this.loadedProtyleHandler.bind(this)
+        "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性
+        "switch-protyle": this.loadedProtyleRetryEntry.bind(this)
     };
 
     private loadAndSwitchMutex: Mutex;
@@ -35,6 +37,7 @@ export default class EventHandler {
         // 多个文档同时触发则串行执行，理论上是要判断文档id是否相同（相同的才可能会在同一个Element上操作）；这里全部串行可能影响性能
         // 我也忘了为什么要绑定load-了；只是打开文档的话，switch-protyle事件就够了
         await this.loadAndSwitchMutex.lock();
+        let success = true;
         // 颜色状态码可以参考https://blog.csdn.net/weixin_44110772/article/details/105860997
         // x1b是十六进制，和文中的/033八进制没啥不同，同时应用加粗和Cryan就像下面这样;分隔
         debugPush("\x1b[1;36m%s\x1b[0m", ">>>>>>>> mutex 新任务开始");
@@ -52,6 +55,10 @@ export default class EventHandler {
             logPush("protyleInfo", protyleEnvInfo);
             // 调用Provider获取必要信息
             const basicInfo = await getBasicInfo(docId);
+            logPush("basicInfo", basicInfo);
+            if (!basicInfo.success) {
+                throw new Error("获取文档信息失败");
+            }
             // 区分生成内容；应该不会根据不同的配置使用不同的生成吧，那也太累了，这个部分可能需要使用contentPrinter的对象
             // 如果还需要根据不同的设备走不同的显示内容，就更麻烦了【这里不做区分，如果区分移动端，则使用移动端独有设置项文件mobile-setting.json/{uid}.json】
             const printer = new ContentPrinter(basicInfo, protyleEnvInfo);
@@ -62,9 +69,25 @@ export default class EventHandler {
             applyer.apply(finalElement);
         } catch(error) {
             errorPush(error);
+            success = false;
         } finally {
             debugPush("\x1b[1;36m%s\x1b[0m", "<<<<<<<< mutex 任务结束");
             this.loadAndSwitchMutex.unlock();
         }
+        return success;
+    }
+
+    async loadedProtyleRetryEntry(event: CustomEvent<IEventBusMap["loaded-protyle-static"]>) {
+        let success = true;
+        const g_setting = getReadOnlyGSettings();
+        let retryCount = 0;
+        do {
+            success = await this.loadedProtyleHandler(event);
+            retryCount++;
+            if (success == false) {
+                logPush("重试过程中遇到问题");
+                await sleep(200);
+            }
+        } while(retryCount < g_setting.mainRetry);
     }
 }

@@ -19,7 +19,7 @@ export async function getBasicInfo(docId:string) {
     [result.parentDocSqlResult, result.siblingDocInfoList, result.childDocInfoList] = await getDocumentRelations(currentDocSqlResponse[0]);
     // 是否包括数据库
     // 文档中块数判断（用于控制lcd）
-    logPush("ProviderFinalR", result);
+    logPush("BasicProviderFinalR", result);
     return result;
 }
 

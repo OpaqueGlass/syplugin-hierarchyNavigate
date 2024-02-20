@@ -16,6 +16,15 @@ export function openRefLinkInProtyleWnd(protyleElem: IProtyle, openInFocus: bool
     openRefLink(event, null, null, protyleElem, openInFocus);
 }
 
+/**
+ * 休息一下，等待
+ * @param time 单位毫秒
+ * @returns 
+ */
+export function sleep(time:number){
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 
 /**
  * 在点击<span data-type="block-ref">时打开思源块/文档
