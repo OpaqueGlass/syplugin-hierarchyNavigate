@@ -20,6 +20,15 @@ export default class Mutex {
         });
     }
 
+    tryLock(): boolean {
+        if (!this.isLocked) {
+            this.isLocked = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     unlock(): void {
         this.isLocked = false;
         const next = this.queue.shift();

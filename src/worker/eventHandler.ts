@@ -15,6 +15,7 @@ export default class EventHandler {
     };
 
     private loadAndSwitchMutex: Mutex;
+    private simpleMutex: number = 0;
     constructor() {
         this.loadAndSwitchMutex = new Mutex();
     }
@@ -36,12 +37,18 @@ export default class EventHandler {
     async loadedProtyleHandler(event: CustomEvent<IEventBusMap["loaded-protyle-static"]>) {
         // 多个文档同时触发则串行执行，理论上是要判断文档id是否相同（相同的才可能会在同一个Element上操作）；这里全部串行可能影响性能
         // 我也忘了为什么要绑定load-了；只是打开文档的话，switch-protyle事件就够了
-        await this.loadAndSwitchMutex.lock();
+        if (this.simpleMutex > 0) {
+            return true;
+        }
+        this.simpleMutex++;
+        
+       
         let success = true;
-        // 颜色状态码可以参考https://blog.csdn.net/weixin_44110772/article/details/105860997
-        // x1b是十六进制，和文中的/033八进制没啥不同，同时应用加粗和Cryan就像下面这样;分隔
-        debugPush("\x1b[1;36m%s\x1b[0m", ">>>>>>>> mutex 新任务开始");
         try {
+            await this.loadAndSwitchMutex.lock();
+            // 颜色状态码可以参考https://blog.csdn.net/weixin_44110772/article/details/105860997
+            // x1b是十六进制，和文中的/033八进制没啥不同，同时应用加粗和Cryan就像下面这样;分隔
+            debugPush("\x1b[1;36m%s\x1b[0m", ">>>>>>>> mutex 新任务开始");
             const protyle = event.detail.protyle;
             // 可能还需要套一个重试的壳
             // 另外，和swtich 共同存在时，需要防止并发
@@ -53,6 +60,10 @@ export default class EventHandler {
             // 疯了的话可能加入判断使用什么内容顺序（预设模板）
             const protyleEnvInfo:IProtyleEnvInfo = getProtyleInfo(protyle);
             logPush("protyleInfo", protyleEnvInfo);
+            if (protyleEnvInfo.notTraditional && !getReadOnlyGSettings().enableForOtherCircumstance) {
+                debugPush("非常规情况，且设置不允许，跳过");
+                return true;
+            }
             // 调用Provider获取必要信息
             const basicInfo = await getBasicInfo(docId);
             logPush("basicInfo", basicInfo);
@@ -73,6 +84,7 @@ export default class EventHandler {
         } finally {
             debugPush("\x1b[1;36m%s\x1b[0m", "<<<<<<<< mutex 任务结束");
             this.loadAndSwitchMutex.unlock();
+            this.simpleMutex--;
         }
         return success;
     }
@@ -88,6 +100,6 @@ export default class EventHandler {
                 logPush("重试过程中遇到问题");
                 await sleep(200);
             }
-        } while(retryCount < g_setting.mainRetry);
+        } while(retryCount < g_setting.mainRetry && !success);
     }
 }

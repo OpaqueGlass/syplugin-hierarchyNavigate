@@ -24,6 +24,7 @@ import { setPluginInstance } from "./utils/getInstance";
 import { loadSettings } from "./manager/settingManager";
 import EventHandler from "./worker/eventHandler";
 import { removeStyle, setStyle } from "./worker/setStyle";
+import { bindCommand } from "./worker/shortcutHandler";
 // import "source-map-support/register";
 
 const STORAGE_NAME = "menu-config";
@@ -46,6 +47,7 @@ export default class OGPluginTemplate extends Plugin {
         setLanguage(this.i18n);
         setPluginInstance(this);
         initSettingProperty();
+        bindCommand(this);
         // 载入设置项，此项必须在setPluginInstance之后被调用
         this.myEventHandler = new EventHandler();
         

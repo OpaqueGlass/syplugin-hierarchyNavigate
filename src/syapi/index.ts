@@ -118,13 +118,13 @@ export async function addblockAttrAPI(attrs, blockid){
  * @param blockid
  * @return response 请访问result.data获取对应的属性
  */
-export async function getblockAttrAPI(blockid){
+export async function getblockAttr(blockid){
     let url = "/api/attr/getBlockAttrs";
     let response = await postRequest({id: blockid}, url);
     if (response.code != 0){
         throw Error("获取挂件块参数失败");
     }
-    return response;
+    return response.data;
 }
 
 /**
@@ -290,45 +290,14 @@ export async function pushMsgAPI(msgText, timeout){
  * 获取当前文档id（伪api）
  * 优先使用jquery查询
  */
-export async function getCurrentDocIdF(){
-    let thisDocId;
-    let thisWidgetId = getCurrentWidgetId();
-    
-    //依靠widgetId sql查，运行时最稳定方案（但挂件刚插入时查询不到！）
-    if (isValidStr(thisWidgetId)){
+export async function getCurrentDocIdF() {
+    let thisDocId:string = null;
+    thisDocId = window.top.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background")?.getAttribute("data-node-id");
+    debugPush("thisDocId by first id", thisDocId);
+    let temp:string = null;
+    if (!thisDocId && isMobile()) {
+        // UNSTABLE: 面包屑样式变动将导致此方案错误！
         try {
-            let queryResult = await queryAPI("SELECT root_id as parentId FROM blocks WHERE id = '" + thisWidgetId + "'");
-            if (!(queryResult != null && queryResult.length == 1)) {
-                debugPush("SQL查询失败", queryResult);
-            }
-            if (queryResult!= null && queryResult.length >= 1){
-                logPush("获取当前文档idBy方案A"+queryResult[0].parentId);
-                return queryResult[0].parentId;
-            }
-        } catch (error) {
-            logPush("获取文档idBy方案A失败", error);
-        }
-    }
-
-    try{
-        if (isValidStr(thisWidgetId)){
-            //通过获取挂件所在页面题头图的data-node-id获取文档id【安卓下跳转返回有问题，原因未知】
-            let thisDocId = window.top.document.querySelector(`div.protyle-content:has(.iframe[data-node-id="${thisWidgetId}"]) .protyle-background`).getAttribute("data-node-id");
-            if (isValidStr(thisDocId)){
-                logPush("获取当前文档idBy方案B" + thisDocId);
-                return thisDocId;
-            }
-        }
-        
-    }catch(err){
-        warnPush(err);
-    }
-
-    // 移动端文档id获取
-    if (isMobile()) {
-        let temp;
-        try {
-            // 先前是因为移动端background id更新不及时，所以使用了文档icon获取的方法
             
             temp = window.top.document.querySelector(".protyle-breadcrumb .protyle-breadcrumb__item .popover__block[data-id]")?.getAttribute("data-id");
             let iconArray = window.top.document.querySelectorAll(".protyle-breadcrumb .protyle-breadcrumb__item .popover__block[data-id]");
@@ -340,31 +309,17 @@ export async function getCurrentDocIdF(){
                     break;
                 }
             }
-            debugPush("文档图标获取当前文档id", temp);
             thisDocId = temp;
         }catch(e){
-            warnPush("通过文档图标获取当前文档id失败", e);
+            console.error(e);
             temp = null;
         }
-        if (!thisDocId) {
-            thisDocId = window.top.document.querySelector(".protyle.fn__flex-1:not(.fn__none) .protyle-background")?.getAttribute("data-node-id");
-            debugPush("使用background的匹配值", thisDocId);
-        }
-        return thisDocId;
     }
-
-    //widgetId不存在，则使用老方法（存在bug：获取当前展示的页面id（可能不是挂件所在的id））
-    if (!isValidStr(thisWidgetId)){
-        try{
-            thisDocId = window.top.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background").getAttribute("data-node-id");
-            logPush("获取当前文档idBy方案C" + thisDocId);
-        }catch(err){
-            warnPush("获取当前文档id均失败");
-            return null;
-        }
-        return thisDocId;
+    if (!thisDocId) {
+        thisDocId = window.top.document.querySelector(".protyle.fn__flex-1:not(.fn__none) .protyle-background")?.getAttribute("data-node-id");
+        debugPush("thisDocId by background must match,  id", thisDocId);
     }
-    return null;
+    return thisDocId;
 }
 
 /**

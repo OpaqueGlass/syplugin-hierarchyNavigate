@@ -1,10 +1,10 @@
 import { CONSTANTS, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
-import { getBackLink2T, getDocInfo, getNotebookInfoLocallyF, queryAPI } from "@/syapi"
+import { getBackLink2T, getDocInfo, getNotebookInfoLocallyF, isMobile, queryAPI } from "@/syapi"
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist } from "@/syapi/custom";
 import { getGSettings, getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
-import { debugPush, logPush, warnPush } from "@/logger";
+import { debugPush, errorPush, logPush, warnPush } from "@/logger";
 import { openRefLink } from "@/utils/common";
 import { Menu } from "siyuan";
 
@@ -39,8 +39,22 @@ export default class ContentPrinter {
         }
         const g_setting = getReadOnlyGSettings();
         // TODO: 根据basicInfo选择不同的constentGroupList
-        
-        for (const printerName of g_setting.openDocContentGroup) {
+        let docContentKeyGroup = [];
+        docContentKeyGroup = isMobile() ? g_setting.mobileContentGroup : g_setting.openDocContentGroup;
+        // doc覆盖
+        if (this.basicInfo.currentDocAttrs["custom-og-hn-content"]) {
+            try {
+                docContentKeyGroup = JSON.parse(this.basicInfo.currentDocAttrs["custom-og-hn-content"]);
+            } catch(e) {
+                logPush("用户自定义顺序读取失败", e);
+            }
+        }
+        if (this.protyleBasicInfo.flashCard) {
+            docContentKeyGroup = g_setting.flashcardContentGroup;
+        }
+        debugPush("docContentKeyGroup", docContentKeyGroup);
+        // 获取文档信息
+        for (const printerName of docContentKeyGroup) {
             const printer = this.printerList[printerName];
             if (printer) {
                 const printerResult = await printer.getBindedElement(this.basicInfo);
@@ -203,8 +217,8 @@ class BasicContentPrinter {
     static getEmojiHtmlStr(iconString:string, hasChild:boolean, g_setting:any) {
         if (g_setting.icon == CONSTANTS.ICON_NONE) return g_setting.linkDivider;
         // 无emoji的处理
-        if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_ALL) return hasChild ? "📑" : "📄";//无icon默认值
-        if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_CUSTOM_ONLY) return g_setting.linkDivider;
+        if ((!isValidStr(iconString)) && g_setting.icon == CONSTANTS.ICON_ALL) return hasChild ? "📑" : "📄";//无icon默认值
+        if (!isValidStr(iconString)) return g_setting.linkDivider;
         let result = iconString;
         // emoji地址判断逻辑为出现.，但请注意之后的补全
         if (iconString.indexOf(".") != -1) {
@@ -219,11 +233,12 @@ class BasicContentPrinter {
                 let result = "";
                 iconString.split("-").forEach(element => {
                     //TODO: 确定是否正常
+                    debugPush("element", element);
                     result += String.fromCodePoint(Number("0x" + element));
                 });
                 return result;
             } catch (err) {
-                console.error("emoji处理时发生错误", iconString, err);
+                errorPush("emoji处理时发生错误", iconString, err);
                 return hasChild ? "📑" : "📄";
             }
         }
@@ -369,7 +384,6 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         let temp_path = "";
         for (let i = 1; i < pathArray.length; i++) {
             let docInfoResult = await getDocInfo(pathArray[i]);
-            debugPush("docInfo", docInfoResult);
             docInfoResult["box"] = box.id; 
             docInfoResult["path"] = `${temp_path}/${pathArray[i]}.sy`;
             docInfoResult["type"] = "FILE";

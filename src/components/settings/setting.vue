@@ -50,7 +50,7 @@
                                 <Textarea v-model="g_setting[item.key]"></Textarea>
                             </template>
                             <template v-else-if="item.type == 'ORDER'">
-                                <Order :option-names="item.optionNames" :option-keys="item.options"
+                                <Order :option-names="item.optionNames" :option-desps="item.optionDesps" :option-keys="item.options"
                                     :setting-key="item.key" v-model="g_setting[item.key]"></Order>
                             </template>
                         </Block>

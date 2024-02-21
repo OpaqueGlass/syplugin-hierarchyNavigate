@@ -25,6 +25,24 @@ export function sleep(time:number){
     return new Promise((resolve) => setTimeout(resolve, time));
 }
 
+export function getFocusedBlockId() {
+    const focusedBlock = getFocusedBlock();
+    if (focusedBlock == null) {
+        return null;
+    }
+    return focusedBlock.dataset.nodeId;
+}
+
+
+export function getFocusedBlock() {
+    if (document.activeElement.classList.contains('protyle-wysiwyg')) {
+        /* 光标在编辑区内 */
+        let block = window.getSelection()?.focusNode?.parentElement; // 当前光标
+        while (block != null && block?.dataset?.nodeId == null) block = block.parentElement;
+        return block;
+    }
+    else return null;
+}
 
 /**
  * 在点击<span data-type="block-ref">时打开思源块/文档

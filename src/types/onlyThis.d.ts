@@ -8,6 +8,7 @@ interface IBasicInfo {
     siblingDocInfoList: IFile[],
     childDocInfoList: IFile[],
     currentDocId: string,
+    currentDocAttrs: any,
 }
 
 interface IProtyleEnvInfo {

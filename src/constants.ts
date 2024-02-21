@@ -1,9 +1,9 @@
 export class CONSTANTS {
     public static readonly RANDOM_DELAY: number = 300;
     public static readonly STYLE_ID: string = "hierarchy-navigate-plugin-style";
-    public static readonly ICON_ALL: number = 2;
-    public static readonly ICON_NONE: number = 0;
-    public static readonly ICON_CUSTOM_ONLY: number = 1;
+    public static readonly ICON_ALL: string = "all"; // 2
+    public static readonly ICON_NONE: string = "none"; // 0
+    public static readonly ICON_CUSTOM_ONLY: string = "custom"; // 1
     public static readonly PLUGIN_NAME: string = "og_hierachy_navigate";
     public static readonly SAVE_TIMEOUT: number = 900;
     public static readonly TOP_CONTAINER_CLASS_NAME: string = "og-hn-heading-docs-container"; // 最上层的

@@ -5,6 +5,7 @@ import { getPluginInstance } from "@/utils/getInstance";
 import { debugPush, logPush } from "@/logger";
 import { CONSTANTS, PRINTER_NAME } from "@/constants";
 import { setStyle } from "@/worker/setStyle";
+import { getJSONFile } from "@/syapi";
 
 // const pluginInstance = getPluginInstance();
 
@@ -13,8 +14,40 @@ const settingDefinition = new Array<IConfigProperty>;
 let setting: any = ref({});
 
 interface IPluginSettings {
-    test1: string,
-    test2: string,
+    fontSize: number,
+    parentBoxCSS: string,
+    siblingBoxCSS: string,
+    childBoxCSS: string,
+    docLinkCSS: string,
+    docLinkClass: string,
+    icon: string, // 0禁用 1只显示设置图标的 2显示所有
+    sibling: boolean, // 为true则在父文档不存在时清除
+    nameMaxLength: number,// 文档名称最大长度 0不限制
+    docMaxNum: number, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
+    // limitPopUpScope: false,// 限制浮窗触发范围
+    linkDivider: string, // 前缀
+    popupWindow: string,
+    maxHeightLimit: number,
+    hideIndicator: boolean,
+    sameWidth: number,
+    adjustDocIcon: boolean,
+    // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
+    immediatelyUpdate: boolean,
+    noneAreaHide: boolean,
+    showDocInfo: boolean,
+    replaceWithBreadcrumb: boolean,
+    // retryForNewDoc: null,
+    listChildDocs: boolean, // 对于空白文档，使用列出子文档挂件替代
+    lcdEmptyDocThreshold: number, // 插入列出子文档挂件的空文档判定阈值（段落块）,-1为不限制、对所有父文档插入
+    previousAndNext: boolean, // 上一篇、下一篇
+    alwaysShowSibling: boolean, // 始终显示同级文档
+    mainRetry: number, // 主函数重试次数
+    noChildIfHasAv: boolean, // 检查文档是否包含数据库，如果有，则不显示子文档区域
+    showBackLinksArea: string, // 显示反链区域
+    openDocContentGroup: string[],
+    mobileContentGroup: string[],
+    flashcardContentGroup: string[],
+    enableForOtherCircumstance: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -48,6 +81,9 @@ let defaultSetting: any = {
     noChildIfHasAv: false, // 检查文档是否包含数据库，如果有，则不显示子文档区域
     showBackLinksArea: CONSTANTS.BACKLINK_NONE, // 显示反链区域
     openDocContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
+    mobileContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
+    flashcardContentGroup: [PRINTER_NAME.BREADCRUMB],
+    enableForOtherCircumstance: false,
 }
 
 
@@ -77,8 +113,10 @@ watch(setting, (newVal) => {
 export function initSettingProperty() {
     tabProperties.push(
         new TabProperty({key: "content", props:[
-            new ConfigProperty({"key": "openDocContentGroup", type: "ORDER", "options": Object.values(PRINTER_NAME)}),
-            new ConfigProperty({"key": "showDocInfo", "type": "SWITCH"}),
+            new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
+            new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
+            new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
+            new ConfigProperty({"key": "enableForOtherCircumstance", "type": "SWITCH"}),
             new ConfigProperty({"key": "enableParentArea", "type": "SWITCH"}),
             new ConfigProperty({"key": "enableSiblingArea", "type": "SELECT", "options": ["none", "auto", "always"]}),
             new ConfigProperty({"key": "enableChildArea", "type": "SWITCH"}),
@@ -92,7 +130,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "popupWindow", "type": "SELECT", options: ["disable", "icon_only", "all"]}),
             new ConfigProperty({"key": "docMaxNum", "type": "NUMBER"}),
             new ConfigProperty({"key": "nameMaxLength", "type": "NUMBER"}),
-            new ConfigProperty({"key": "adjustDocIcon", "type": "SWITCH"}),
+            
             new ConfigProperty({"key": "immediatelyUpdate", "type": "SWITCH"}),
             new ConfigProperty({"key": "icon", "type": "SELECT", options: [CONSTANTS.ICON_NONE, CONSTANTS.ICON_CUSTOM_ONLY, CONSTANTS.ICON_ALL]}),
             new ConfigProperty({"key": "linkDivider", "type": "NUMBER"}),
@@ -102,6 +140,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "hideIndicator", "type": "SWITCH"}),
             new ConfigProperty({"key": "noneAreaHide", "type": "SWITCH"}),
             new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
+            new ConfigProperty({"key": "adjustDocIcon", "type": "SWITCH"}),
             new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),
             new ConfigProperty({"key": "parentBoxCSS", "type": "TEXTAREA"}),
             new ConfigProperty({"key": "siblingBoxCSS", "type": "TEXTAREA"}),
@@ -160,6 +199,10 @@ export async function loadSettings() {
     setting.value = Object.assign(defaultSetting, loadResult);
     logPush("载入设置项", setting.value);
     // return loadResult;
+}
+
+async function transferOldSetting() {
+    const oldSettings = await getPluginInstance().loadData("settings.json");
 }
 
 export function getGSettings() {

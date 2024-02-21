@@ -1,5 +1,5 @@
 import { debugPush, logPush } from "@/logger";
-import {queryAPI, listDocsByPathT} from "@/syapi"
+import {queryAPI, listDocsByPathT, getblockAttr as getblockAttr} from "@/syapi"
 export async function getBasicInfo(docId:string) {
     let result: IBasicInfo;
     result = {
@@ -8,7 +8,8 @@ export async function getBasicInfo(docId:string) {
         parentDocSqlResult: null,
         siblingDocInfoList: [],
         childDocInfoList: [],
-        currentDocId: docId
+        currentDocId: docId,
+        currentDocAttrs: {},
     };
     const currentDocSqlResponse = await queryAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
     if (currentDocSqlResponse.length == 0) {
@@ -17,6 +18,7 @@ export async function getBasicInfo(docId:string) {
     }
     result.docSqlResult = currentDocSqlResponse[0];
     [result.parentDocSqlResult, result.siblingDocInfoList, result.childDocInfoList] = await getDocumentRelations(currentDocSqlResponse[0]);
+    result.currentDocAttrs = await getblockAttr(docId);
     // 是否包括数据库
     // 文档中块数判断（用于控制lcd）
     logPush("BasicProviderFinalR", result);
@@ -43,7 +45,7 @@ async function getDocumentRelations(sqlResult:any) {
 }
 
 
-async function getParentDocument(sqlResult:SqlResult) {
+export async function getParentDocument(sqlResult:SqlResult) {
     let splitText = sqlResult.path.split("/");
     if (splitText.length <= 2) return null;
     let parentSqlResponse = await queryAPI(`SELECT * FROM blocks WHERE id = "${splitText[splitText.length - 2]}"`);
@@ -53,12 +55,12 @@ async function getParentDocument(sqlResult:SqlResult) {
     return parentSqlResponse[0];
 }
 
-async function getAllChildDocuments(sqlResult:SqlResult): Promise<IFile[]> {
-    let childDocs = await listDocsByPathT({path: sqlResult.path, notebook: sqlResult.box, maxListCount: 0});
+export async function getAllChildDocuments(sqlResult:SqlResult, sortType?: number): Promise<IFile[]> {
+    let childDocs = await listDocsByPathT({path: sqlResult.path, notebook: sqlResult.box, maxListCount: 0, sort: sortType});
     return childDocs;
 }
 
-async function getAllSiblingDocuments(parentSqlResult:SqlResult, sqlResult:SqlResult) {
+export async function getAllSiblingDocuments(parentSqlResult:SqlResult, sqlResult:SqlResult) {
     const noParentFlag = (parentSqlResult == null);
     let siblingDocs = await listDocsByPathT({path: noParentFlag ? "/" : parentSqlResult.path, notebook: sqlResult.box, maxListCount: 0});
     return siblingDocs;

@@ -28,6 +28,7 @@ export class ConfigProperty {
     tips: string;
 
     optionNames: Array<string>;
+    optionDesps: Array<string>;
 
     constructor({key, type, min, max, btndo, options}: IConfigProperty){
         this.key = key;
@@ -42,8 +43,10 @@ export class ConfigProperty {
         // this.tips = lang(`setting_${key}_tips`);
         
         this.optionNames = new Array<string>();
+        this.optionDesps = new Array<string>();
         for(let optionKey of this.options){
             this.optionNames.push(lang(`setting_${key}_option_${optionKey}`));
+            this.optionDesps.push(lang(`setting_${key}_option_${optionKey}_desp`));
         }
     }
 

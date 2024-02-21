@@ -92,6 +92,13 @@ export default class ContentApplyer {
                     }
                 }
             }
+            existContentMainPart.setAttribute("data-exist-content-part", JSON.stringify(printerAllResults.relateContentKeys));
+        }
+        // 重新挂载事件
+        if (existContentMainPart) {
+            this.bindBasicClickEvent(existContentMainPart);
+        } else {
+            this.bindBasicClickEvent(finalElement);
         }
     }
 
@@ -120,12 +127,6 @@ export default class ContentApplyer {
         if (titleTarget) {
             titleTarget.insertAdjacentElement("afterend", finalElement);
         }
-
-        // 理论上需要包含openRefLink的绑定（统一）其他的交给Printer管
-        finalElement.querySelectorAll(".og-hn-heading-docs-container span.refLinks").forEach((elem) => {
-            // TODO: 这里设置为 openInFocus Flase，不在聚焦位置打开
-            elem.addEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false));
-        });
     }
 
     async mobileApply(finalElement: HTMLElement) {
@@ -141,5 +142,13 @@ export default class ContentApplyer {
         finalElement.style.paddingLeft = "24px";
         finalElement.style.paddingRight = "16px";
         this.protyleElement.querySelector(".protyle-content").insertAdjacentElement("afterbegin", finalElement);
+    }
+
+    bindBasicClickEvent(element: Element) {
+        // 理论上需要包含openRefLink的绑定（统一）其他的交给Printer管
+        element.querySelectorAll(".og-hn-heading-docs-container span.refLinks").forEach((elem) => {
+            // TODO: 这里设置为 openInFocus Flase，不在聚焦位置打开
+            elem.addEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false));
+        });
     }
 }
