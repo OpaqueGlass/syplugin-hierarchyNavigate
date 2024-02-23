@@ -18,8 +18,8 @@ Add parent and children documents links under the document title.
 | Func | Default Shortcut | Recommended Shortcut | Note |
 | --- | --- | --- | --- |
 | Open upper doc | `⌥⌘←` or `Ctrl + Alt + ←` | | |
-| Open previous doc | / | `⌥⌘↑` or `Ctrl + Alt + ↑` |  |
-| Open next doc | /  | `⌥⌘↓` or `Ctrl + Alt + ↓` | |
+| Open previous doc | `⌥⌘↑` or `Ctrl + Alt + ↑` | / |  |
+| Open next doc | `⌥⌘↓` or `Ctrl + Alt + ↓`  | / | |
 | Insert the `listChildDocs` widget | / | `⌥⇧L` or `Shift + Alt + L` | Need download `listChildDocs` first |
 
 #### Other explanation

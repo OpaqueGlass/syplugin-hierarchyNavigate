@@ -25,6 +25,7 @@ import { loadSettings } from "./manager/settingManager";
 import EventHandler from "./worker/eventHandler";
 import { removeStyle, setStyle } from "./worker/setStyle";
 import { bindCommand } from "./worker/shortcutHandler";
+import { CONSTANTS } from "./constants";
 // import "source-map-support/register";
 
 const STORAGE_NAME = "menu-config";
@@ -121,7 +122,12 @@ export default class OGPluginTemplate extends Plugin {
     }
 
     onunload(): void {
+        // 善后
         this.myEventHandler.unbindHandler();
+        // 移除所有已经插入的导航区
+        document.querySelectorAll(`.${CONSTANTS.TOP_CONTAINER_CLASS_NAME}`).forEach((elem)=>{
+            elem.remove();
+        });
         removeStyle();
     }
 
