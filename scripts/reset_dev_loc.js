@@ -167,11 +167,11 @@ if (fs.existsSync(targetPath)) {
 
 } else {
     //创建软链接
-    fs.symlinkSync(devDir, targetPath, 'junction');
+    // fs.symlinkSync(devDir, targetPath, 'junction');
     let devInfo = {
-        "devDir": null
+        "devDir": targetPath
     }
     fs.writeFileSync(`${process.cwd()}\\notSync\\devInfo.json`, JSON.stringify(devInfo), 'utf-8');
-    log(`Done! Created symlink ${targetPath}`);
+    log(`Done! Changed dev save path ${targetPath}`);
 }
 

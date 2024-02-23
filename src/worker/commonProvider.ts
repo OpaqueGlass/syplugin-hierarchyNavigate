@@ -1,5 +1,6 @@
 import { debugPush, logPush } from "@/logger";
-import {queryAPI, listDocsByPathT, getblockAttr as getblockAttr} from "@/syapi"
+import { getReadOnlyGSettings } from "@/manager/settingManager";
+import {queryAPI, listDocsByPathT, getblockAttr as getblockAttr, DOC_SORT_TYPES} from "@/syapi"
 export async function getBasicInfo(docId:string) {
     let result: IBasicInfo;
     result = {
@@ -31,14 +32,16 @@ export async function getBasicInfo(docId:string) {
  * @returns [parentDoc, siblingDocs, childDocs]
  */
 async function getDocumentRelations(sqlResult:any) {
+    const g_setting = getReadOnlyGSettings();
      // 获取父文档
     let parentDoc = await getParentDocument(sqlResult);
     // 获取子文档
-    let childDocs = getAllChildDocuments(sqlResult);
+    let reorderdChildDocs = getAllChildDocuments(sqlResult, DOC_SORT_TYPES[g_setting.childOrder]);
     // 获取同级文档
     let siblingDocs = getAllSiblingDocuments(parentDoc, sqlResult);
+    
     logPush("siblings", siblingDocs);
-    const waitResult = await Promise.all([siblingDocs, childDocs]);
+    const waitResult = await Promise.all([siblingDocs, reorderdChildDocs]);
     logPush("waitResult", waitResult);
     // 返回结果
     return [ parentDoc, waitResult[0], waitResult[1] ];

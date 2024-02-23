@@ -1,4 +1,5 @@
-import { queryAPI, listDocsByPathT } from ".";
+import { debugPush } from "@/logger";
+import { queryAPI, listDocsByPathT, getTreeStat } from ".";
 
 /**
  * 统计子文档字符数
@@ -46,4 +47,50 @@ export async function isChildDocExist(id: string) {
         return true;
     }
     return false;
+}
+
+export async function isDocHasAv(docId: string) {
+    let sqlResult = await queryAPI(`
+    SELECT count(*) as avcount FROM blocks WHERE root_id = '${docId}'
+    AND type = 'av'
+    `);
+    if (sqlResult.length > 0 && sqlResult[0].avcount > 0) {
+        return true;
+    } else {
+        
+        return false;
+    }
+}
+
+export async function isDocEmpty(docId: string, blockCountThreshold = 0) {
+    // 检查父文档是否为空
+    let treeStat = await getTreeStat(docId);
+    if (blockCountThreshold == 0 && treeStat.wordCount != 0 && treeStat.imageCount != 0) {
+        debugPush("treeStat判定文档非空，不插入挂件");
+        return false;
+    }
+    if (blockCountThreshold != 0) {
+        let blockCountSqlResult = await queryAPI(`SELECT count(*) as bcount FROM blocks WHERE root_id like '${docId}' AND type in ('p', 'c', 'iframe', 'html', 'video', 'audio', 'widget', 'query_embed', 't')`);
+        if (blockCountSqlResult.length > 0) {
+            if (blockCountSqlResult[0].bcount > blockCountThreshold) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+    
+    let sqlResult = await queryAPI(`SELECT markdown FROM blocks WHERE 
+        root_id like '${docId}' 
+        AND type != 'd' 
+        AND (type != 'p' 
+           OR (type = 'p' AND length != 0)
+           )
+        LIMIT 5`);
+    if (sqlResult.length <= 0) {
+        return true;
+    } else {
+        debugPush("sql判定文档非空，不插入挂件");
+        return false;
+    }
 }

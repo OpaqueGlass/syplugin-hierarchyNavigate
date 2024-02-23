@@ -16,8 +16,8 @@
             <!-- 在Page上通过当前显示的标签页名称key一致匹配确定是否显示这个标签页 -->
             <Page v-for="(tab, index) in tabList" v-show="activeTab === tab.key">
                 <template v-for="(item, index) in tab.props">
-                    <template v-if="['TEXTAREA', 'CUSTOM', 'ORDER'].indexOf(item.type) == -1">
-                        <Item :key="index" :setting-key="item.key">
+                    <template v-if="['TEXTAREA', 'CUSTOM', 'ORDER', 'TIPS'].indexOf(item.type) == -1">
+                        <Item :key="index" :setting-key="item.key"  :config-name="item.configName" :config-desp="item.description">
                             <template v-if="item.type == 'SWITCH'">
                                 <Switch v-model="g_setting[item.key]"></Switch>
                             </template>

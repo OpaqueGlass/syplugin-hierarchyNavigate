@@ -1,4 +1,4 @@
-import { debugPush, errorPush, logPush } from "@/logger";
+import { debugPush, errorPush, isDebugMode, logPush, warnPush } from "@/logger";
 import type {IProtyle, IEventBusMap} from "siyuan";
 import { getPluginInstance } from "@/utils/getInstance";
 import { getBasicInfo } from "@/worker/commonProvider";
@@ -8,10 +8,18 @@ import ContentApplyer from "./contentApplyer";
 import Mutex from "@/utils/mutex";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { sleep } from "@/utils/common";
+import { CONSTANTS } from "@/constants";
 export default class EventHandler {
     private handlerBindList: Record<string, (arg1: CustomEvent)=>void> = {
         "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性
-        "switch-protyle": this.loadedProtyleRetryEntry.bind(this)
+        "switch-protyle": this.loadedProtyleRetryEntry.bind(this),
+
+    };
+    // 关联的设置项，如果设置项对应为true，则才执行绑定
+    private relateGsettingKeyStr: Record<string, string> = {
+        "loaded-protyle-static": null, // mutex需要访问EventHandler的属性
+        "switch-protyle": null,
+        // "ws-main": "immediatelyUpdate",
     };
 
     private loadAndSwitchMutex: Mutex;
@@ -22,8 +30,11 @@ export default class EventHandler {
 
     bindHandler() {
         const plugin = getPluginInstance();
+        // const g_setting = getReadOnlyGSettings();
         for (let key in this.handlerBindList) {
-            plugin.eventBus.on(key, this.handlerBindList[key]);
+            // if (this.relateGsettingKeyStr[key] == null || g_setting[this.relateGsettingKeyStr[key]]) {
+                plugin.eventBus.on(key, this.handlerBindList[key]);
+            // }
         }
     }
 
@@ -44,6 +55,9 @@ export default class EventHandler {
         
        
         let success = true;
+        if (isDebugMode()) {
+            console.time(CONSTANTS.PLUGIN_NAME);
+        }
         try {
             await this.loadAndSwitchMutex.lock();
             // 颜色状态码可以参考https://blog.csdn.net/weixin_44110772/article/details/105860997
@@ -60,7 +74,7 @@ export default class EventHandler {
             // 疯了的话可能加入判断使用什么内容顺序（预设模板）
             const protyleEnvInfo:IProtyleEnvInfo = getProtyleInfo(protyle);
             logPush("protyleInfo", protyleEnvInfo);
-            if (protyleEnvInfo.notTraditional && !getReadOnlyGSettings().enableForOtherCircumstance) {
+            if (protyleEnvInfo.notTraditional && !protyleEnvInfo.flashCard && !protyleEnvInfo.mobile && !getReadOnlyGSettings().enableForOtherCircumstance) {
                 debugPush("非常规情况，且设置不允许，跳过");
                 return true;
             }
@@ -75,14 +89,19 @@ export default class EventHandler {
             const printer = new ContentPrinter(basicInfo, protyleEnvInfo);
             const finalElement = await printer.print();
             logPush("finalElement", finalElement);
-            // 还是需要回到这里setAndApply
-            const applyer = new ContentApplyer(basicInfo, protyleEnvInfo, protyle.element);
-            applyer.apply(finalElement);
+            if (finalElement) {
+                // 还是需要回到这里setAndApply
+                const applyer = new ContentApplyer(basicInfo, protyleEnvInfo, protyle.element);
+                applyer.apply(finalElement);
+            }
         } catch(error) {
-            errorPush(error);
+            logPush(error);
             success = false;
         } finally {
             debugPush("\x1b[1;36m%s\x1b[0m", "<<<<<<<< mutex 任务结束");
+            if (isDebugMode()) {
+                console.timeEnd(CONSTANTS.PLUGIN_NAME);
+            }
             this.loadAndSwitchMutex.unlock();
             this.simpleMutex--;
         }
@@ -101,5 +120,22 @@ export default class EventHandler {
                 await sleep(200);
             }
         } while(retryCount < g_setting.mainRetry && !success);
+        if (!success) {
+            errorPush("多次重试仍然存在异常，请查看Log日志");
+        }
     }
+
+    // async wsMainHandler(event: CustomEvent<IEventBusMap["ws-main"]>) {
+        
+    //     debugPush(detail);
+    //     const cmdType = ["moveDoc", "rename", "removeDoc"];
+    //     if (cmdType.indexOf(detail.detail.cmd) != -1) {
+    //         try {
+    //             debugPush("由 立即更新 触发");
+    //             this.loadedProtyleRetryEntry();
+    //         }catch(err) {
+    //             errorPush(err);
+    //         }
+    //     }
+    // }
 }

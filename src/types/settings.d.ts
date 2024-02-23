@@ -15,7 +15,8 @@ type IConfigPropertyType =
     "BUTTON" |
     "TEXTAREA" |
     "SWITCH" |
-    "ORDER"; // 未实现
+    "ORDER" |
+    "TIPS";
 
 type ITabProperty = {
     nameKey: string, // 标签页名称对应的语言文件关键字

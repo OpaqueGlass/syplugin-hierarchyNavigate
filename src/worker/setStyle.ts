@@ -33,8 +33,8 @@ export function setStyle() {
     // 第二行后对齐链接文本，（向内缩进： #21）
     let alignStyle = `
     .og-hn-container-multiline {
-        text-indent: -2.28em;
-        padding-left: 2.28em;
+        text-indent: -2em; /*2.28略微多了*/
+        padding-left: 2em;
         overflow-x: hidden;
         /* #30 2.28em与100%导致宽度溢出 */
         padding-right: 0em;

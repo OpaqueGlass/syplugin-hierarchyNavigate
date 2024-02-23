@@ -1,7 +1,7 @@
 import { CONSTANTS, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
 import { getBackLink2T, getDocInfo, getNotebookInfoLocallyF, isMobile, queryAPI } from "@/syapi"
-import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist } from "@/syapi/custom";
+import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
 import { getGSettings, getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
 import { debugPush, errorPush, logPush, warnPush } from "@/logger";
@@ -41,6 +41,9 @@ export default class ContentPrinter {
         // TODO: 根据basicInfo选择不同的constentGroupList
         let docContentKeyGroup = [];
         docContentKeyGroup = isMobile() ? g_setting.mobileContentGroup : g_setting.openDocContentGroup;
+        if (this.basicInfo.docSqlResult.ial?.includes("og-hn-ignore") || this.basicInfo.docSqlResult.ial?.includes("og文档导航忽略")) {
+            return null;
+        }
         // doc覆盖
         if (this.basicInfo.currentDocAttrs["custom-og-hn-content"]) {
             try {
@@ -292,6 +295,11 @@ class ParentContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
         const result = super.getBasicElement(CONSTANTS.PARENT_CONTAINER_ID, null, lang("parent_nodes"));
         if (basicInfo.parentDocSqlResult == null) {
+            const g_setting = getReadOnlyGSettings();
+            // 历史兼容选项，当没有父文档时，将显示兄弟文档
+            if (g_setting.sibling) {
+                return await SiblingContentPrinter.getBindedElement(basicInfo);
+            }
             result.appendChild(super.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
         } else {
@@ -306,6 +314,9 @@ class SiblingContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         const result = super.getBasicElement(CONSTANTS.SIBLING_CONTAINER_ID, null, lang("sibling_nodes"));
+        if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
+            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.siblingDocInfoList.length));
+        }
         if (basicInfo.siblingDocInfoList.length == 0) {
             result.appendChild(super.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
@@ -333,6 +344,14 @@ class ChildContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"));
+        if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
+            logPush("文档中含有数据库，不显示子文档区域");
+            return null;
+        }
+
+        if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
+            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.siblingDocInfoList.length));
+        }
         if (basicInfo.childDocInfoList.length == 0) {
             result.appendChild(super.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
@@ -466,7 +485,7 @@ class BackLinkContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         let result = null;
-        switch (g_setting.showBackLinksArea) {
+        switch (g_setting.showBackLinksType) {
             case CONSTANTS.BACKLINK_DOC_ONLY: {
                 result = await this.docOnlyBackLinkElement(basicInfo);
                 break;
@@ -476,7 +495,7 @@ class BackLinkContentPrinter extends BasicContentPrinter {
                 break;
             }
             default: {
-                warnPush("BackLink配置项值错误", g_setting.showBackLinksArea);
+                warnPush("BackLink配置项值错误", g_setting.showBackLinksType);
                 break;
             }
         }
@@ -582,13 +601,24 @@ class NeighborContentPrinter extends BasicContentPrinter {
 
 // TODO: 有个问题，widget不应该走切换页签的刷新吧，这个加载太慢；可能要applyer做其他实现
 class WidgetContentPrinter extends BasicContentPrinter {
+    static isDoNotUpdate = true;
     static async getBindedElement(basicInfo: IBasicInfo): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
+            logPush("文档中含有数据库，不显示子文档区域");
+            return null;
+        }
+        if (g_setting.lcdEmptyDocThreshold >= 0 && !await isDocEmpty(basicInfo.currentDocId, g_setting.lcdEmptyDocThreshold)) {
+            this.isDoNotUpdate = false;
+            return await ChildContentPrinter.getBindedElement(basicInfo);
+        }
+        this.isDoNotUpdate = true;
         const result = document.createElement("div");
         result.classList.add("og-hn-widget-container");
         result.innerHTML = `<iframe src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${window.screen.availWidth - 75}px;"></iframe>`;
         return result;
     }
     static async isOnlyOnce(basicInfo: IBasicInfo): Promise<boolean> {
-        return true;    
+        return this.isDoNotUpdate;    
     }
 }

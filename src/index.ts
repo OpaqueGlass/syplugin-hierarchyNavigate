@@ -109,7 +109,6 @@ export default class OGPluginTemplate extends Plugin {
         //         // 。。。。
         //     });
         // });
-        console.debug("syplugin template initiated");
     }
 
     onLayoutReady(): void {

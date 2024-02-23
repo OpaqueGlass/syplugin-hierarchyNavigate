@@ -8,7 +8,8 @@ Add parent and children documents links under the document title.
 
 ### Quick Start
 
-- Just turn on the plugin; (`Marketplace`--`Downloaded`--`Plugin`--`HierarchyNavigate`, click switch icon)
+- Download from marketplace OR 1: Unzip the `package.zip` file in Release, 2: Move the folder to `{workplace}/data/plugins/`, 3: Rename the folder to `syplugin-hierarchyNavigate`;
+- Just turn on the plugin; (`Marketplace`--`Downloaded`--`Plugin`--Find this plugin, click switch icon)
 - For more information, please refer to the plugin setting page;  (`Marketplace`--`Downloaded`--`Plugin`--`HierarchyNavigate`-- Click setting icon)
 - Documents with the `og-hn-ignore` attribute or attribute value will be ignored and the hierarchical navigation will not be displayed.
 

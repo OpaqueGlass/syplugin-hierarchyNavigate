@@ -6,10 +6,16 @@ import livereload from "rollup-plugin-livereload"
 import zipPack from "vite-plugin-zip-pack";
 import fg from 'fast-glob';
 import vue from '@vitejs/plugin-vue';
+import fs from "fs";
 
 const args = minimist(process.argv.slice(2))
-const isWatch = args.watch || args.w || false
-const devDistDir = "./dev"
+const isWatch = args.watch || args.w || false;
+// 使用change-dir命令更改dev的目录
+const devDistDirInfo = "./notSync/devInfo.json";
+const loadDirJsonContent = fs.existsSync(devDistDirInfo)
+  ? JSON.parse(fs.readFileSync(devDistDirInfo, "utf-8"))
+  : {};
+const devDistDir = loadDirJsonContent["devDir"] ?? "./dev";
 const distDir = isWatch ? devDistDir : "./dist"
 
 console.log("isWatch=>", isWatch)
@@ -27,7 +33,7 @@ export default defineConfig({
         viteStaticCopy({
             targets: [
                 {
-                    src: "./README*.md",
+                    src: "./*.md",
                     dest: "./",
                 },
                 {
@@ -55,6 +61,7 @@ export default defineConfig({
     // https://github.com/vitejs/vite/discussions/3058#discussioncomment-2115319
     // 在这里自定义变量
     define: {
+        "process.env": process.env,
         "process.env.DEV_MODE": `"${isWatch}"`,
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
     },

@@ -13,6 +13,7 @@ interface IConfigProperty {
     max?: number, // 设置项最大值
     btndo?: () => void,  // 按钮设置项的调用函数(callback)
     options?: Array<string>, // 选项key数组，元素顺序决定排序顺序，请勿使用非法字符串
+    optionSameAsSettingKey?: string, // 如果选项的描述文本和其他某个设置项相同，在此指定；请注意，仍需要指定options
 }
 
 export class ConfigProperty {
@@ -30,7 +31,7 @@ export class ConfigProperty {
     optionNames: Array<string>;
     optionDesps: Array<string>;
 
-    constructor({key, type, min, max, btndo, options}: IConfigProperty){
+    constructor({key, type, min, max, btndo, options, optionSameAsSettingKey}: IConfigProperty){
         this.key = key;
         this.type = type;
         this.min = min;
@@ -40,13 +41,20 @@ export class ConfigProperty {
 
         this.configName = lang(`setting_${key}_name`);
         this.description = lang(`setting_${key}_desp`);
+        if (this.configName.startsWith("🧪")) {
+            this.description = lang("setting_experimental") + this.description;
+        } else if (this.configName.startsWith("✈")) {
+            this.description = lang("setting_testing") + this.description;
+        } else if (this.configName.startsWith("❌")) {
+            this.description = lang("setting_deprecated") + this.description;
+        }
         // this.tips = lang(`setting_${key}_tips`);
         
         this.optionNames = new Array<string>();
         this.optionDesps = new Array<string>();
         for(let optionKey of this.options){
-            this.optionNames.push(lang(`setting_${key}_option_${optionKey}`));
-            this.optionDesps.push(lang(`setting_${key}_option_${optionKey}_desp`));
+            this.optionNames.push(lang(`setting_${optionSameAsSettingKey ?? key}_option_${optionKey}`));
+            this.optionDesps.push(lang(`setting_${optionSameAsSettingKey ?? key}_option_${optionKey}_desp`));
         }
     }
 
@@ -88,5 +96,20 @@ export function loadDefinitionFromTabProperty(tabDefinitions: Array<ITabProperty
         });
     });
     
+    return result;
+}
+
+/**
+ * 获得ConfigMap对象
+ * @param tabDefinitions 
+ * @returns 
+ */
+export function loadAllConfigPropertyFromTabProperty(tabDefinitions: Array<ITabProperty>):Record<string, ConfigProperty> {
+    let result: Record<string, ConfigProperty> = {};
+    tabDefinitions.forEach((tabDefinition) => {
+        tabDefinition.props.forEach((property) => {
+            result[property.key] = property;
+        });
+    });
     return result;
 }

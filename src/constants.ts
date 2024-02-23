@@ -26,8 +26,8 @@ export class CONSTANTS {
     public static readonly POP_LIMIT: string = "icon_only"; // 1
     public static readonly POP_ALL: string = "all"; // 2
     public static readonly BACKLINK_NONE: string = "disable";
-    public static readonly BACKLINK_NORMAL: string = "all";
-    public static readonly BACKLINK_DOC_ONLY: string = "only_doc";
+    public static readonly BACKLINK_NORMAL: string = "show_all_as_doc";
+    public static readonly BACKLINK_DOC_ONLY: string = "doc_only";
 }
 
 export class PRINTER_NAME {

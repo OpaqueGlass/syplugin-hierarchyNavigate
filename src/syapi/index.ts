@@ -739,6 +739,14 @@ export async function getBackLink2T(id, sort = "3", msort= "3", k = "", mk = "")
     return getResponseData(postRequest(data, url));
 }
 
+export async function getTreeStat(id:string) {
+    let data = {
+        "id": id
+    };
+    let url = `/api/block/getTreeStat`;
+    return getResponseData(postRequest(data, url));
+}
+
 export function isMobile() {
     return window.top.document.getElementById("sidebar") ? true : false;
 };
@@ -759,6 +767,6 @@ export const DOC_SORT_TYPES = {
     SUB_DOC_COUNT_ASC: 13,
     SUB_DOC_COUNT_DESC: 14,
     CUSTOM_SORT: 6,
-    FOLLOW_DOC_TREE: 15, 
+    FOLLOW_DOC_TREE: 255, 
     UNASSIGNED: 256,
 };  

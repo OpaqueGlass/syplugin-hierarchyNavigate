@@ -7,6 +7,7 @@ interface IBasicInfo {
     parentDocSqlResult: SqlResult,
     siblingDocInfoList: IFile[],
     childDocInfoList: IFile[],
+    // reorderdChildDocInfoList: IFile[],
     currentDocId: string,
     currentDocAttrs: any,
 }

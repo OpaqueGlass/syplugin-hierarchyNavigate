@@ -10,7 +10,7 @@
                     {{ optionNames[optionKeys.indexOf(item)] }}
                 </span>
             </div>
-            <div class="og-hn-setting-order-option-desp" v-html="optionDesps[optionKeys.indexOf(item)]">
+            <div class="og-hn-setting-order-option-desp" v-show="isValidStr(optionDesps[optionKeys.indexOf(item)])" v-html="optionDesps[optionKeys.indexOf(item)]">
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
                     {{ optionNames[optionKeys.indexOf(item)] }}
                 </span>
             </div>
-            <div class="og-hn-setting-order-option-desp" v-html="optionDesps[optionKeys.indexOf(item)]">
+            <div class="og-hn-setting-order-option-desp" v-show="isValidStr(optionDesps[optionKeys.indexOf(item)])" v-html="optionDesps[optionKeys.indexOf(item)]">
             </div>
         </div>
     </div>
@@ -36,6 +36,7 @@ import { onMounted, onUpdated, ref } from 'vue';
 import Sortable from "sortablejs";
 import { debugPush, logPush, errorPush } from '@/logger';
 import { lang } from '@/utils/lang';
+import { isValidStr } from '@/utils/commonCheck';
 
 // import { ref } from 'vue';
 // import { updateSingleSetting } from '@/manager/settingManager'
@@ -47,9 +48,6 @@ const props = defineProps<{
 }>();
 // 获取optionNames
 const model = defineModel({ type: Array<string>});
-
-debugPush("props", props);
-debugPush("model", model);
 let disableList = ref(props.optionKeys.filter(element => !model.value?.includes(element)));
 
 let sortable1, sortable2;
@@ -78,7 +76,20 @@ onMounted(() => {
                 model.value.splice(evt.oldIndex, 1);
                 disableList.value.splice(evt.newIndex, 0, item);
             }
-            
+            for (let i = 0; i < model.value.length; i++) {
+                debugPush("model.value[i]", model.value[i]);
+                if (!isValidStr(model.value[i])) {
+                    model.value.splice(i, 1);
+                    i--;
+                }
+            }
+            for (let i = 0; i < disableList.value.length; i++) {
+                debugPush("disableList.value[i]", disableList.value[i]);
+                if (!isValidStr(disableList.value[i])) {
+                    disableList.value.splice(i, 1);
+                    i--;
+                }
+            }
             debugPush("移动结果", model.value);
             debugPush("disable", disableList);
             // model.value.pop();
@@ -96,7 +107,7 @@ onMounted(() => {
         onEnd: function (evt) {
             debugPush("移动2", evt);
             // 移动到启用列表
-            if (evt.to.id === CONSTANTS.PLUGIN_NAME + props.settingKey+'-enable') {
+            if (evt.to.id === CONSTANTS.PLUGIN_NAME + '-' + props.settingKey+'-enable') {
                 let item = disableList.value[evt.oldIndex];
                 // 删除旧元素
                 disableList.value.splice(evt.oldIndex, 1);
@@ -108,7 +119,20 @@ onMounted(() => {
                 disableList.value.splice(evt.oldIndex, 1);
                 disableList.value.splice(evt.newIndex, 0, item);
             }
-            
+            for (let i = 0; i < model.value.length; i++) {
+                debugPush("model.value[i]", model.value[i]);
+                if (!isValidStr(model.value[i])) {
+                    model.value.splice(i, 1);
+                    i--;
+                }
+            }
+            for (let i = 0; i < disableList.value.length; i++) {
+                debugPush("disableList.value[i]", disableList.value[i]);
+                if (!isValidStr(disableList.value[i])) {
+                    disableList.value.splice(i, 1);
+                    i--;
+                }
+            }
             debugPush("移动结果", model.value);
             debugPush("disable", disableList);
             // let item = disableList[evt.oldIndex];
