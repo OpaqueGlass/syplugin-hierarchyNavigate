@@ -52,11 +52,18 @@ jobs:
       - name: Build for production
         run: pnpm build
 
-      - name: Release
-        uses: ncipollo/release-action@v1
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          artifacts: "package.zip"
+          python-version: '3.8'
+
+      - name: Get CHANGELOGS
+        run: python .release.py
+      
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ./result.txt
+          files: package.zip
+          prerelease: ${{ ! contains(github.ref, 'beta') && ! contains(github.ref, 'alpha') }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
