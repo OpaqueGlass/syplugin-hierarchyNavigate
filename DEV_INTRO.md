@@ -1,4 +1,4 @@
-## dev intro 参与开发
+## dev introduction 参与开发 / 自行打包
 
 本项目基于[siyuan/plugin-sample-vite-svelte](https://github.com/siyuan-note/plugin-sample-vite-svelte)，整体开发方式相同；
 
@@ -37,25 +37,26 @@
 
 请注意，此项目基于AGPLv3.0协议开源，如果再分发，需要满足协议要求；
 
+
+
 ## 项目结构大致介绍
 
 ```
-+---.github
++---.github GitHub使用的相关信息
 |   \---workflows
-+---asset
-+---dev
++---asset README使用的附件
++---dev 使用pnpm run dev时创建的编译内容
 |   \---i18n
-+---scripts
-\---src
-    +---components
++---scripts pnpm run make-link 使用的脚本
+\---src 插件源代码
+    +---components vue组件，主要是设置页面组件
     |   \---settings
     |       \---items
-    +---eventHandler
-    +---i18n
-    +---logger
-    +---manager
-    +---printer
-    +---types
-    +---utils
-    \---worker
+    +---i18n 多语言文件
+    +---logger 日志管理
+    +---manager 设置项管理
+    +---printer 【没有使用】
+    +---types 类型定义
+    +---utils 通用工具
+    \---worker 插件的主要功能逻辑
 ```

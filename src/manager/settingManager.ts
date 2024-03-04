@@ -114,23 +114,23 @@ watch(setting, (newVal) => {
  */
 export function initSettingProperty() {
     tabProperties.push(
-        new TabProperty({key: "content", props:[
+        new TabProperty({key: "content", "iconKey": "iconOrderedList", props:[
             new ConfigProperty({"key": "contentOrderTip", "type": "TIPS"}),
             new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
             new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
             new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
             
         ]}),
-        new TabProperty({key: "showType", props:[
-            new ConfigProperty({"key": "noChildIfHasAv", "type": "SWITCH"}),
-            new ConfigProperty({"key": "lcdEmptyDocThreshold", "type": "NUMBER", "min": -1}),
+        new TabProperty({key: "showType", "iconKey": "iconTags", props:[
+            new ConfigProperty({"key": "childOrder", "type": "SELECT", "options": Object.keys(DOC_SORT_TYPES)}),
             new ConfigProperty({"key": "showBackLinksType", "type": "SELECT", "options": [CONSTANTS.BACKLINK_NORMAL, CONSTANTS.BACKLINK_DOC_ONLY]}),
+            new ConfigProperty({"key": "noChildIfHasAv", "type": "SWITCH"}),
+            new ConfigProperty({"key": "sibling", "type": "SWITCH"}),
+            new ConfigProperty({"key": "lcdEmptyDocThreshold", "type": "NUMBER", "min": -1}),
             new ConfigProperty({"key": "hideIndicator", "type": "SWITCH"}),
             new ConfigProperty({"key": "noneAreaHide", "type": "SWITCH"}),
-            new ConfigProperty({"key": "sibling", "type": "SWITCH"}),
-            new ConfigProperty({"key": "childOrder", "type": "SELECT", "options": Object.keys(DOC_SORT_TYPES)}),
         ]}),
-        new TabProperty({key: "general", props: [
+        new TabProperty({key: "general", "iconKey": "iconSettings", props: [
             new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),
             new ConfigProperty({"key": "popupWindow", "type": "SELECT", options: [CONSTANTS.POP_NONE, CONSTANTS.POP_LIMIT, CONSTANTS.POP_ALL]}),
             new ConfigProperty({"key": "docMaxNum", "type": "NUMBER"}),
@@ -139,7 +139,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "linkDivider", "type": "TEXT"}),
             new ConfigProperty({"key": "mainRetry", "type": "NUMBER"}),
         ]}),
-        new TabProperty({"key": "appearance", props: [
+        new TabProperty({"key": "appearance", "iconKey": "iconTheme", props: [
             new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),
 
             new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
@@ -150,12 +150,11 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "childBoxCSS", "type": "TEXTAREA"}),
             new ConfigProperty({"key": "docLinkCSS", "type": "TEXTAREA"}),
         ]}),
-        new TabProperty({"key": "lab", props: [
+        new TabProperty({"key": "lab", "iconKey": "iconHelp", props: [
             new ConfigProperty({"key": "enableForOtherCircumstance", "type": "SWITCH"}),
         ]}),
-        new TabProperty({"key": "about", props: [
+        new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),
-            new ConfigProperty({"key": "feedback", "type": "TIPS"}),
         ]}),
     );
 }

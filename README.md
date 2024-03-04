@@ -18,8 +18,9 @@ Add parent and children documents links under the document title.
 | Func | Default Shortcut | Recommended Shortcut | Note |
 | --- | --- | --- | --- |
 | Open upper doc | `⌥⌘←` or `Ctrl + Alt + ←` | | |
-| Open previous doc | `⌥⌘↑` or `Ctrl + Alt + ↑` | / |  |
-| Open next doc | `⌥⌘↓` or `Ctrl + Alt + ↓`  | / | |
+| Open first subdocument | `⌥⌘→` or `Ctrl + Alt + →` | | |
+| Open previous doc | / | `⌥⌘↑` or `Ctrl + Alt + ↑` |  |
+| Open next doc | /  | `⌥⌘↓` or `Ctrl + Alt + ↓` | |
 | Insert the `listChildDocs` widget | / | `⌥⇧L` or `Shift + Alt + L` | Need download `listChildDocs` first |
 
 #### Other explanation
@@ -48,5 +49,4 @@ Please go to [github repository](https://github.com/OpaqueGlass/syplugin-my-plug
 | [leolee9086](https://github.com/leolee9086) / [cc-template](https://github.com/leolee9086/cc-template) | Render template in widget; [Mulan Permissive Software License，Version 2](https://github.com/leolee9086/cc-template/blob/main/LICENSE) | Click to open the doc.                                       |
 | [zuoez02](https://github.com/zuoez02)/[siyuan-plugin-system](https://github.com/zuoez02/siyuan-plugin-system) | A 3-rd plugin system for siyuan                              |                                                              |
 | [zxhd863943427](https://github.com/zxhd863943427)&[mozhux (赐我一胖)](https://github.com/mozhux) |                                                              | Suggestions or contributions about default style.            |
-|[wetoria](https://github.com/Wetoria)/[DailyNotesWalker](https://github.com/Wetoria/siyuan-plugin-DailyNotesWalker)|Shortcuts Quick View Previous Next Diary|Refer to its idea and shortcut binding method; Vue Setting panel implementation|
-|/[siyuan/plugin-sample-vite-svelte](https://github.com/siyuan-note/plugin-sample-vite-svelte)|Vite-Svelte Siyuan plugin template|Based on this template|
+|[wetoria](https://github.com/Wetoria)/[DailyNotesWalker](https://github.com/Wetoria/siyuan-plugin-DailyNotesWalker)|Shortcuts Quick View Previous Next Diary|Refer to its idea and shortcut binding method|

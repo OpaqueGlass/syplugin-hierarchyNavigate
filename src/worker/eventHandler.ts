@@ -1,4 +1,4 @@
-import { debugPush, errorPush, isDebugMode, logPush, warnPush } from "@/logger";
+import { debugPush, errorPush, infoPush, isDebugMode, logPush, warnPush } from "@/logger";
 import type {IProtyle, IEventBusMap} from "siyuan";
 import { getPluginInstance } from "@/utils/getInstance";
 import { getBasicInfo } from "@/worker/commonProvider";
@@ -121,7 +121,7 @@ export default class EventHandler {
             }
         } while(retryCount < g_setting.mainRetry && !success);
         if (!success) {
-            errorPush("多次重试仍然存在异常，请查看Log日志");
+            infoPush("多次重试仍然存在异常，请查看Log日志");
         }
     }
 

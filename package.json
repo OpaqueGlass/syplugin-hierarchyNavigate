@@ -1,12 +1,12 @@
 {
   "name": "syplugin-hierarchy-navigate",
-  "version": "0.1.4",
+  "version": "1.0.0-SNAPSHOT",
   "type": "module",
   "description": "",
-  "repository": "",
+  "repository": "https://github.com/OpaqueGlass/syplugin-hierarchyNavigate",
   "homepage": "",
-  "author": "",
-  "license": "GPL-3.0",
+  "author": "OpaqueGlass",
+  "license": "AGPL-3.0",
   "scripts": {
     "make-link": "node  --no-warnings ./scripts/make_dev_link.js",
     "change-dir": "node  --no-warnings ./scripts/reset_dev_loc.js",

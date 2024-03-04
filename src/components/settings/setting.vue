@@ -5,7 +5,7 @@
             <li v-for="(tab, index) in tabList" :key="index"
                 :class="{ 'b3-list-item--focus': activeTab === tab.key, 'b3-list-item': true }" @click="changeTab(tab.key)">
                 <svg class="b3-list-item__graphic">
-                    <use xlink:href="#{{ tab.iconKey }}"></use>
+                    <use :xlink:href="'#' + tab.iconKey"></use>
                 </svg>
                 <!-- 这里是svg图标 -->
                 <span class="b3-list-item__text">{{ settingPageLang(tab.key)[0] }}</span>
@@ -45,7 +45,7 @@
                         </Item>
                     </template>
                     <template v-else>
-                        <Block :setting-key="item.key">
+                        <Block :setting-key="item.key" :config-name="item.configName" :config-desp="item.description">
                             <template v-if="item.type == 'TEXTAREA'">
                                 <Textarea v-model="g_setting[item.key]"></Textarea>
                             </template>

@@ -43,9 +43,9 @@
     "setting_popupWindow_option_icon_only": "仅图标触发",
     "setting_popupWindow_option_all": "全部触发",
     "setting_maxHeightLimit_name": "最大高度限制",
-    "setting_maxHeightLimit_desp": "限制子文档导航容器的最大高度，过多时需要滚动查看。单位：em（字符宽度）",
+    "setting_maxHeightLimit_desp": "限制各个内容区域的最大高度，过多时需要滚动查看。单位：em（对应字体大小）",
     "setting_sameWidth_name": "文档链接相同宽度",
-    "setting_sameWidth_desp": "使得所有文档链接具有相同的宽度，设置为<code>0</code>则禁用，单位：em（字体宽度）",
+    "setting_sameWidth_desp": "使得所有文档链接具有相同的宽度，设置为<code>0</code>则禁用，单位：em（对应字体大小）",
     "setting_hideIndicator_name": "隐藏导航区提示词",
     "setting_hideIndicator_desp": "隐藏“父：”“子：”等提示词，界面更简洁。如要修改提示词，可到插件所在文件夹/i18n修改语言文件。",
     "setting_adjustDocIcon_name": "调整文档图标位置",
@@ -86,7 +86,7 @@
     "===========显示内容顺序控制选项卡===========": null,
 
     "setting_contentOrderTip_name": "提示",
-    "setting_contentOrderTip_desp": "本页面包括层级导航的显示内容和顺序调整，并区分：通用、闪卡页面、安卓端3种",
+    "setting_contentOrderTip_desp": "本页面包括层级导航的显示内容和顺序调整，并区分：通用、安卓端、闪卡页面3种",
 
     "setting_openDocContentGroup_name": "✈常规情况内容显示顺序",
     "setting_openDocContentGroup_desp": "可以通过拖拽下方项目左侧的∷，控制“打开文档”时显示的内容模块顺序",
@@ -153,11 +153,16 @@
 
 
 
+    "===========关于选项卡===========": null,
+    "setting_aboutAuthor_name": "关于此插件",
+    "setting_aboutAuthor_desp": "作者：<a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>问题反馈&赞助支持：<a target='_blank' href='https://github.com/OpaqueGlass/syplugin-doubleClickFileTree'>github</a> 或 <a target='_blank' href='https://wj.qq.com/s2/12395364/b69f/'>填写问卷</a>；<br/>插件基于<a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a>授权使用；",
+
+
     "order_panel_enable": "启用/显示：",
     "order_panel_disable": "禁用/不显示：",
     
     "setting_experimental": "（🚧实验性功能，不稳定，可能随时被移除）",
-    "setting_testing": "(🚅公测中功能，可能不稳定，如有问题请反馈)",
+    "setting_testing": "（🚅公测中功能，可能不稳定，如有问题请反馈）",
     "setting_deprecated": "（⛔历史兼容选项，可能随时被移除）",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题",
     "create_at": "创建于",
@@ -177,7 +182,7 @@
     "is_first_document": "已经是第一篇",
     "is_last_document": "已经是最后一篇",
 
-    "settingpage_content_name": "位置、顺序",
+    "settingpage_content_name": "显示顺序",
     "settingpage_showType_name": "显示判定",
     "settingpage_general_name": "通用",
     "settingpage_appearance_name": "外观、CSS",

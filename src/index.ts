@@ -138,7 +138,7 @@ export default class OGPluginTemplate extends Plugin {
         const settingDialog = new siyuan.Dialog({
             "title": this.i18n["setting_panel_title"],
             "content": `
-            <div id="og_plugintemplate_${uid}" style="overflow: hidden; position: relative"></div>
+            <div id="og_plugintemplate_${uid}" style="overflow: hidden; position: relative;height: 100%;"></div>
             `,
             "width": isMobile() ? "92vw":"1040px",
             "height": isMobile() ? "50vw":"80vh",
