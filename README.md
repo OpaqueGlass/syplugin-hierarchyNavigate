@@ -37,11 +37,13 @@ Add parent and children documents links under the document title.
 
   
 
-## Feedback bugs
+### Feedback bugs
 
 Please go to [github repository](https://github.com/OpaqueGlass/syplugin-my-plugin-collection) to report problems.
 
-## References & Appreciations
+### References & Appreciations
+
+For dependencies, please refer[package.json](./package.json).
 
 | Developer/Project                                            | Description                                                  | Illustration                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
