@@ -57,20 +57,39 @@ export default class ContentPrinter {
         }
         debugPush("docContentKeyGroup", docContentKeyGroup);
         // 获取文档信息
+        const promises = [];
         for (const printerName of docContentKeyGroup) {
             const printer = this.printerList[printerName];
+    
             if (printer) {
-                const printerResult = await printer.getBindedElement(this.basicInfo);
-                const isOnlyOnce = await printer.isOnlyOnce(this.basicInfo);
-                if (printerResult) {
-                    printerResult.dataset.ogContentType = printerName;
-                    result.elements.push(printerResult);
-                    result.onlyOnce.push(isOnlyOnce);
-                    result.relateContentKeys.push(printerName);
-                }
+                promises.push(
+                    // https://developer.mozilla.org/zh-CN/docs/Glossary/IIFE
+                    (async () => {
+                        const printerResult = await printer.getBindedElement(this.basicInfo);
+                        const isOnlyOnce = await printer.isOnlyOnce(this.basicInfo);
+    
+                        if (printerResult) {
+                            printerResult.dataset.ogContentType = printerName;
+                            return {
+                                element: printerResult,
+                                onlyOnce: isOnlyOnce,
+                                relateContentKey: printerName,
+                            };
+                        }
+    
+                        return null;
+                    })()
+                );
             }
         }
-        return result;
+    
+        const results = await Promise.all(promises);
+    
+        return {
+            elements: results.filter((result) => result !== null).map((result) => result.element),
+            onlyOnce: results.filter((result) => result !== null).map((result) => result.onlyOnce),
+            relateContentKeys: results.filter((result) => result !== null).map((result) => result.relateContentKey),
+        };
     }
 }
 
@@ -400,16 +419,23 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             "subFileCount": 999
         }
         resultArray.push(temp);
-        let temp_path = "";
-        for (let i = 1; i < pathArray.length; i++) {
-            let docInfoResult = await getDocInfo(pathArray[i]);
-            docInfoResult["box"] = box.id; 
-            docInfoResult["path"] = `${temp_path}/${pathArray[i]}.sy`;
+        let tempPath = "";
+        // slice(start, end) 起始start，终止end(不含)
+        const docInfoPromises = pathArray.slice(1).map(async (pathSegment) => {
+            const docInfoResult = await getDocInfo(pathSegment);
+            docInfoResult["box"] = box.id;
+            docInfoResult["path"] = `${tempPath}/${pathSegment}.sy`;
             docInfoResult["type"] = "FILE";
-            docInfoResult["name"] = docInfoResult["name"] + ".sy";
-            temp_path += "/" + pathArray[i];
-            resultArray.push(docInfoResult);
-        }
+            docInfoResult["name"] = `${docInfoResult["name"]}.sy`;
+            tempPath += `/${pathSegment}`;
+            return docInfoResult;
+        });
+
+        const docInfoResults = await Promise.all(docInfoPromises);
+
+        // https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+        resultArray.push(...docInfoResults);
+
         return resultArray;
     }
     static async generateBreadCrumbElement(pathObjects: any) {

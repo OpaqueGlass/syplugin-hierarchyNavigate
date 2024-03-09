@@ -1,6 +1,5 @@
 /*
   Copyright (C) 2024 OpaqueGlass
-
   This program is released under the AGPLv3 license.
   For details, see:
   - License Text: https://www.gnu.org/licenses/agpl-3.0.html
@@ -22,6 +21,11 @@
   POSSIBILITY OF SUCH DAMAGES.
 
 */
+/**
+ * syplugin-hierarchy-navigate
+ * Copyright (C) 2024 OpaqueGlass
+ * @license AGPLv3
+ */
 import {
     Plugin,
     showMessage,
