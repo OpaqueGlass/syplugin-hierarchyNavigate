@@ -5,9 +5,9 @@ interface IBasicInfo {
     success: boolean,
     docSqlResult: SqlResult,
     parentDocSqlResult: SqlResult,
-    siblingDocInfoList: IFile[],
+    allSiblingDocInfoList: IFile[],
     childDocInfoList: IFile[],
-    // reorderdChildDocInfoList: IFile[],
+    userDemandSiblingDocInfoList: IFile[],
     currentDocId: string,
     currentDocAttrs: any,
 }
@@ -15,7 +15,8 @@ interface IBasicInfo {
 interface IProtyleEnvInfo {
     mobile: boolean,
     flashCard: boolean,
-    notTraditional: boolean
+    notTraditional: boolean,
+    originProtyle: any
 }
 
 interface IDocLinkGenerateInfo {

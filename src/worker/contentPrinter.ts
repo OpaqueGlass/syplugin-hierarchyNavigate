@@ -1,12 +1,13 @@
 import { CONSTANTS, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
-import { getBackLink2T, getDocInfo, getNotebookInfoLocallyF, isMobile, queryAPI } from "@/syapi"
+import { getBackLink2T, getBlockBreadcrumb, getDocInfo, getNotebookInfoLocallyF, isMobile, queryAPI } from "@/syapi"
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
 import { getGSettings, getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
 import { debugPush, errorPush, logPush, warnPush } from "@/logger";
 import { openRefLink } from "@/utils/common";
-import { Menu } from "siyuan";
+import { IProtyle, Menu } from "siyuan";
+import { getUserDemandSiblingDocuments } from "./commonProvider";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -20,7 +21,8 @@ export default class ContentPrinter {
         [PRINTER_NAME.PREV_NEXT]: NeighborContentPrinter,
         [PRINTER_NAME.BACKLINK]: BackLinkContentPrinter,
         [PRINTER_NAME.CHILD]: ChildContentPrinter,
-        [PRINTER_NAME.WIDGET]: WidgetContentPrinter
+        [PRINTER_NAME.WIDGET]: WidgetContentPrinter,
+        [PRINTER_NAME.BLOCK_BREADCRUMB]: BlockTitleBreadcrumbContentPrinter,
     }
     
     constructor(basicInfo:IBasicInfo, protyleBasicInfo:IProtyleEnvInfo) {
@@ -56,6 +58,7 @@ export default class ContentPrinter {
             docContentKeyGroup = g_setting.flashcardContentGroup;
         }
         debugPush("docContentKeyGroup", docContentKeyGroup);
+        debugPush("g_setting", g_setting);
         // 获取文档信息
         const promises = [];
         for (const printerName of docContentKeyGroup) {
@@ -65,7 +68,7 @@ export default class ContentPrinter {
                 promises.push(
                     // https://developer.mozilla.org/zh-CN/docs/Glossary/IIFE
                     (async () => {
-                        const printerResult = await printer.getBindedElement(this.basicInfo);
+                        const printerResult = await printer.getBindedElement(this.basicInfo, this.protyleBasicInfo);
                         const isOnlyOnce = await printer.isOnlyOnce(this.basicInfo);
     
                         if (printerResult) {
@@ -106,7 +109,7 @@ class BasicContentPrinter {
      * @param basicInfo 基本信息对象
      * @returns 装有该部分内容的一个HTMLElement
      */
-    static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
+    static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         throw new Error("需子类覆盖实现");
     }
 
@@ -268,12 +271,12 @@ class BasicContentPrinter {
 }
 
 class DocInfoContentPrinter extends BasicContentPrinter {
-    static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
+    static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         // 请求总字数
         const totalWords = await getChildDocumentsWordCount(basicInfo.currentDocId);
         let thisDocInfos = null;
         // 检索兄弟文档
-        for (const sibling of basicInfo.siblingDocInfoList) {
+        for (const sibling of basicInfo.allSiblingDocInfoList) {
             if (sibling.id == basicInfo.currentDocId) {
                 thisDocInfos = sibling;
                 break;
@@ -311,13 +314,13 @@ class DocInfoContentPrinter extends BasicContentPrinter {
 }
 
 class ParentContentPrinter extends BasicContentPrinter {
-    static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
+    static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const result = super.getBasicElement(CONSTANTS.PARENT_CONTAINER_ID, null, lang("parent_nodes"));
         if (basicInfo.parentDocSqlResult == null) {
             const g_setting = getReadOnlyGSettings();
             // 历史兼容选项，当没有父文档时，将显示兄弟文档
             if (g_setting.sibling) {
-                return await SiblingContentPrinter.getBindedElement(basicInfo);
+                return await SiblingContentPrinter.getBindedElement(basicInfo, protyleEnvInfo);
             }
             result.appendChild(super.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
@@ -330,18 +333,18 @@ class ParentContentPrinter extends BasicContentPrinter {
 }
 
 class SiblingContentPrinter extends BasicContentPrinter {
-    static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
+    static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         const result = super.getBasicElement(CONSTANTS.SIBLING_CONTAINER_ID, null, lang("sibling_nodes"));
         if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
-            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.siblingDocInfoList.length));
+            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.userDemandSiblingDocInfoList.length));
         }
-        if (basicInfo.siblingDocInfoList.length == 0) {
+        if (basicInfo.userDemandSiblingDocInfoList.length == 0) {
             result.appendChild(super.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
         } else {
-            for (let i = 0; i < basicInfo.siblingDocInfoList.length && (i < g_setting.docMaxNum || g_setting.docMaxNum == 0); i++) {
-                let doc = basicInfo.siblingDocInfoList[i];
+            for (let i = 0; i < basicInfo.userDemandSiblingDocInfoList.length && (i < g_setting.docMaxNum || g_setting.docMaxNum == 0); i++) {
+                let doc = basicInfo.userDemandSiblingDocInfoList[i];
                 const oneLinkElem = this.docLinkGenerator(doc);
                 if (doc.id == basicInfo.currentDocId) {
                     // const parser = new DOMParser();
@@ -360,7 +363,7 @@ class SiblingContentPrinter extends BasicContentPrinter {
 
 // IDEA: 或者我们把不同的决策设置为一个新的Printer，比如自动换成widget的话，一个AutoChild 然后判断再调用 Widget/Child
 class ChildContentPrinter extends BasicContentPrinter {
-    static async getBindedElement(basicInfo:IBasicInfo): Promise<HTMLElement> {
+    static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"));
         if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
@@ -369,7 +372,7 @@ class ChildContentPrinter extends BasicContentPrinter {
         }
 
         if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
-            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.siblingDocInfoList.length));
+            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.childDocInfoList.length));
         }
         if (basicInfo.childDocInfoList.length == 0) {
             result.appendChild(super.getNoneElement());
@@ -386,7 +389,7 @@ class ChildContentPrinter extends BasicContentPrinter {
 }
 
 class BreadcrumbContentPrinter extends BasicContentPrinter {
-    static async getBindedElement(basicInfo: IBasicInfo): Promise<HTMLElement> {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         // 没有前置缩进，不加入multiline样式
         const result = super.getBasicElement(CONSTANTS.BREADCRUMB_CONTAINER_CLASS_NAME, [CONSTANTS.CONTAINER_CLASS_NAME], null);
         // 这里嵌套了一层element……是因为原来用的parent下插入的面包屑，暂时保持一致
@@ -508,7 +511,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
 }
 
 class BackLinkContentPrinter extends BasicContentPrinter {
-    static async getBindedElement(basicInfo: IBasicInfo): Promise<HTMLElement> {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         let result = null;
         switch (g_setting.showBackLinksType) {
@@ -582,13 +585,14 @@ class BackLinkContentPrinter extends BasicContentPrinter {
 }
 
 class NeighborContentPrinter extends BasicContentPrinter {
-    static async getBindedElement(basicInfo: IBasicInfo): Promise<HTMLElement> {
-        const siblingDoc = basicInfo.siblingDocInfoList;
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        const siblingDocs = await getUserDemandSiblingDocuments(basicInfo.parentDocSqlResult, basicInfo.docSqlResult, undefined, g_setting.previousAndNextHiddenDoc);//basicInfo.allSiblingDocInfoList;
         const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"));
         let iCurrentDoc = -1;
         let previousElem = null, nextElem = null;
-        for (let iSibling = 0; iSibling < basicInfo.siblingDocInfoList.length; iSibling++) {
-            if (siblingDoc[iSibling].id === basicInfo.currentDocId) {
+        for (let iSibling = 0; iSibling < siblingDocs.length; iSibling++) {
+            if (siblingDocs[iSibling].id === basicInfo.currentDocId) {
                 iCurrentDoc = iSibling;
                 break;
             }
@@ -596,15 +600,15 @@ class NeighborContentPrinter extends BasicContentPrinter {
         if (iCurrentDoc >= 0) {
             let flag = false;
             if (iCurrentDoc > 0) {
-                let simpleName = lang("previous_doc") + siblingDoc[iCurrentDoc - 1]["name"];
-                let docInfo = Object.assign({}, siblingDoc[iCurrentDoc - 1]);
+                let simpleName = lang("previous_doc") + siblingDocs[iCurrentDoc - 1]["name"];
+                let docInfo = Object.assign({}, siblingDocs[iCurrentDoc - 1]);
                 docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 previousElem = this.docLinkGenerator(docInfo);
                 flag = true;
             }
-            if (iCurrentDoc + 1 < siblingDoc.length) {
-                let simpleName = lang("next_doc") + siblingDoc[iCurrentDoc + 1]["name"];
-                let docInfo = Object.assign({}, siblingDoc[iCurrentDoc + 1]);
+            if (iCurrentDoc + 1 < siblingDocs.length) {
+                let simpleName = lang("next_doc") + siblingDocs[iCurrentDoc + 1]["name"];
+                let docInfo = Object.assign({}, siblingDocs[iCurrentDoc + 1]);
                 docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 nextElem = this.docLinkGenerator(docInfo);
                 flag = true;
@@ -619,7 +623,9 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 result.classList.add(CONSTANTS.NEXT_CONTAINER_CLASS_NAME);
             }
         } else {
-            
+            const noneElem = this.getNoneElement();
+            noneElem.title = lang("is_hidden_doc");
+            result.appendChild(noneElem);
         }
         return result;
     }
@@ -628,7 +634,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
 // TODO: 有个问题，widget不应该走切换页签的刷新吧，这个加载太慢；可能要applyer做其他实现
 class WidgetContentPrinter extends BasicContentPrinter {
     static isDoNotUpdate = true;
-    static async getBindedElement(basicInfo: IBasicInfo): Promise<HTMLElement> {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
             logPush("文档中含有数据库，不显示子文档区域");
@@ -636,15 +642,104 @@ class WidgetContentPrinter extends BasicContentPrinter {
         }
         if (g_setting.lcdEmptyDocThreshold >= 0 && !await isDocEmpty(basicInfo.currentDocId, g_setting.lcdEmptyDocThreshold)) {
             this.isDoNotUpdate = false;
-            return await ChildContentPrinter.getBindedElement(basicInfo);
+            return await ChildContentPrinter.getBindedElement(basicInfo, protyleEnvInfo);
         }
         this.isDoNotUpdate = true;
         const result = document.createElement("div");
         result.classList.add("og-hn-widget-container");
-        result.innerHTML = `<iframe src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${window.screen.availWidth - 75}px;"></iframe>`;
+        result.innerHTML = `<iframe src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${(window.screen.availWidth - 75) > 350 ? 350 : (window.screen.availWidth - 75)}px;"></iframe>`;
         return result;
     }
     static async isOnlyOnce(basicInfo: IBasicInfo): Promise<boolean> {
         return this.isDoNotUpdate;    
+    }
+}
+
+
+class BlockTitleBreadcrumbContentPrinter extends BasicContentPrinter {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        // 没有前置缩进，不加入multiline样式
+        const result = super.getBasicElement(CONSTANTS.BREADCRUMB_CONTAINER_CLASS_NAME, [CONSTANTS.CONTAINER_CLASS_NAME], null);
+        // 这里嵌套了一层element……是因为原来用的parent下插入的面包屑，暂时保持一致
+        const breadcrumbElem = await this.generateBreadCrumb(basicInfo, protyleEnvInfo);
+        if (!breadcrumbElem) {
+            return null;
+        }
+        result.appendChild(breadcrumbElem);
+
+        // 绑定 > 点击事件
+        // result.querySelectorAll(`.og-fake-breadcrumb-arrow-span[data-type="FILE"], .og-fake-breadcrumb-arrow-span[data-type="NOTEBOOK"]`).forEach((elem) => {
+        //     elem.addEventListener("click", this.openRelativeMenu)
+        // });
+        return result;
+    }
+    static async generateBreadCrumb(basicInfo:IBasicInfo, protyleEnvInfo:IProtyleEnvInfo) {
+        const pathObject = await this.parseDocPath(protyleEnvInfo.originProtyle as IProtyle);
+        const breadcrumbElem = await this.generateBreadCrumbElement(pathObject);
+        return breadcrumbElem;
+    }
+    static async parseDocPath(protyle: IProtyle) {
+        let blockId = protyle?.breadcrumb?.id;
+        let paraBlockId = protyle.element.querySelector(`[data-node-id='${protyle.block.id}'] .p`)?.getAttribute("data-node-id");
+        debugPush(`breadblockId ${blockId} parablockId ${paraBlockId} blockId ${protyle.block.id}`);
+        if (!isValidStr(blockId) && isValidStr(paraBlockId)) {
+            blockId = paraBlockId;
+            debugPush("闪卡id定位，使用选择器结果", blockId)
+        }
+        if (!isValidStr(blockId)) {
+            blockId = protyle.block.id;
+        }
+        const blockBreadcrumbs = await getBlockBreadcrumb(blockId, ["NodeTextMark-mark"]);
+        debugPush("blockBread", blockBreadcrumbs);
+        const lastBlock = blockBreadcrumbs[blockBreadcrumbs.length - 1];
+        const resultArray = blockBreadcrumbs.slice(1).map((block) => {
+            return {
+                "name": block.name + ".sy",
+                "id": block.id,
+                "icon": blockIconProvider(block.type, block.subType),
+                "box": "",
+                "path": "",
+                "type": "BLOCK",
+                "subFileCount": 0
+            }
+        });
+        if (lastBlock.type == "NodeParagraph" || lastBlock.type == "NodeHeading") {
+            resultArray.pop();
+            if (blockBreadcrumbs.length >= 3 && blockBreadcrumbs[blockBreadcrumbs.length - 2]?.name == lastBlock.name) {
+                resultArray.pop();
+            }
+        }
+        debugPush("block bread resultArray", resultArray);
+        return resultArray;
+        function blockIconProvider(mainType: string, subType: string) {
+            if (mainType == "NodeListItem") {
+                return "2a-fe0f-20e3";
+            }
+            if (subType.includes("h")) {
+                let countNum = parseInt(subType.substring(1));
+                return `3${countNum}-fe0f-20e3`;
+            }
+            return "";
+        }
+    }
+    static async generateBreadCrumbElement(pathObjects: any) {
+        const result = document.createElement("div");
+        result.classList.add("og-hn-parent-area-replace-with-breadcrumb");
+
+        const divideArrow = `<span class="og-fake-breadcrumb-arrow-span" data-type="%4%" data-parent-id="%5%"><svg class="${CONSTANTS.ARROW_CLASS_NAME}"
+            data-type="%4%" data-parent-id="%5%">
+            <use xlink:href="#iconRight"></use></svg></span>`;
+        if (pathObjects.length == 0) {
+            return null;
+        }
+        // oneItm换用docLinkGenerator生成链接
+        for (let i = 0; i < pathObjects.length; i++) {
+            let onePathObject = pathObjects[i];
+            result.appendChild(this.docLinkGenerator(pathObjects[i]));
+            result.insertAdjacentHTML("beforeend", divideArrow
+                .replaceAll("%4%", onePathObject.type)
+                .replaceAll("%5%", pathObjects[i].id));
+        }
+        return result;
     }
 }

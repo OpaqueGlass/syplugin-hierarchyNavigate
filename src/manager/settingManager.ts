@@ -83,9 +83,11 @@ let defaultSetting: any = {
     showBackLinksType: CONSTANTS.BACKLINK_NORMAL, // 显示反链区域
     openDocContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
     mobileContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
-    flashcardContentGroup: [PRINTER_NAME.BREADCRUMB],
+    flashcardContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.BLOCK_BREADCRUMB],
     enableForOtherCircumstance: false,
     childOrder: "FOLLOW_DOC_TREE", // 子文档部分排序方式
+    showHiddenDoc: false,
+    previousAndNextHiddenDoc: true,
 }
 
 
@@ -93,32 +95,21 @@ let tabProperties: Array<TabProperty> = [
     
 ];
 let updateTimeout: any = null;
-watch(setting, (newVal) => {
-    // 延迟更新
-    if (updateTimeout) {
-        clearTimeout(updateTimeout);
-    }
-    logPush("检查到变化");
-    updateTimeout = setTimeout(() => {
-        // updateSingleSetting(key, newVal);
-        saveSettings(newVal);
-        logPush("保存设置项");
-        setStyle();
-        updateTimeout = null;
-    }, 1000);
-}, {deep: true, immediate: true});
+
 
 /**
  * 设置项初始化
  * 应该在语言文件载入完成后调用执行
  */
 export function initSettingProperty() {
+    const allOptions = Object.values(PRINTER_NAME);
+    const generalOptions = [PRINTER_NAME.PARENT, PRINTER_NAME.CHILD, PRINTER_NAME.SIBLING, PRINTER_NAME.PREV_NEXT, PRINTER_NAME.BACKLINK, PRINTER_NAME.BREADCRUMB, PRINTER_NAME.INFO, PRINTER_NAME.WIDGET];
     tabProperties.push(
         new TabProperty({key: "content", "iconKey": "iconOrderedList", props:[
             new ConfigProperty({"key": "contentOrderTip", "type": "TIPS"}),
-            new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
-            new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
-            new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": Object.values(PRINTER_NAME)}),
+            new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": generalOptions}),
+            new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": generalOptions}),
+            new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": allOptions}),
             
         ]}),
         new TabProperty({key: "showType", "iconKey": "iconTags", props:[
@@ -129,6 +120,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "lcdEmptyDocThreshold", "type": "NUMBER", "min": -1}),
             new ConfigProperty({"key": "hideIndicator", "type": "SWITCH"}),
             new ConfigProperty({"key": "noneAreaHide", "type": "SWITCH"}),
+
         ]}),
         new TabProperty({key: "general", "iconKey": "iconSettings", props: [
             new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),
@@ -152,6 +144,8 @@ export function initSettingProperty() {
         ]}),
         new TabProperty({"key": "lab", "iconKey": "iconHelp", props: [
             new ConfigProperty({"key": "enableForOtherCircumstance", "type": "SWITCH"}),
+            new ConfigProperty({"key": "showHiddenDoc", "type": "SWITCH"}),
+            new ConfigProperty({"key": "previousAndNextHiddenDoc", "type": "SWITCH"}),
         ]}),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),
@@ -166,13 +160,14 @@ export function getTabProperties() {
 // 发生变动之后，由界面调用这里
 export function saveSettings(newSettings: any) {
     // 如果有必要，需要判断当前设备，然后选择保存位置
-    debugPush("保存设置项", setting);
+    debugPush("界面调起保存设置项", newSettings);
     getPluginInstance().saveData("settings_main.json", JSON.stringify(newSettings, null, 4));
 }
 
 
 /**
  * 仅用于初始化时载入设置项
+ * 请不要重复使用
  * @returns 
  */
 export async function loadSettings() {
@@ -203,6 +198,20 @@ export async function loadSettings() {
     setting.value = Object.assign(defaultSetting, loadResult);
     logPush("载入设置项", setting.value);
     // return loadResult;
+    watch(setting, (newVal) => {
+        // 延迟更新
+        if (updateTimeout) {
+            clearTimeout(updateTimeout);
+        }
+        logPush("检查到变化");
+        updateTimeout = setTimeout(() => {
+            // updateSingleSetting(key, newVal);
+            saveSettings(newVal);
+            // logPush("保存设置项", newVal);
+            setStyle();
+            updateTimeout = null;
+        }, 1000);
+    }, {deep: true, immediate: true});
 }
 
 function checkSettingType(input:any) {

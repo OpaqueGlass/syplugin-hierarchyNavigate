@@ -77,7 +77,7 @@ export async function reindexDoc(docpath){
  * @param maxListCount 子文档最大显示数量
  * @param sort 排序方式（类型号）
  */
-export async function listDocsByPathT({notebook, path, maxListCount = undefined, sort = undefined, ignore = true}){
+export async function listDocsByPathT({notebook, path, maxListCount = undefined, sort = undefined, ignore = true, showHidden = null}){
     let url = "/api/filetree/listDocsByPath";
     let body = {
         "notebook": notebook,
@@ -91,6 +91,9 @@ export async function listDocsByPathT({notebook, path, maxListCount = undefined,
     }
     if (ignore != undefined) {
         body["ignoreMaxListHint"] = ignore;
+    }
+    if (showHidden != null) {
+        body["showHidden"] = showHidden;
     }
     let response = await postRequest(body, url);
     if (response.code != 0 || response.data == null){
@@ -750,6 +753,15 @@ export async function getTreeStat(id:string) {
 export function isMobile() {
     return window.top.document.getElementById("sidebar") ? true : false;
 };
+
+export function getBlockBreadcrumb(blockId: string, excludeTypes: string[] = []) {
+    let data = {
+        "id": blockId,
+        "excludeTypes": excludeTypes
+    };
+    let url = `/api/block/getBlockBreadcrumb`;
+    return getResponseData(postRequest(data, url));
+}
 
 export const DOC_SORT_TYPES = {
     FILE_NAME_ASC: 0,

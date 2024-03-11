@@ -63,6 +63,10 @@
     "setting_showBackLinksArea_option_0": "Disable",
     "setting_showBackLinksArea_option_1": "Normal",
     "setting_showBackLinksArea_option_2": "Doc ref only",
+    "setting_showHiddenDoc_name": "🧪Show hidden documents in child area and sibling area",
+    "setting_showHiddenDoc_desp": "",
+    "setting_previousAndNextHiddenDoc_name": "🧪Including hidden documents when fetching sibling documents",
+    "setting_previousAndNextHiddenDoc_desp": "To ensure the availability of the 'Previous and Next' content area and shortcut key switching functions, it is recommended to enable",
 
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
@@ -146,9 +150,14 @@
     "setting_flashcardContentGroup_option_previousAndNext_desp": "",
     "setting_flashcardContentGroup_option_info": "Document Information Row",
     "setting_flashcardContentGroup_option_info_desp": "",
+    "setting_flashcardContentGroup_option_blockBreadcrumb": "Block breadcrumbs",
+    "setting_flashcardContentGroup_option_blockBreadcrumb_desp": "(🚅 Beta feature, may be unstable, please provide feedback if any bug exist) Show the current flashcard's block hierarchy information, including only the titles or list items, and excluding the current level.",
 
     "setting_enableForOtherCircumstance_name": "🧪Display Hierarchical Navigation in Other Situations",
     "setting_enableForOtherCircumstance_desp": "May conflict with other plugins and/or other document preview areas (or editing areas), please use with caution",
+
+    "setting_aboutAuthor_name": "About this plugin",
+    "setting_aboutAuthor_desp": "developer: <a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>Feedback & sponsor: <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate'>github</a>;<br/>Released under <a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a> license.",
           
     "setting_experimental": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) ",
     "setting_testing": "(🚅 Beta feature, may be unstable, please provide feedback if any bug exist) ",
@@ -170,6 +179,7 @@
     "go_to_next_doc": "Open next doc",
     "is_first_document": "Already on the first document",
     "is_last_document": "Already on the last document",
+    "is_hidden_doc": "(The current document is a hidden document, and adjacent document information cannot be displayed)",
 
     "settingpage_content_name": "Content Order",
     "settingpage_showType_name": "Content Setting",

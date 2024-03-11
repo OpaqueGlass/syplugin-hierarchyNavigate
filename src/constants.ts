@@ -39,5 +39,6 @@ export class PRINTER_NAME {
     public static readonly BREADCRUMB: string = "breadcrumb";
     public static readonly INFO: string = "info";
     public static readonly WIDGET: string = "widget";
+    public static readonly BLOCK_BREADCRUMB: string = "blockBreadcrumb";
 }
   

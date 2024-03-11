@@ -5,7 +5,8 @@ export function getProtyleInfo(protyle: IProtyle):IProtyleEnvInfo {
     let result:IProtyleEnvInfo = {
         mobile: false,
         flashCard: false,
-        notTraditional: false
+        notTraditional: false,
+        originProtyle: protyle
     };
     if (protyle.model == null) {
         result["notTraditional"] = true;

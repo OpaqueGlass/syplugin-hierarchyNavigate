@@ -4,8 +4,8 @@ import { getFocusedBlockId, openRefLink } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { lang } from "@/utils/lang";
 import { openTab, showMessage, Plugin } from "siyuan";
-import { getAllChildDocuments, getAllSiblingDocuments, getParentDocument } from "./commonProvider";
-import { getPluginInstance } from "@/utils/getInstance";
+import { getAllChildDocuments, getAllSiblingDocuments, getParentDocument, getUserDemandSiblingDocuments } from "./commonProvider";
+import { getReadOnlyGSettings } from "@/manager/settingManager";
 
 export function bindCommand(pluginInstance: Plugin) {
     pluginInstance.addCommand({
@@ -151,8 +151,9 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
         debugPush("文档似乎是刚刚创建，无法获取上下文信息，停止处理");
         return;
     }
+    const g_setting = getReadOnlyGSettings();
     const parentSqlResult = await getParentDocument(sqlResult[0]);
-    siblingDocs = await getAllSiblingDocuments(parentSqlResult, sqlResult[0]);
+    siblingDocs = await getUserDemandSiblingDocuments(parentSqlResult, sqlResult[0], undefined, g_setting.previousAndNextHiddenDoc);
     
     // 处理sibling docs
     if (siblingDocs == null || siblingDocs.length == 1) {

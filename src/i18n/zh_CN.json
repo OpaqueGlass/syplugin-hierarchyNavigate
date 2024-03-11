@@ -52,19 +52,23 @@
     "setting_adjustDocIcon_desp": "插入导航区会导致标题左侧文档图标错位，开启此选项以修复此问题。若与您的自定义设置或主题产生冲突，请在此关闭。",
     "setting_noneAreaHide_name": "不存在文档时隐藏",
     "setting_noneAreaHide_desp": "在无对应文档时，隐藏该区域，不显示“无”。不建议和“隐藏导航区提示词”同时启用。",
-    "setting_mainRetry_name": "🧪出错重试次数",
+    "setting_mainRetry_name": "❌出错重试次数",
     "setting_mainRetry_desp": "如果未能显示，将间隔200ms进行重试。由于新创建的文档未入数据库，该设置对新创建的文档无效。",
     "setting_lcdEmptyDocThreshold_name": "空白文档判定阈值",
     "setting_lcdEmptyDocThreshold_desp": "当文档块数小于该值时，判定为空白文档，设置为-1则将所有文档判定为空白文档。该设置只影响“listChildDocs”的显示。单位：块数",
-    "setting_noChildIfHasAv_name": "🧪含数据库文档不显示子文档部分",
+    "setting_noChildIfHasAv_name": "含数据库文档不显示子文档部分",
     "setting_noChildIfHasAv_desp": "启用后，当发现文档中包含数据库时，将不在该文档显示子文档、挂件区域。插件已支持通过文档属性单独为文档设置显示内容与顺序，详见README。",
     "setting_showBackLinksType_name": "反链部分显示类型",
     "setting_showBackLinksType_desp": "",
     "setting_showBackLinksType_option_show_all_as_doc": "常规",
     "setting_showBackLinksType_option_doc_only": "仅文档",
+    "setting_showHiddenDoc_name": "🧪在子文档、同级文档区域显示文档树隐藏文档",
+    "setting_showHiddenDoc_desp": "",
+    "setting_previousAndNextHiddenDoc_name": "🧪获取相邻文档时包括文档树隐藏文档",
+    "setting_previousAndNextHiddenDoc_desp": "为保证“上一篇、下一篇”内容区和快捷键切换的功能可用性，建议启用；若禁用，将无法切换到隐藏文档，如果当前文档被隐藏，也无法显示上一篇下一篇信息；",
 
-    "setting_childOrder_name": "子文档部分排序方式",
-    "setting_childOrder_desp": "",
+    "setting_childOrder_name": "同级文档、子文档部分排序方式",
+    "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",
     "setting_childOrder_option_FILE_NAME_ASC": "文件名升序",
     "setting_childOrder_option_FILE_NAME_DESC": "文件名降序",
     "setting_childOrder_option_NAME_NAT_ASC": "名称自然升序",
@@ -144,6 +148,8 @@
     "setting_flashcardContentGroup_option_previousAndNext_desp": "",
     "setting_flashcardContentGroup_option_info": "文档信息行",
     "setting_flashcardContentGroup_option_info_desp": "",
+    "setting_flashcardContentGroup_option_blockBreadcrumb": "块面包屑",
+    "setting_flashcardContentGroup_option_blockBreadcrumb_desp": "（测试中功能，如有问题请反馈）显示当前闪卡的块路径信息（仅标题、列表项），并忽略闪卡所在的节点；",
 
     "setting_enableForOtherCircumstance_name": "🧪在其他情况也显示层级导航",
     "setting_enableForOtherCircumstance_desp": "可能与其他插件和（或）其他文档预览区域（或编辑区域）等冲突，请谨慎启用",
@@ -155,7 +161,7 @@
 
     "===========关于选项卡===========": null,
     "setting_aboutAuthor_name": "关于此插件",
-    "setting_aboutAuthor_desp": "作者：<a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>问题反馈&赞助支持：<a target='_blank' href='https://github.com/OpaqueGlass/syplugin-doubleClickFileTree'>github</a> 或 <a target='_blank' href='https://wj.qq.com/s2/12395364/b69f/'>填写问卷</a>；<br/>插件基于<a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a>授权使用；",
+    "setting_aboutAuthor_desp": "作者：<a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>问题反馈&赞助支持：<a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate'>github</a> 或 <a target='_blank' href='https://wj.qq.com/s2/12395364/b69f/'>填写问卷</a>；<br/>插件基于<a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a>授权使用；",
 
 
     "order_panel_enable": "启用/显示：",
@@ -181,6 +187,7 @@
     "go_to_next_doc": "前往下一篇",
     "is_first_document": "已经是第一篇",
     "is_last_document": "已经是最后一篇",
+    "is_hidden_doc": "（当前文档是隐藏文档，无法显示相邻文档信息）",
 
     "settingpage_content_name": "显示顺序",
     "settingpage_showType_name": "显示内容",
