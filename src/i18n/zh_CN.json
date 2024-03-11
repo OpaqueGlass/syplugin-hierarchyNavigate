@@ -157,7 +157,8 @@
 
     "===========显示逻辑控制选项卡===========": null,
 
-
+    "setting_hideBlockBreadcrumbInDesktop_name": "桌面端不显示块面包屑内容区",
+    "setting_hideBlockBreadcrumbInDesktop_desp": "",
 
     "===========关于选项卡===========": null,
     "setting_aboutAuthor_name": "关于此插件",

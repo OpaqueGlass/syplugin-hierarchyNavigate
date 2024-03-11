@@ -8,6 +8,7 @@ import { debugPush, errorPush, logPush, warnPush } from "@/logger";
 import { openRefLink } from "@/utils/common";
 import { IProtyle, Menu } from "siyuan";
 import { getUserDemandSiblingDocuments } from "./commonProvider";
+import { htmlTransferParser } from "@/utils/onlyThisUtil";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -171,6 +172,7 @@ class BasicContentPrinter {
         // TODO: 这里需要区分doc.content 和 doc.name，或者，传入前就将doc.name加入.sy后缀
 
         let docName = isValidStr(doc?.name) ? doc.name.substring(0, doc.name.length - 3) : doc.content;
+        docName = htmlTransferParser(docName);
         // docName = Lute.EscapeHTMLStr(docName);
         let trimDocName = docName;
         if (doc["ogSimpleName"]) {
@@ -600,14 +602,14 @@ class NeighborContentPrinter extends BasicContentPrinter {
         if (iCurrentDoc >= 0) {
             let flag = false;
             if (iCurrentDoc > 0) {
-                let simpleName = lang("previous_doc") + siblingDocs[iCurrentDoc - 1]["name"];
+                let simpleName = lang("previous_doc") + htmlTransferParser(siblingDocs[iCurrentDoc - 1]["name"]);
                 let docInfo = Object.assign({}, siblingDocs[iCurrentDoc - 1]);
                 docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 previousElem = this.docLinkGenerator(docInfo);
                 flag = true;
             }
             if (iCurrentDoc + 1 < siblingDocs.length) {
-                let simpleName = lang("next_doc") + siblingDocs[iCurrentDoc + 1]["name"];
+                let simpleName = lang("next_doc") + htmlTransferParser(siblingDocs[iCurrentDoc + 1]["name"]);
                 let docInfo = Object.assign({}, siblingDocs[iCurrentDoc + 1]);
                 docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 nextElem = this.docLinkGenerator(docInfo);
@@ -647,7 +649,7 @@ class WidgetContentPrinter extends BasicContentPrinter {
         this.isDoNotUpdate = true;
         const result = document.createElement("div");
         result.classList.add("og-hn-widget-container");
-        result.innerHTML = `<iframe src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${(window.screen.availWidth - 75) > 350 ? 350 : (window.screen.availWidth - 75)}px;"></iframe>`;
+        result.innerHTML = `<iframe src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${(window.screen.availWidth - 75) > 350 ? 350 : (window.screen.availWidth - 75)}px;" data-doc-id="${basicInfo.currentDocId}"></iframe>`;
         return result;
     }
     static async isOnlyOnce(basicInfo: IBasicInfo): Promise<boolean> {
@@ -658,6 +660,11 @@ class WidgetContentPrinter extends BasicContentPrinter {
 
 class BlockTitleBreadcrumbContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        debugPush("isMobile", isMobile(), g_setting.hideBlockBreadceumbInDesktop);
+        if (!isMobile() && g_setting.hideBlockBreadcrumbInDesktop) {
+            return null;
+        }
         // 没有前置缩进，不加入multiline样式
         const result = super.getBasicElement(CONSTANTS.BREADCRUMB_CONTAINER_CLASS_NAME, [CONSTANTS.CONTAINER_CLASS_NAME], null);
         // 这里嵌套了一层element……是因为原来用的parent下插入的面包屑，暂时保持一致

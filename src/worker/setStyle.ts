@@ -78,7 +78,7 @@ export function setStyle() {
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {
         margin: 0 auto; /*居中显示*/
         text-overflow: ellipsis;
-        overflow: hidden;
+        /*overflow: hidden;*/ /* 修复文字下侧被截断的问题 */
     }
     .og-hierachy-navigate-sibling-doc-container  span.refLinks, 
     .og-hierachy-navigate-children-doc-container span.refLinks,
@@ -180,7 +180,9 @@ export function setStyle() {
         flex-shrink: 0;
     }
 
-    .og-hn-heading-docs-container .og-fake-breadcrumb-arrow-span {
+    /* 块没有>功能，屏蔽 */
+    .og-hn-heading-docs-container .og-fake-breadcrumb-arrow-span[data-type="FILE"],
+    .og-hn-heading-docs-container .og-fake-breadcrumb-arrow-span[data-type="NOTEBOOK"] {
         display: inline-block;
         cursor: pointer;
     }

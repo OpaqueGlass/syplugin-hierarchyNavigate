@@ -88,6 +88,7 @@ let defaultSetting: any = {
     childOrder: "FOLLOW_DOC_TREE", // 子文档部分排序方式
     showHiddenDoc: false,
     previousAndNextHiddenDoc: true,
+    hideBlockBreadcrumbInDesktop: true
 }
 
 
@@ -120,7 +121,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "lcdEmptyDocThreshold", "type": "NUMBER", "min": -1}),
             new ConfigProperty({"key": "hideIndicator", "type": "SWITCH"}),
             new ConfigProperty({"key": "noneAreaHide", "type": "SWITCH"}),
-
+            new ConfigProperty({"key": "hideBlockBreadcrumbInDesktop", "type": "SWITCH"}),
         ]}),
         new TabProperty({key: "general", "iconKey": "iconSettings", props: [
             new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),
@@ -129,7 +130,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "nameMaxLength", "type": "NUMBER"}),
             new ConfigProperty({"key": "icon", "type": "SELECT", options: [CONSTANTS.ICON_NONE, CONSTANTS.ICON_CUSTOM_ONLY, CONSTANTS.ICON_ALL]}),
             new ConfigProperty({"key": "linkDivider", "type": "TEXT"}),
-            new ConfigProperty({"key": "mainRetry", "type": "NUMBER"}),
+            new ConfigProperty({"key": "mainRetry", "type": "NUMBER", "max": 3}),
         ]}),
         new TabProperty({"key": "appearance", "iconKey": "iconTheme", props: [
             new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),
@@ -232,7 +233,7 @@ function checkSettingType(input:any) {
             input[prop.key] = newOrder;
         } else if (prop.type == "SWITCH") {
             if (input[prop.key] == undefined) {
-                input[prop.key] = false;
+                input[prop.key] = defaultSetting[prop.key];
             }
         } else if (prop.type == "NUMBER") {
             if (isValidStr(input[prop.key])) {

@@ -82,7 +82,8 @@ export default class EventHandler {
             const basicInfo = await getBasicInfo(docId);
             logPush("basicInfo", basicInfo);
             if (!basicInfo.success) {
-                throw new Error("获取文档信息失败");
+                logPush("获取文档信息失败，终止尝试");
+                return true;
             }
             // 区分生成内容；应该不会根据不同的配置使用不同的生成吧，那也太累了，这个部分可能需要使用contentPrinter的对象
             // 如果还需要根据不同的设备走不同的显示内容，就更麻烦了【这里不做区分，如果区分移动端，则使用移动端独有设置项文件mobile-setting.json/{uid}.json】

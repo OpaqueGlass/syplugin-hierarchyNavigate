@@ -153,6 +153,10 @@
     "setting_flashcardContentGroup_option_blockBreadcrumb": "Block breadcrumbs",
     "setting_flashcardContentGroup_option_blockBreadcrumb_desp": "(🚅 Beta feature, may be unstable, please provide feedback if any bug exist) Show the current flashcard's block hierarchy information, including only the titles or list items, and excluding the current level.",
 
+    "setting_hideBlockBreadcrumbInDesktop_name": "The block breadcrumb content area is not displayed on the desktop version",
+    "setting_hideBlockBreadcrumbInDesktop_desp": "",
+
+
     "setting_enableForOtherCircumstance_name": "🧪Display Hierarchical Navigation in Other Situations",
     "setting_enableForOtherCircumstance_desp": "May conflict with other plugins and/or other document preview areas (or editing areas), please use with caution",
 
