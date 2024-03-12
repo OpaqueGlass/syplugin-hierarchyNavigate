@@ -649,7 +649,11 @@ class WidgetContentPrinter extends BasicContentPrinter {
         this.isDoNotUpdate = true;
         const result = document.createElement("div");
         result.classList.add("og-hn-widget-container");
+        /* ?printMode=11 */
         result.innerHTML = `<iframe src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: ${(window.screen.availWidth - 75) > 350 ? 350 : (window.screen.availWidth - 75)}px;" data-doc-id="${basicInfo.currentDocId}"></iframe>`;
+        // if (isValidStr((result.children[0] as HTMLElement).dataset)) {
+        //     (result.children[0] as HTMLElement).dataset.defaultConfig = JSON.stringify({printMode: 11});
+        // }
         return result;
     }
     static async isOnlyOnce(basicInfo: IBasicInfo): Promise<boolean> {

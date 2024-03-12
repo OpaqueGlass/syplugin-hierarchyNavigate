@@ -130,7 +130,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "nameMaxLength", "type": "NUMBER"}),
             new ConfigProperty({"key": "icon", "type": "SELECT", options: [CONSTANTS.ICON_NONE, CONSTANTS.ICON_CUSTOM_ONLY, CONSTANTS.ICON_ALL]}),
             new ConfigProperty({"key": "linkDivider", "type": "TEXT"}),
-            new ConfigProperty({"key": "mainRetry", "type": "NUMBER", "max": 3}),
+            // new ConfigProperty({"key": "mainRetry", "type": "NUMBER", "max": 3}),
         ]}),
         new TabProperty({"key": "appearance", "iconKey": "iconTheme", props: [
             new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),

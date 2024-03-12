@@ -96,8 +96,8 @@ export default class EventHandler {
                 applyer.apply(finalElement);
             }
         } catch(error) {
-            logPush(error);
-            success = false;
+            errorPush("ERROR", error);
+            success = true;
         } finally {
             debugPush("\x1b[1;36m%s\x1b[0m", "<<<<<<<< mutex 任务结束");
             if (isDebugMode()) {
@@ -120,7 +120,7 @@ export default class EventHandler {
                 logPush("重试过程中遇到问题");
                 await sleep(200);
             }
-        } while(retryCount < g_setting.mainRetry && !success);
+        } while(retryCount < 2 && !success);
         if (!success) {
             infoPush("多次重试仍然存在异常，请查看Log日志");
         }
