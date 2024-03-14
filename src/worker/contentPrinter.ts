@@ -447,7 +447,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         const result = document.createElement("div");
         result.classList.add("og-hn-parent-area-replace-with-breadcrumb");
 
-        const divideArrow = `<span class="og-fake-breadcrumb-arrow-span" data-type="%4%" data-parent-id="%5%"><svg class="${CONSTANTS.ARROW_CLASS_NAME}"
+        const divideArrow = `<span class="og-fake-breadcrumb-arrow-span" data-type="%4%" data-parent-id="%5%"  data-next-id="%6%"><svg class="${CONSTANTS.ARROW_CLASS_NAME}"
             data-type="%4%" data-parent-id="%5%">
             <use xlink:href="#iconRight"></use></svg></span>`;
         // oneItm换用docLinkGenerator生成链接
@@ -461,13 +461,15 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             }
             result.insertAdjacentHTML("beforeend", divideArrow
                 .replaceAll("%4%", onePathObject.type)
-                .replaceAll("%5%", pathObjects[i].id));
+                .replaceAll("%5%", pathObjects[i].id)
+                .replaceAll("%6%", pathObjects[i+1]?.id));
         }
         return result;
     }
     static async openRelativeMenu(event) {
         const g_setting = getReadOnlyGSettings();
         let id = event.currentTarget.getAttribute("data-parent-id");
+        let nextId = event.currentTarget.getAttribute("data-next-id");
         let rect = event.currentTarget.getBoundingClientRect();
         event.stopPropagation();
         event.preventDefault();
@@ -488,8 +490,11 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
                 currSibling.name.substring(0, g_setting.nameMaxLength) + "..."
                 : currSibling.name;
             let tempMenuItemObj = {
+                accelerator: nextId == currSibling.id ? "<-" : undefined,
+                iconHTML: BreadcrumbContentPrinter.getEmojiHtmlStrE2(currSibling.icon, currSibling.subFileCount != 0),
                 label: `<span class="${CONSTANTS.MENU_ITEM_CLASS_NAME}" 
                     data-doc-id="${currSibling.id}"
+                    ${nextId == currSibling.id ? `style="font-weight: bold;"` : ""}
                     title="${currSibling.name}">
                     ${trimedName}
                 </span>`,
@@ -509,6 +514,34 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         }
     
         tempMenu.open({x: rect.left, y: rect.bottom, isLeft:false}); 
+    }
+    static getEmojiHtmlStrE2(iconString, hasChild) {
+        const g_setting = getReadOnlyGSettings();
+        if (g_setting.icon == CONSTANTS.ICON_NONE) return ``;
+        // 无emoji的处理
+        if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_ALL) return hasChild ? `<span class="og-hn-menu-emojitext">📑</span>` : `<span class="og-hn-menu-emojitext">📄</span>`;//无icon默认值
+        if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_CUSTOM_ONLY) return `<span class="og-hn-menu-emojitext"></span>`;
+        let result = iconString;
+        // emoji地址判断逻辑为出现.，但请注意之后的补全
+        if (iconString.indexOf(".") != -1) {
+            result = `<img class="og-hn-menu-emojipic" src="/emojis/${iconString}"/>`;
+        } else {
+            result = `<span class="og-hn-menu-emojitext">${BreadcrumbContentPrinter.emojiIconHandler(iconString, hasChild)}</span>`;
+        }
+        return result;
+    }
+    static emojiIconHandler(iconString, hasChild = false) {
+        //确定是emojiIcon 再调用，printer自己加判断
+        try {
+            let result = "";
+            iconString.split("-").forEach(element => {
+                result += String.fromCodePoint(Number("0x" + element));
+            });
+            return result;
+        } catch (err) {
+            errorPush("emoji处理时发生错误", iconString, err);
+            return hasChild ? "📑" : "📄";
+        }
     }
 }
 

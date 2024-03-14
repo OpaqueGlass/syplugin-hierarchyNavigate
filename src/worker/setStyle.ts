@@ -110,6 +110,20 @@ export function setStyle() {
         overflow: hidden;
     }
 
+    .og-hn-menu-emojitext, .og-hn-menu-emojipic {
+        align-self: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    img.og-hn-menu-emojipic {
+        width: 16px;
+        height: 16px;
+    }
+
     .og-hn-heading-docs-container span.docLinksWrapper:hover {
         cursor: pointer;
         box-shadow: 0 0 2px var(--b3-list-hover);
