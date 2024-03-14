@@ -54,7 +54,7 @@ export default class EventHandler {
         this.simpleMutex++;
         
        
-        let success = true;
+        let doNotRetryFlag = true;
         if (isDebugMode()) {
             console.time(CONSTANTS.PLUGIN_NAME);
         }
@@ -82,8 +82,8 @@ export default class EventHandler {
             const basicInfo = await getBasicInfo(docId);
             logPush("basicInfo", basicInfo);
             if (!basicInfo.success) {
-                logPush("获取文档信息失败，终止尝试");
-                return true;
+                logPush("获取文档信息失败");
+                return false;
             }
             // 区分生成内容；应该不会根据不同的配置使用不同的生成吧，那也太累了，这个部分可能需要使用contentPrinter的对象
             // 如果还需要根据不同的设备走不同的显示内容，就更麻烦了【这里不做区分，如果区分移动端，则使用移动端独有设置项文件mobile-setting.json/{uid}.json】
@@ -97,7 +97,7 @@ export default class EventHandler {
             }
         } catch(error) {
             errorPush("ERROR", error);
-            success = true;
+            doNotRetryFlag = true;
         } finally {
             debugPush("\x1b[1;36m%s\x1b[0m", "<<<<<<<< mutex 任务结束");
             if (isDebugMode()) {
@@ -106,22 +106,22 @@ export default class EventHandler {
             this.loadAndSwitchMutex.unlock();
             this.simpleMutex--;
         }
-        return success;
+        return doNotRetryFlag;
     }
 
     async loadedProtyleRetryEntry(event: CustomEvent<IEventBusMap["loaded-protyle-static"]>) {
-        let success = true;
+        let doNotRetry = true;
         const g_setting = getReadOnlyGSettings();
         let retryCount = 0;
         do {
-            success = await this.loadedProtyleHandler(event);
+            doNotRetry = await this.loadedProtyleHandler(event);
             retryCount++;
-            if (success == false) {
+            if (doNotRetry == false) {
                 logPush("重试过程中遇到问题");
-                await sleep(200);
+                await sleep(300);
             }
-        } while(retryCount < 2 && !success);
-        if (!success) {
+        } while(retryCount < 2 && !doNotRetry);
+        if (!doNotRetry) {
             infoPush("多次重试仍然存在异常，请查看Log日志");
         }
     }
