@@ -19,7 +19,12 @@ export default class ContentApplyer {
         finalElement.classList.add("og-hn-heading-docs-container");
         finalElement.dataset["existContentPart"] = JSON.stringify(printerAllResults.relateContentKeys);
         // 要不这边先构成最终finalElement，再交给各个类型的apply函数写入，其余函数只插入一个元素
-        const existContentMainPart = this.protyleElement.querySelector(".og-hn-heading-docs-container");
+        // TODO: 似乎有一些情况会导致多个内容区, selectorAll然后remove掉靠后的吧
+        const allExistMainPart = this.protyleElement.querySelectorAll(".og-hn-heading-docs-container");
+        const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
+        for (let i = 1; i < allExistMainPart.length; i++) {
+            allExistMainPart[i].remove();
+        }
         if (!existContentMainPart) {
             debugPush("未找到已经存在的，插入新的区域");
             for (const elem of printerAllResults.elements) {
