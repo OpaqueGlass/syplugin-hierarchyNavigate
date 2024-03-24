@@ -97,6 +97,7 @@ export async function listDocsByPathT({notebook, path, maxListCount = undefined,
     }
     let response = await postRequest(body, url);
     if (response.code != 0 || response.data == null){
+        warnPush("listDocsByPath请求错误", response.msg);
         return new Array();
     }
     return response.data.files;
@@ -761,6 +762,14 @@ export function getBlockBreadcrumb(blockId: string, excludeTypes: string[] = [])
     };
     let url = `/api/block/getBlockBreadcrumb`;
     return getResponseData(postRequest(data, url));
+}
+
+export async function getHPathById(docId:string): Promise<string|undefined> {
+    let data = {
+        "id": docId
+    }
+    const url = "/api/filetree/getHPathByID";
+    return getResponseData(postRequest(data, url)) as Promise<string|undefined>;
 }
 
 export const DOC_SORT_TYPES = {

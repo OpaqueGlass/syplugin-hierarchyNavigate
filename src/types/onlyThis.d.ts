@@ -3,13 +3,30 @@
  */
 interface IBasicInfo {
     success: boolean,
-    docSqlResult: SqlResult,
-    parentDocSqlResult: SqlResult,
+    docBasicInfo: ISimpleDocInfoResult,
+    parentDocBasicInfo: ISimpleDocInfoResult,
     allSiblingDocInfoList: IFile[],
     childDocInfoList: IFile[],
     userDemandSiblingDocInfoList: IFile[],
     currentDocId: string,
     currentDocAttrs: any,
+}
+
+interface ISimpleDocInfoResult {
+    id: string,
+    path: string,
+    ial: any,
+    attrViews: any,
+    // rootID: string, // 根块id，不是笔记本id
+    name: string,
+    refCount: number,
+    refIDs: string[],
+    subFileCount: number,
+    createTime: Date,
+    updateTime: Date,
+    icon: string|undefined,
+    box: string
+    // hpath: string,
 }
 
 interface IProtyleEnvInfo {
@@ -21,7 +38,7 @@ interface IProtyleEnvInfo {
 
 interface IDocLinkGenerateInfo {
     icon?: string;
-    alias: string;
+    // alias: string;
     path: string;
     name: string;
     id: string;

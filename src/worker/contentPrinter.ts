@@ -44,7 +44,8 @@ export default class ContentPrinter {
         // TODO: 根据basicInfo选择不同的constentGroupList
         let docContentKeyGroup = [];
         docContentKeyGroup = isMobile() ? g_setting.mobileContentGroup : g_setting.openDocContentGroup;
-        if (this.basicInfo.docSqlResult.ial?.includes("og-hn-ignore") || this.basicInfo.docSqlResult.ial?.includes("og文档导航忽略")) {
+        const ialString = JSON.stringify(this.basicInfo.docBasicInfo.ial ?? "");
+        if (ialString.includes("og-hn-ignore") || ialString.includes("og文档导航忽略")) {
             return null;
         }
         // doc覆盖
@@ -287,7 +288,7 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         let result = document.createElement("div");
         result.classList.add(CONSTANTS.INFO_CONTAINER_CLASS);
         // firstLineElem.style.cssText = CONTAINER_STYLE;
-        let box = getNotebookInfoLocallyF(basicInfo.docSqlResult.box);
+        let box = getNotebookInfoLocallyF(basicInfo.docBasicInfo.box);
         
         let infoElemInnerText = `<span class="og-hn-create-at-wrapper">
             <span class="og-hn-create-at-indicator">${lang("create_at")}</span> 
@@ -318,7 +319,7 @@ class DocInfoContentPrinter extends BasicContentPrinter {
 class ParentContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const result = super.getBasicElement(CONSTANTS.PARENT_CONTAINER_ID, null, lang("parent_nodes"));
-        if (basicInfo.parentDocSqlResult == null) {
+        if (basicInfo.docBasicInfo == null) {
             const g_setting = getReadOnlyGSettings();
             // 历史兼容选项，当没有父文档时，将显示兄弟文档
             if (g_setting.sibling) {
@@ -327,7 +328,11 @@ class ParentContentPrinter extends BasicContentPrinter {
             result.appendChild(super.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
         } else {
-            result.appendChild(this.docLinkGenerator(basicInfo.parentDocSqlResult));
+            if (basicInfo.parentDocBasicInfo) {
+                result.appendChild(this.docLinkGenerator(basicInfo.parentDocBasicInfo));
+            } else {
+                result.appendChild(this.getNoneElement());
+            }
         }
         logPush("parentAreaOutput", result);
         return result;
@@ -405,7 +410,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         return result;
     }
     static async generateBreadCrumb(basicInfo:IBasicInfo) {
-        const pathObject = await this.parseDocPath(basicInfo.docSqlResult);
+        const pathObject = await this.parseDocPath(basicInfo.docBasicInfo);
         const breadcrumbElem = await this.generateBreadCrumbElement(pathObject);
         return breadcrumbElem;
     }
@@ -622,7 +627,7 @@ class BackLinkContentPrinter extends BasicContentPrinter {
 class NeighborContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const siblingDocs = await getUserDemandSiblingDocuments(basicInfo.parentDocSqlResult, basicInfo.docSqlResult, undefined, g_setting.previousAndNextHiddenDoc);//basicInfo.allSiblingDocInfoList;
+        const siblingDocs = await getUserDemandSiblingDocuments(basicInfo.docBasicInfo.path, basicInfo.docBasicInfo.box, undefined, g_setting.previousAndNextHiddenDoc);//basicInfo.allSiblingDocInfoList;
         const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"));
         let iCurrentDoc = -1;
         let previousElem = null, nextElem = null;
@@ -632,7 +637,8 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 break;
             }
         }
-        if (iCurrentDoc >= 0) {
+        warnPush("相邻节点情况", siblingDocs.map((elem)=>{return {"path": elem?.path, "name": elem?.name}}), "请求文档id", basicInfo.currentDocId, "数据请求信息：当前文档路径", basicInfo.docBasicInfo?.path, "父文档路径: ", basicInfo, basicInfo.docBasicInfo?.box, g_setting.previousAndNextHiddenDoc);
+        if (iCurrentDoc >= 0 && siblingDocs.length > 1) {
             let flag = false;
             if (iCurrentDoc > 0) {
                 let simpleName = lang("previous_doc") + htmlTransferParser(siblingDocs[iCurrentDoc - 1]["name"]);
@@ -674,6 +680,13 @@ class WidgetContentPrinter extends BasicContentPrinter {
         if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
             logPush("文档中含有数据库，不显示子文档区域");
             return null;
+        }
+        if (basicInfo.docBasicInfo.subFileCount <= 0) {
+            logPush("无子文档，不显示子文档区域");
+            const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"));
+            result.appendChild(this.getNoneElement());
+            this.isDoNotUpdate = false;
+            return result;
         }
         if (g_setting.lcdEmptyDocThreshold >= 0 && !await isDocEmpty(basicInfo.currentDocId, g_setting.lcdEmptyDocThreshold)) {
             this.isDoNotUpdate = false;

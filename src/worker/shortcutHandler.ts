@@ -88,7 +88,7 @@ async function goDownShortcutHandler() {
     let sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
     if (sqlResult && sqlResult.length >= 1) {
         // TODO: 如果可以忽略超过范围的提示，再将这里的限制修改为3以下
-        const childDocsList = await getAllChildDocuments(sqlResult[0]);
+        const childDocsList = await getAllChildDocuments(sqlResult[0].path, sqlResult[0].box);
         if (childDocsList && childDocsList.length >= 1) {
             const childDoc = childDocsList[0];
             openRefLink(undefined, childDoc.id, {
@@ -152,8 +152,8 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
         return;
     }
     const g_setting = getReadOnlyGSettings();
-    const parentSqlResult = await getParentDocument(sqlResult[0]);
-    siblingDocs = await getUserDemandSiblingDocuments(parentSqlResult, sqlResult[0], undefined, g_setting.previousAndNextHiddenDoc);
+    // const parentSqlResult = await getParentDocument(sqlResult[0]);
+    siblingDocs = await getUserDemandSiblingDocuments(sqlResult[0].path, sqlResult[0].box, undefined, g_setting.previousAndNextHiddenDoc);
     
     // 处理sibling docs
     if (siblingDocs == null || siblingDocs.length == 1) {

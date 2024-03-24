@@ -79,7 +79,7 @@ export default class EventHandler {
                 return true;
             }
             // 调用Provider获取必要信息
-            const basicInfo = await getBasicInfo(docId);
+            const basicInfo = await getBasicInfo(docId, protyle.path, protyle.notebookId);
             logPush("basicInfo", basicInfo);
             if (!basicInfo.success) {
                 logPush("获取文档信息失败");
