@@ -53,6 +53,7 @@ async function getSimpleDocInfo(docId:string, docPath?:string, notebookId?: stri
     const docInfoResponse = await getDocInfo(docId);
     Object.assign(result, docInfoResponse);
     result.icon = result.ial?.icon;
+    result.name = result.name + ".sy";
     result.createTime = parseDateString(result.id.substring(0, 14));
     result.updateTime = parseDateString(result.ial.updated ?? result.id.substring(0, 14));
     return result;

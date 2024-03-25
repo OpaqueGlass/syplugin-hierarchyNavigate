@@ -14,8 +14,8 @@
 
     "setting_fontSize_name": "字号",
     "setting_fontSize_desp": "单位：px",
-    "setting_nameMaxLength_name": "文档名最大显示长度",
-    "setting_nameMaxLength_desp": "限制文档链接的长度，设置为0则不限制。（单位：字符）",
+    "setting_nameMaxLength_name": "🔄文档名最大显示长度",
+    "setting_nameMaxLength_desp": "限制子文档菜单中文档名的长度，设置为0则不限制。（单位：字符）",
     "setting_docMaxNum_name": "文档最大数量",
     "setting_docMaxNum_desp": "当子文档或同级文档超过该值时，后续文档将不再显示。设置为0则不限制。",
     "setting_icon_name": "文档图标",
@@ -44,8 +44,10 @@
     "setting_popupWindow_option_all": "全部触发",
     "setting_maxHeightLimit_name": "最大高度限制",
     "setting_maxHeightLimit_desp": "限制各个内容区域的最大高度，过多时需要滚动查看。单位：em（对应字体大小）",
-    "setting_sameWidth_name": "文档链接相同宽度",
-    "setting_sameWidth_desp": "使得所有文档链接具有相同的宽度，设置为<code>0</code>则禁用，单位：em（对应字体大小）",
+    "setting_sameWidth_name": "🔄文档链接最小宽度",
+    "setting_sameWidth_desp": "设置文档链接的最小宽度，设置为<code>0</code>则禁用，单位：em（对应字体大小）",
+    "setting_sameWidthColumn_name": "🆕文档链接等宽分列数",
+    "setting_sameWidthColumn_desp": "在同级文档、子文档区域中，使得文档分列等宽显示，这里设置分列数，设置为<code>0</code>则禁用。受制于“文档链接最小宽度”，如果分列数不达预期，请检查“文档链接最小宽度”设置项",
     "setting_hideIndicator_name": "隐藏导航区提示词",
     "setting_hideIndicator_desp": "隐藏“父：”“子：”等提示词，界面更简洁。如要修改提示词，可到插件所在文件夹/i18n修改语言文件。",
     "setting_adjustDocIcon_name": "调整文档图标位置",
@@ -163,6 +165,8 @@
     "===========关于选项卡===========": null,
     "setting_aboutAuthor_name": "关于此插件",
     "setting_aboutAuthor_desp": "作者：<a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>问题反馈&赞助支持：<a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate'>github</a> 或 <a target='_blank' href='https://wj.qq.com/s2/12395364/b69f/'>填写问卷</a>；<br/>插件基于<a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a>授权使用；",
+    "setting_settingIconTips_name": "设置页图标含义",
+    "setting_settingIconTips_desp": "🔄表示在最近版本中，设置项含义或效果有所变更；（请阅读<a target='_blank' href='https://cdn.jsdelivr.net/gh/OpaqueGlass/syplugin-hierarchyNavigate/CHANGELOG.md'>更新日志</a>了解变更和你可能要做的更改）<br/>🆕表示最近版本新添加的设置项；（请阅读<a target='_blank' href='https://cdn.jsdelivr.net/gh/OpaqueGlass/syplugin-hierarchyNavigate/CHANGELOG.md'>更新日志</a>了解新功能）<br/>🧪或🚧表示实验性功能，开发者会尽力维护，但存在无法处理的缺陷时将移除；<br/>🚅表示公测中功能，小范围测试通过后的功能将标注（但并没有几个人测试，所以可靠性未知）；<br/>⛔表示历史兼容选项，将很快被移除；",
 
 
     "order_panel_enable": "启用/显示：",
@@ -190,8 +194,8 @@
     "is_last_document": "已经是最后一篇",
     "is_hidden_doc": "（当前文档是隐藏文档，无法显示相邻文档信息）",
 
-    "settingpage_content_name": "显示顺序",
-    "settingpage_showType_name": "显示内容",
+    "settingpage_content_name": "内容区与顺序",
+    "settingpage_showType_name": "内容展示逻辑",
     "settingpage_general_name": "通用",
     "settingpage_appearance_name": "外观、CSS",
     "settingpage_settingSave_name": "设置项保存",

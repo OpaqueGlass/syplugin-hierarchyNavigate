@@ -165,14 +165,22 @@ class BasicContentPrinter {
         return result;
     }
 
-    //TODO: 请注意，传入的doc.name应当包含.sy后缀（即IFile类型原始值），本函数会进行处理！
-    //TODO: 样式有问题
+    // 请注意，传入的doc.name应当包含.sy后缀（即IFile类型原始值），本函数会进行处理！
     static docLinkGenerator(doc:IDocLinkGenerateInfo) {
         let g_setting = getReadOnlyGSettings();
         let emojiStr = this.getEmojiHtmlStr(doc.icon, doc?.subFileCount != 0, g_setting);
-        // TODO: 这里需要区分doc.content 和 doc.name，或者，传入前就将doc.name加入.sy后缀
-
-        let docName = isValidStr(doc?.name) ? doc.name.substring(0, doc.name.length - 3) : doc.content;
+        // 这里需要区分doc.content 和 doc.name，或者，传入前就将doc.name加入.sy后缀
+        let docName = "";
+        if (isValidStr(doc.name)) {
+            if (doc.name.endsWith(".sy")) {
+                docName = doc.name.substring(0, doc.name.length - 3);
+            } else {
+                docName = doc.name;
+                errorPush("doc.name必须以.sy结尾");
+            }
+        } else {
+            docName = doc.content;
+        }
         docName = htmlTransferParser(docName);
         // docName = Lute.EscapeHTMLStr(docName);
         let trimDocName = docName;
@@ -180,7 +188,7 @@ class BasicContentPrinter {
             trimDocName = doc["ogSimpleName"];
         }
         // 文件名长度限制
-        if (docName.length > g_setting.nameMaxLength && g_setting.nameMaxLength != 0) trimDocName = trimDocName.substring(0, g_setting.nameMaxLength) + "...";
+        // if (docName.length > g_setting.nameMaxLength && g_setting.nameMaxLength != 0) trimDocName = trimDocName.substring(0, g_setting.nameMaxLength) + "...";
 
         let result = document.createElement("span");
         result.classList.add("refLinks", "docLinksWrapper");

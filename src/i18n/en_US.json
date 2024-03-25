@@ -13,7 +13,7 @@
     "setting_fontSize_name": "Font Size",
     "setting_fontSize_desp": "Unit: px",
     "setting_nameMaxLength_name": "Maximum length of the document name",
-    "setting_nameMaxLength_desp": "The excess part of the document name will be hided. If set to 0, there is no limit. Unit: Character",
+    "setting_nameMaxLength_desp": "The excess part of the document name will be hided. Only available in sub-doc menu.  If set to 0, there is no limit. Unit: Character",
     "setting_docMaxNum_name": "Maximum number of documents",
     "setting_docMaxNum_desp": "When a subdocument or sibling document exceeds this value, subsequent documents are not displayed. If set to 0, there is no limit.",
     "setting_icon_name": "Document Icon",
@@ -42,8 +42,10 @@
     "setting_linkDivider_desp": "This prefix would be added before a document link without an icon. When \"popup window trigger range\" set as \"Icon only\", prefix also used to trigger it.",
     "setting_maxHeightLimit_name": "Limit the max height of naviation container",
     "setting_maxHeightLimit_desp": "The excess part needs to be scrolled to view. Unit: em",
-    "setting_sameWidth_name": "Consistent width of document links",
-    "setting_sameWidth_desp": "Ensure all document links have a consistent width. Set as <code>0</code> to disable. Unit: em",
+    "setting_sameWidth_name": "🔄Minimum Width of Document Links",
+    "setting_sameWidth_desp": "Ensure all document links have a consistent minimum width. Set as <code>0</code> to disable. Unit: em",
+    "setting_sameWidthColumn_name": "🆕Number of document links' column with equal width",
+    "setting_sameWidthColumn_desp": "In the area of sibling documents and sub-documents, enable equal-width display by setting the number of columns. Set it to <code>0</code> to disable this feature. If the number of columns does not meet your expectations, please check the \"Minimum Width of Document Links\" setting, as it may be affecting the layout.",
     "setting_hideIndicator_name": "Hide hint words",
     "setting_hideIndicator_desp": "Do not display 'Parent: ', 'Children: ' etc. To modify hint words, please go to the i18n/en_US.json file located in the plugin directory.",
     "setting_adjustDocIcon_name": "Adjust the position of document icon",
@@ -166,7 +168,10 @@
     "setting_enableForOtherCircumstance_desp": "May conflict with other plugins and/or other document preview areas (or editing areas), please use with caution",
 
     "setting_aboutAuthor_name": "About this plugin",
-    "setting_aboutAuthor_desp": "developer: <a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>Feedback & sponsor: <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate'>github</a>;<br/>Released under <a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a> license.",
+    "setting_aboutAuthor_desp": "Translator: GPT3.5 & OpaqueGlass;<br>Developer: <a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>Feedback & sponsor: <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate'>github</a>;<br/>Released under <a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a> license.",
+    "setting_settingIconTips_name": "The meanings of the icons used in the settings page",
+    "setting_settingIconTips_desp": "🔄 indicates that the meaning or effect of the setting has changed in the latest version. Please read the <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/blob/ts-main/CHANGELOG.md'>changelog(written in Chinese)</a> to understand the changes and any necessary adjustments you may need to make.<br/>🆕 indicates a newly added setting in the latest version. Please read the <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/blob/ts-main/CHANGELOG.md'>changelog(written in Chinese)</a> to learn about the new feature.<br/>🧪 or 🚧 indicates an experimental feature. The developer will make efforts to maintain it, but it may be removed if there are unresolvable issues.<br/>🚅 indicates a feature in public beta testing. When a feature has passed a small-scale test, it will be marked as such (although there may not have been many testers, so its reliability is unknown).<br/>⛔ indicates a legacy compatibility option that will be removed soon.",
+
           
     "setting_experimental": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) ",
     "setting_testing": "(🚅 Beta feature, may be unstable, please provide feedback if any bug exist) ",

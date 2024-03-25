@@ -12,7 +12,7 @@ export function setStyle() {
     style.setAttribute("id", CONSTANTS.STYLE_ID);
     let linkWidthRestrict = g_setting.sameWidth == 0 ? "" : `
     .og-hn-heading-docs-container span.docLinksWrapper {
-        width: ${g_setting.sameWidth}em;
+        min-width: ${g_setting.sameWidth}em;
     }`;
     let noIndicatorStyle = g_setting.hideIndicator ? `
     .og-hn-heading-docs-container .og-hierachy-navigate-doc-indicator {
@@ -53,11 +53,19 @@ export function setStyle() {
     
     `;
 
+    const linkColumnStyle = g_setting.sameWidthColumn > 0 ? 
+    `
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-children-doc-container span.docLinksWrapper,
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper{
+        width: calc( (100% - 2em - ${g_setting.sameWidthColumn - 1} * 10px) / ${g_setting.sameWidthColumn});
+    }
+    `: ``;
+
     const defaultLinkStyle = `
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
         background-color: var(--b3-protyle-code-background);/*var(--b3-protyle-inline-code-background); --b3-protyle-code-background  --b3-theme-surface-light*/
         color: var(--b3-protyle-inline-code-color);
-        line-height: ${g_setting.fontSize + 2}px;
+        line-height: cal(${g_setting.fontSize}px + 0.2em);
         font-weight: 400;
         display: inline-flex;
         align-items: center;
@@ -78,7 +86,7 @@ export function setStyle() {
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {
         margin: 0 auto; /*居中显示*/
         text-overflow: ellipsis;
-        /*overflow: hidden;*/ /* 修复文字下侧被截断的问题 */
+        overflow-x: hidden; /* 修复文字下侧被截断的问题 */
     }
     .og-hierachy-navigate-sibling-doc-container  span.refLinks, 
     .og-hierachy-navigate-children-doc-container span.refLinks,
@@ -150,6 +158,13 @@ export function setStyle() {
     ${noneDisplayStyle}
 
     ${g_setting.hideIndicator ? "" : alignStyle}
+
+    ${linkColumnStyle}
+
+    /* 限制相邻文档区域 链接宽度*/
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
+        max-width: calc( (100% - 2em - 1 * 10px) / 2);
+    }
 
     .og-hierachy-navigate-doc-container {
         max-height: ${g_setting.maxHeightLimit}em;

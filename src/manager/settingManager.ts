@@ -49,6 +49,7 @@ interface IPluginSettings {
     mobileContentGroup: string[],
     flashcardContentGroup: string[],
     enableForOtherCircumstance: boolean,
+    sameWidthColumn: number, // 等宽列
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -88,7 +89,8 @@ let defaultSetting: any = {
     childOrder: "FOLLOW_DOC_TREE", // 子文档部分排序方式
     showHiddenDoc: false,
     previousAndNextHiddenDoc: true,
-    hideBlockBreadcrumbInDesktop: true
+    hideBlockBreadcrumbInDesktop: true,
+    sameWidthColumn: 7,
 }
 
 
@@ -134,7 +136,7 @@ export function initSettingProperty() {
         ]}),
         new TabProperty({"key": "appearance", "iconKey": "iconTheme", props: [
             new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),
-
+            new ConfigProperty({"key": "sameWidthColumn", "type": "NUMBER", min: 0, max: 15}),
             new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
             new ConfigProperty({"key": "adjustDocIcon", "type": "SWITCH"}),
             new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),
@@ -150,6 +152,7 @@ export function initSettingProperty() {
         ]}),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),
+            new ConfigProperty({"key": "settingIconTips", "type": "TIPS"}),
         ]}),
     );
 }
