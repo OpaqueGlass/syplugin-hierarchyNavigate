@@ -50,6 +50,7 @@ interface IPluginSettings {
     flashcardContentGroup: string[],
     enableForOtherCircumstance: boolean,
     sameWidthColumn: number, // 等宽列
+    sameWidthColumnMobile: number,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -91,6 +92,7 @@ let defaultSetting: any = {
     previousAndNextHiddenDoc: true,
     hideBlockBreadcrumbInDesktop: true,
     sameWidthColumn: 7,
+    sameWidthColumnMobile: 3,
 }
 
 
@@ -137,6 +139,7 @@ export function initSettingProperty() {
         new TabProperty({"key": "appearance", "iconKey": "iconTheme", props: [
             new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),
             new ConfigProperty({"key": "sameWidthColumn", "type": "NUMBER", min: 0, max: 15}),
+            new ConfigProperty({"key": "sameWidthColumnMobile", "type": "NUMBER", min: 0, max: 15}),
             new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
             new ConfigProperty({"key": "adjustDocIcon", "type": "SWITCH"}),
             new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),

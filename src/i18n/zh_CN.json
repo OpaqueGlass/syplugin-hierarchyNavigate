@@ -48,6 +48,8 @@
     "setting_sameWidth_desp": "设置文档链接的最小宽度，设置为<code>0</code>则禁用，单位：em（对应字体大小）",
     "setting_sameWidthColumn_name": "🆕文档链接等宽分列数",
     "setting_sameWidthColumn_desp": "在同级文档、子文档区域中，使得文档分列等宽显示，这里设置分列数，设置为<code>0</code>则禁用。受制于“文档链接最小宽度”，如果分列数不达预期，请检查“文档链接最小宽度”设置项",
+    "setting_sameWidthColumnMobile_name": "🆕文档链接等宽分列数（移动端）",
+    "setting_sameWidthColumnMobile_desp": "",
     "setting_hideIndicator_name": "隐藏导航区提示词",
     "setting_hideIndicator_desp": "隐藏“父：”“子：”等提示词，界面更简洁。如要修改提示词，可到插件所在文件夹/i18n修改语言文件。",
     "setting_adjustDocIcon_name": "调整文档图标位置",

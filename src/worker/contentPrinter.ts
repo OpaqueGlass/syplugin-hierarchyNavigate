@@ -645,7 +645,6 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 break;
             }
         }
-        warnPush("相邻节点情况", siblingDocs.map((elem)=>{return {"path": elem?.path, "name": elem?.name}}), "请求文档id", basicInfo.currentDocId, "数据请求信息：当前文档路径", basicInfo.docBasicInfo?.path, "父文档路径: ", basicInfo, basicInfo.docBasicInfo?.box, g_setting.previousAndNextHiddenDoc);
         if (iCurrentDoc >= 0 && siblingDocs.length > 1) {
             let flag = false;
             if (iCurrentDoc > 0) {

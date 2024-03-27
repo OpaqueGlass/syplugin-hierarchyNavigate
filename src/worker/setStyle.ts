@@ -1,6 +1,7 @@
 import { getDefaultSettings, getReadOnlyGSettings } from "@/manager/settingManager";
 import { CONSTANTS } from "@/constants";
 import { logPush } from "@/logger";
+import { isMobile } from "@/syapi";
 
 export function setStyle() {
     removeStyle();
@@ -53,11 +54,15 @@ export function setStyle() {
     
     `;
 
-    const linkColumnStyle = g_setting.sameWidthColumn > 0 ? 
+    let calColumnCount = g_setting.sameWidthColumn;
+    if (isMobile()) {
+        calColumnCount = g_setting.sameWidthColumnMobile;
+    }
+    const linkColumnStyle = calColumnCount > 0 ? 
     `
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-children-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper{
-        width: calc( (100% - 2em - ${g_setting.sameWidthColumn - 1} * 10px) / ${g_setting.sameWidthColumn});
+        width: calc( (100% - 2em - ${calColumnCount - 1} * 10px) / ${calColumnCount});
     }
     `: ``;
 
