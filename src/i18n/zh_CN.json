@@ -4,6 +4,7 @@
     "sibling_nodes": "兄：",
     "neighbor_nodes": "邻：",
     "backlink_nodes": "反：",
+    "on_this_day_nodes": "往：",
     "number_span": "（%NUM%）",
     "number_count": "共%NUM%个",
     "none": "无",

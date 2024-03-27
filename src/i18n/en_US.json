@@ -4,6 +4,7 @@
     "sibling_nodes": "=: ",
     "neighbor_nodes": "↔: ",
     "backlink_nodes": "🔗: ",
+    "on_this_day_nodes": "📅: ",
     "number_span": " (%NUM%)",
     "number_count": "%NUM%",
     "none": "N/A",

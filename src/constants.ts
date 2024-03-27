@@ -13,6 +13,7 @@ export class CONSTANTS {
     public static readonly PARENT_CONTAINER_ID: string = "og-hierachy-navigate-parent-doc-container";
     public static readonly CHILD_CONTAINER_ID: string = "og-hierachy-navigate-children-doc-container";
     public static readonly SIBLING_CONTAINER_ID: string = "og-hierachy-navigate-sibling-doc-container";
+    public static readonly ON_THIS_DAY_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-onthisday-doc-container";
     public static readonly INDICATOR_CLASS_NAME: string = "og-hierachy-navigate-doc-indicator";
     public static readonly BREADCRUMB_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-breadcrumb-container";
     public static readonly CONTAINER_MULTILINE_STYLE_CLASS_NAME: string = "og-hn-container-multiline";

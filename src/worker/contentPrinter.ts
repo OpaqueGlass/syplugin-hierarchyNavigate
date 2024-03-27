@@ -24,6 +24,7 @@ export default class ContentPrinter {
         [PRINTER_NAME.CHILD]: ChildContentPrinter,
         [PRINTER_NAME.WIDGET]: WidgetContentPrinter,
         [PRINTER_NAME.BLOCK_BREADCRUMB]: BlockTitleBreadcrumbContentPrinter,
+        ["onthisday"]: OnThisDayInPreviousYears,
     }
     
     constructor(basicInfo:IBasicInfo, protyleBasicInfo:IProtyleEnvInfo) {
@@ -805,5 +806,47 @@ class BlockTitleBreadcrumbContentPrinter extends BasicContentPrinter {
                 .replaceAll("%5%", pathObjects[i].id));
         }
         return result;
+    }
+}
+
+class OnThisDayInPreviousYears extends BasicContentPrinter {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        const result = super.getBasicElement(CONSTANTS.ON_THIS_DAY_CONTAINER_CLASS_NAME, null, lang("on_this_day_nodes"));
+        let currentDateMonthDay = "";
+        const protyle = protyleEnvInfo.originProtyle as IProtyle
+        const ialObject = protyle.background?.ial;
+        for (const key in ialObject) {
+            if (key.startsWith("custom-dailynote-")) {
+                currentDateMonthDay = key.substring(4);
+                break;
+            }
+        }
+        if (!isValidStr(currentDateMonthDay)) {
+            logPush("不是日记，没有往年今日", ialObject);
+            return undefined;
+        }
+        const response = await queryAPI(`
+        SELECT b.content as name, b.id
+        FROM attributes AS a
+        JOIN blocks AS b ON a.root_id = b.id
+        WHERE a.name LIKE '%${currentDateMonthDay}' AND a.name LIKE 'custom-dailynote%' AND a.block_id = a.root_id`);
+        if (response.length <= 1) {
+            logPush("没有往年今日", response);
+            return undefined;
+        }
+        for (let i = 0; i < response.length; i++) {
+            const thisDocInfo = response[i];
+            if (thisDocInfo.id == basicInfo.docBasicInfo.id) {
+                continue;
+            }
+            thisDocInfo.name = thisDocInfo.name + ".sy";
+            const oneLinkElem = super.docLinkGenerator(thisDocInfo);
+            result.appendChild(oneLinkElem);
+        }
+        return result;
+    }
+    static async isOnlyOnce(basicInfo: IBasicInfo): Promise<boolean> {
+        return true;    
     }
 }
