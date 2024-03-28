@@ -1,5 +1,5 @@
 import { debugPush, errorPush, infoPush, isDebugMode, logPush, warnPush } from "@/logger";
-import type {IProtyle, IEventBusMap} from "siyuan";
+import {type IProtyle, type IEventBusMap, showMessage} from "siyuan";
 import { getPluginInstance } from "@/utils/getInstance";
 import { getBasicInfo } from "@/worker/commonProvider";
 import ContentPrinter from "@/worker/contentPrinter";
@@ -9,11 +9,11 @@ import Mutex from "@/utils/mutex";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { sleep } from "@/utils/common";
 import { CONSTANTS } from "@/constants";
+import { isMobile } from "@/syapi";
 export default class EventHandler {
     private handlerBindList: Record<string, (arg1: CustomEvent)=>void> = {
         "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性
         "switch-protyle": this.loadedProtyleRetryEntry.bind(this),
-
     };
     // 关联的设置项，如果设置项对应为true，则才执行绑定
     private relateGsettingKeyStr: Record<string, string> = {
@@ -48,12 +48,11 @@ export default class EventHandler {
     async loadedProtyleHandler(event: CustomEvent<IEventBusMap["loaded-protyle-static"]>) {
         // 多个文档同时触发则串行执行，理论上是要判断文档id是否相同（相同的才可能会在同一个Element上操作）；这里全部串行可能影响性能
         // 我也忘了为什么要绑定load-了；只是打开文档的话，switch-protyle事件就够了
+        // 下面主要是避免两个事件同时触发造成的反复更新
         if (this.simpleMutex > 0) {
             return true;
         }
         this.simpleMutex++;
-        
-       
         let doNotRetryFlag = true;
         if (isDebugMode()) {
             console.time(CONSTANTS.PLUGIN_NAME);
@@ -63,7 +62,8 @@ export default class EventHandler {
             // 颜色状态码可以参考https://blog.csdn.net/weixin_44110772/article/details/105860997
             // x1b是十六进制，和文中的/033八进制没啥不同，同时应用加粗和Cryan就像下面这样;分隔
             debugPush("\x1b[1;36m%s\x1b[0m", ">>>>>>>> mutex 新任务开始");
-            const protyle = event.detail.protyle;
+            // 移动端触发后以全局为准
+            const protyle = isMobile() ? window.siyuan.mobile.editor : event.detail.protyle;
             // 可能还需要套一个重试的壳
             // 另外，和swtich 共同存在时，需要防止并发
             // 获取当前文档id

@@ -1,5 +1,8 @@
 import { debugPush, logPush, warnPush } from "@/logger";
+import { isMobile } from "@/syapi";
 import { openRefLinkInProtyleWnd } from "@/utils/common";
+import { getPluginInstance } from "@/utils/getInstance";
+import { getBackend, getFrontend, showMessage } from "siyuan";
 
 export default class ContentApplyer {
     private basicInfo: IBasicInfo;
@@ -20,11 +23,16 @@ export default class ContentApplyer {
         finalElement.dataset["existContentPart"] = JSON.stringify(printerAllResults.relateContentKeys);
         // 要不这边先构成最终finalElement，再交给各个类型的apply函数写入，其余函数只插入一个元素
         // TODO: 似乎有一些情况会导致多个内容区, selectorAll然后remove掉靠后的吧
+        // 看样子是ios快速切换时有残留
+        if (isMobile()) {
+            // showMessage(`单独处理测试，旧区域个数：${document.querySelectorAll(".og-hn-heading-docs-container")?.length}，backend ${getBackend()}，此编辑区旧区域个数 ${this.protyleElement.querySelectorAll(".og-hn-heading-docs-container")?.length}`);
+            document.querySelectorAll(".og-hn-heading-docs-container").forEach((elem) => {
+                elem.remove();
+            });
+        }
         const allExistMainPart = this.protyleElement.querySelectorAll(".og-hn-heading-docs-container");
         const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
-        for (let i = 1; i < allExistMainPart.length; i++) {
-            allExistMainPart[i].remove();
-        }
+
         if (!existContentMainPart) {
             debugPush("未找到已经存在的，插入新的区域");
             for (const elem of printerAllResults.elements) {
@@ -153,6 +161,7 @@ export default class ContentApplyer {
         // 理论上需要包含openRefLink的绑定（统一）其他的交给Printer管
         element.querySelectorAll(".og-hn-heading-docs-container span.refLinks").forEach((elem) => {
             // TODO: 这里设置为 openInFocus Flase，不在聚焦位置打开
+            elem.removeEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false));
             elem.addEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false));
         });
     }

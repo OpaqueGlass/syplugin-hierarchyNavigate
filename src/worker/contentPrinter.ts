@@ -62,6 +62,14 @@ export default class ContentPrinter {
         }
         debugPush("docContentKeyGroup", docContentKeyGroup);
         debugPush("g_setting", g_setting);
+        // 排除重复
+        let uniqueArray = [];
+        docContentKeyGroup.forEach(function(item) {
+            if (uniqueArray.indexOf(item) === -1) {
+                uniqueArray.push(item);
+            }
+        });
+        docContentKeyGroup = uniqueArray;
         // 获取文档信息
         const promises = [];
         for (const printerName of docContentKeyGroup) {
