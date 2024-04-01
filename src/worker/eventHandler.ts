@@ -63,7 +63,7 @@ export default class EventHandler {
             // x1b是十六进制，和文中的/033八进制没啥不同，同时应用加粗和Cryan就像下面这样;分隔
             debugPush("\x1b[1;36m%s\x1b[0m", ">>>>>>>> mutex 新任务开始");
             // 移动端触发后以全局为准
-            const protyle = isMobile() ? window.siyuan.mobile.editor : event.detail.protyle;
+            const protyle = isMobile() ? window.siyuan.mobile.editor.protyle : event.detail.protyle;
             // 可能还需要套一个重试的壳
             // 另外，和swtich 共同存在时，需要防止并发
             // 获取当前文档id

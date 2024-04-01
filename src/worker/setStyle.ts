@@ -31,6 +31,7 @@ export function setStyle() {
         display: none;
     }
     ` : "";
+    let indicatorWidth = g_setting.hideIndicator ? "0em" : "2em";
     // 第二行后对齐链接文本，（向内缩进： #21）
     let alignStyle = `
     .og-hn-container-multiline {
@@ -62,7 +63,8 @@ export function setStyle() {
     `
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-children-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper{
-        width: calc( (100% - 2em - ${calColumnCount - 1} * 10px) / ${calColumnCount});
+        width: calc( (100% - ${indicatorWidth} - ${calColumnCount - 1} * ${calColumnCount == 1 ? "0px" : "10px"}) / ${calColumnCount});
+        ${calColumnCount == 1 ? "margin-right: 0px;" : ""}/*仅一列时忽略margin-right*/
     }
     `: ``;
 
@@ -70,7 +72,7 @@ export function setStyle() {
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
         background-color: var(--b3-protyle-code-background);/*var(--b3-protyle-inline-code-background); --b3-protyle-code-background  --b3-theme-surface-light*/
         color: var(--b3-protyle-inline-code-color);
-        line-height: cal(${g_setting.fontSize}px + 0.2em);
+        /*line-height: calc(${g_setting.fontSize}px + 0.2em);*/ /*此项导致连接上下可滚动*/
         font-weight: 400;
         display: inline-flex;
         align-items: center;
@@ -82,6 +84,7 @@ export function setStyle() {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+        max-width: calc(100% - 10px); /*需要排除margin-right: 10px的影响*/
     }
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper.og-hn-docLinksWrapper-hl {
         background-color: color-mix(in srgb, var(--b3-protyle-code-background) 95%, var(--b3-theme-on-background));
