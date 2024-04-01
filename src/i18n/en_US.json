@@ -122,6 +122,8 @@
     "setting_openDocContentGroup_option_previousAndNext_desp": "Get the previous/next document based on the document tree display order;",
     "setting_openDocContentGroup_option_info": "Document Information Row",
     "setting_openDocContentGroup_option_info_desp": "Document information includes: creation time, modification time, number of child documents, total character count of child documents (estimated value, including spaces, OCR results, code blocks); even if closed, you can still know the number of documents by hovering the mouse over the prompt word.",
+    "setting_openDocContentGroup_option_onThisDay": "🧪On This Day in Previous Years",
+    "setting_openDocContentGroup_option_onThisDay_desp": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) Displays links to diary entries from the same month and day; this feature only works with the new version of diaries (requires the `custom-dailynote-yyyyMMdd` attribute; if not available, please upgrade to a newer version of Siyuan and use plugins like siyuan-dailynote-today to bulk-add past diaries attribute); currently, it actually displays other diary entries from the same month and day within the same notebook.",
 
     "setting_mobileContentGroup_name": "✈Android (Mobile) Content Display Order",
     "setting_mobileContentGroup_desp": "You can control the order of content modules displayed when opening documents on Android by dragging the ∷ on the left side of the items below",
@@ -141,6 +143,8 @@
     "setting_mobileContentGroup_option_previousAndNext_desp": "",
     "setting_mobileContentGroup_option_info": "Document Information Row",
     "setting_mobileContentGroup_option_info_desp": "",
+    "setting_mobileContentGroup_option_onThisDay": "🧪On This Day in Previous Years",
+    "setting_mobileContentGroup_option_onThisDay_desp": "",
 
     "setting_flashcardContentGroup_name": "🧪Flashcard Page Content Display Order",
     "setting_flashcardContentGroup_desp": "You can control the order of content modules displayed during spaced repetition by dragging the ∷ on the left side of the items below",

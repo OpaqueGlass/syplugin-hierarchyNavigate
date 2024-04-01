@@ -115,6 +115,9 @@
     "setting_openDocContentGroup_option_previousAndNext_desp": "根据文档树显示顺序，获取上一篇/下一篇文档；",
     "setting_openDocContentGroup_option_info": "文档信息行",
     "setting_openDocContentGroup_option_info_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数。",
+    "setting_openDocContentGroup_option_onThisDay": "🧪往年今日",
+    "setting_openDocContentGroup_option_onThisDay_desp": "（测试中功能，如有问题请反馈）显示同月同日的日记链接；此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本，并使用今日笔记等插件为过去的日记批量添加）；在目前的实现中，实际上是显示同一个笔记本内同月同日的其他日记",
+
 
     "setting_mobileContentGroup_name": "✈安卓端（移动端）内容显示顺序",
     "setting_mobileContentGroup_desp": "可以通过拖拽下方项目左侧的∷，控制“安卓端打开文档”时显示的内容模块顺序",
@@ -134,6 +137,9 @@
     "setting_mobileContentGroup_option_previousAndNext_desp": "",
     "setting_mobileContentGroup_option_info": "文档信息行",
     "setting_mobileContentGroup_option_info_desp": "",
+    "setting_mobileContentGroup_option_onThisDay": "🧪往年今日",
+    "setting_mobileContentGroup_option_onThisDay_desp": "",
+
 
     "setting_flashcardContentGroup_name": "🧪闪卡页面内容显示顺序",
     "setting_flashcardContentGroup_desp": "可以通过拖拽下方项目左侧的∷，控制“间隔重复”时显示的内容模块顺序",

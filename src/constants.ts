@@ -41,5 +41,6 @@ export class PRINTER_NAME {
     public static readonly INFO: string = "info";
     public static readonly WIDGET: string = "widget";
     public static readonly BLOCK_BREADCRUMB: string = "blockBreadcrumb";
+    public static readonly ON_THIS_DAY: string = "onThisDay";
 }
   

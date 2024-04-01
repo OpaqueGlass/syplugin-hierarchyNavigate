@@ -108,13 +108,15 @@ let updateTimeout: any = null;
  */
 export function initSettingProperty() {
     const allOptions = Object.values(PRINTER_NAME);
-    const generalOptions = [PRINTER_NAME.PARENT, PRINTER_NAME.CHILD, PRINTER_NAME.SIBLING, PRINTER_NAME.PREV_NEXT, PRINTER_NAME.BACKLINK, PRINTER_NAME.BREADCRUMB, PRINTER_NAME.INFO, PRINTER_NAME.WIDGET];
+    const generalOptions = [PRINTER_NAME.PARENT, PRINTER_NAME.CHILD, PRINTER_NAME.SIBLING, PRINTER_NAME.PREV_NEXT, PRINTER_NAME.BACKLINK, PRINTER_NAME.BREADCRUMB, PRINTER_NAME.INFO, PRINTER_NAME.WIDGET, PRINTER_NAME.ON_THIS_DAY];
+    
+    const flashCardOptions = [PRINTER_NAME.PARENT, PRINTER_NAME.CHILD, PRINTER_NAME.SIBLING, PRINTER_NAME.PREV_NEXT, PRINTER_NAME.BACKLINK, PRINTER_NAME.BREADCRUMB, PRINTER_NAME.INFO, PRINTER_NAME.WIDGET, PRINTER_NAME.BLOCK_BREADCRUMB];
     tabProperties.push(
         new TabProperty({key: "content", "iconKey": "iconOrderedList", props:[
             new ConfigProperty({"key": "contentOrderTip", "type": "TIPS"}),
             new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": generalOptions}),
             new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": generalOptions}),
-            new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": allOptions}),
+            new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": flashCardOptions}),
             
         ]}),
         new TabProperty({key: "showType", "iconKey": "iconTags", props:[

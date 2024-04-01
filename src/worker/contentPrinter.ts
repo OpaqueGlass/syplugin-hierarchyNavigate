@@ -24,7 +24,7 @@ export default class ContentPrinter {
         [PRINTER_NAME.CHILD]: ChildContentPrinter,
         [PRINTER_NAME.WIDGET]: WidgetContentPrinter,
         [PRINTER_NAME.BLOCK_BREADCRUMB]: BlockTitleBreadcrumbContentPrinter,
-        ["onthisday"]: OnThisDayInPreviousYears,
+        [PRINTER_NAME.ON_THIS_DAY]: OnThisDayInPreviousYears,
     }
     
     constructor(basicInfo:IBasicInfo, protyleBasicInfo:IProtyleEnvInfo) {
@@ -838,7 +838,8 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
         SELECT b.content as name, b.id
         FROM attributes AS a
         JOIN blocks AS b ON a.root_id = b.id
-        WHERE a.name LIKE '%${currentDateMonthDay}' AND a.name LIKE 'custom-dailynote%' AND a.block_id = a.root_id`);
+        WHERE a.name LIKE '%${currentDateMonthDay}' AND a.name LIKE 'custom-dailynote%' AND a.block_id = a.root_id
+        AND b.box = "${basicInfo.docBasicInfo.box}"`);
         if (response.length <= 1) {
             logPush("没有往年今日", response);
             return undefined;
