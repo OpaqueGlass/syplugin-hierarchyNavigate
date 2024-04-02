@@ -71,6 +71,8 @@
     "setting_showHiddenDoc_desp": "",
     "setting_previousAndNextHiddenDoc_name": "🧪获取相邻文档时包括文档树隐藏文档",
     "setting_previousAndNextHiddenDoc_desp": "为保证“上一篇、下一篇”内容区和快捷键切换的功能可用性，建议启用；若禁用，将无法切换到隐藏文档，如果当前文档被隐藏，也无法显示上一篇下一篇信息；",
+    "setting_previousAndNextFollowDailynote_name": "🧪获取相邻文档时考虑最近日期的日记（dailynote）",
+    "setting_previousAndNextFollowDailynote_desp": "目前相邻文档只获取相同上级文档的，而不考虑可能存在的上一篇日记。启用此项，将试图获取上、下一篇日记；请注意，当工作空间笔记数量大于3000时，在低性能设备上将导致层级导航区显示延迟；且此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本（大于v2.11.1），并使用今日笔记等插件为过去的日记批量添加该属性）",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",
@@ -201,6 +203,7 @@
     "go_to_next_doc": "前往下一篇",
     "is_first_document": "已经是第一篇",
     "is_last_document": "已经是最后一篇",
+    "jump_by_dailynote": "当前是根据日记顺序跳转，已进入新“文件夹”",
     "is_hidden_doc": "（当前文档是隐藏文档，无法显示相邻文档信息）",
 
     "settingpage_content_name": "内容区与顺序",

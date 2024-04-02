@@ -77,6 +77,8 @@
     "setting_showHiddenDoc_desp": "",
     "setting_previousAndNextHiddenDoc_name": "🧪Including hidden documents when fetching sibling documents",
     "setting_previousAndNextHiddenDoc_desp": "To ensure the availability of the 'Previous and Next' content area and shortcut key switching functions, it is recommended to enable",
+    "setting_previousAndNextFollowDailynote_name": "🧪Consider Recent Diary (dailynote) Dates when Retrieving Sibling Documents",
+    "setting_previousAndNextFollowDailynote_desp": "Currently, 'Previous and Next' are only retrieved from the same parent document, without considering the possibility of a previous diary entry. Enabling this option will attempt to retrieve the previous and next diary entries; please note that when the number of workspace notes exceeds 3000, it may cause a delay in displaying the hierarchical navigation area on low-performance devices; please note that this option only works with the new version of diaries (requires the `custom-dailynote-yyyyMMdd` attribute; if not available, please upgrade to a newer version of Siyuan (greater than v2.11.1) and use plugins like `siyuan-dailynote-today` to bulk-add this attribute to past diaries)." ,
 
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
@@ -200,6 +202,7 @@
     "go_to_next_doc": "Open next doc",
     "is_first_document": "Already on the first document",
     "is_last_document": "Already on the last document",
+    "jump_by_dailynote": "The current navigation is based on the diary (daily note) order and has entered a new 'folder'.",
     "is_hidden_doc": "(The current document is a hidden document, and adjacent document information cannot be displayed)",
 
     "settingpage_content_name": "Content Order",

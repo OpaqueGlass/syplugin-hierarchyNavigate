@@ -1,5 +1,5 @@
 import { debugPush, logPush } from "@/logger";
-import { getCurrentDocIdF, queryAPI } from "@/syapi";
+import { getblockAttr, getCurrentDocIdF, queryAPI } from "@/syapi";
 import { getFocusedBlockId, openRefLink } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { lang } from "@/utils/lang";
@@ -156,7 +156,7 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
     siblingDocs = await getUserDemandSiblingDocuments(sqlResult[0].path, sqlResult[0].box, undefined, g_setting.previousAndNextHiddenDoc);
     
     // 处理sibling docs
-    if (siblingDocs == null || siblingDocs.length == 1) {
+    if (!sqlResult[0].ial?.includes("custom-dailynote") && (siblingDocs == null || siblingDocs.length == 1)) {
         debugPush("仅此一个文档，停止处理");
         return null;
     }
@@ -173,6 +173,39 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
         }
         if (iCurrentDoc + 1 < siblingDocs.length && isNext == true) {
             return siblingDocs[iCurrentDoc + 1];
+        }
+        if (sqlResult[0].ial?.includes("custom-dailynote")) {
+            let minCurrentDate = "99999999"; // 向上跳转用
+            let maxCurrentDate = "0";
+            const ialObject = await getblockAttr(sqlResult[0].id);
+            for (const key in ialObject) {
+                if (key.startsWith("custom-dailynote-")) {
+                    if (parseInt(ialObject[key]) > parseInt(maxCurrentDate)) {
+                        maxCurrentDate = ialObject[key];
+                    } else if (parseInt(ialObject[key]) < parseInt(minCurrentDate)) {
+                        minCurrentDate = ialObject[key];
+                    }
+                }
+            }
+            if ((isNext && maxCurrentDate == "0") && (!isNext && minCurrentDate == "99999999")) {
+                return null;
+            }
+            // 在这里我们假定id前截取到的8位数是dailynote的创建时间
+            const response = await queryAPI(`
+            SELECT b.content as name, b.id
+            FROM attributes AS a
+            JOIN blocks AS b ON a.root_id = b.id
+            WHERE a.name LIKE 'custom-dailynote%' AND a.block_id = a.root_id
+            AND b.box = '${sqlResult[0].box}' 
+            AND a.value ${isNext ? ">" : "<"} '${isNext ? maxCurrentDate : minCurrentDate}'
+            ORDER BY
+            a.value ${isNext ? "ASC" : "DESC"}
+            LIMIT 1`);
+            debugPush("dailyNote结果", response);
+            if (response && response.length > 0) {
+                showMessage(lang("jump_by_dailynote"), 2000);
+                return response[0];
+            }
         }
         return null;
     }

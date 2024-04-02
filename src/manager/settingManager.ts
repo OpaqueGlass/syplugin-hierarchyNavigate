@@ -51,6 +51,7 @@ interface IPluginSettings {
     enableForOtherCircumstance: boolean,
     sameWidthColumn: number, // 等宽列
     sameWidthColumnMobile: number,
+    previousAndNextFollowDailynote: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -93,6 +94,7 @@ let defaultSetting: any = {
     hideBlockBreadcrumbInDesktop: true,
     sameWidthColumn: 7,
     sameWidthColumnMobile: 3,
+    previousAndNextFollowDailynote: false,
 }
 
 
@@ -154,6 +156,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "enableForOtherCircumstance", "type": "SWITCH"}),
             new ConfigProperty({"key": "showHiddenDoc", "type": "SWITCH"}),
             new ConfigProperty({"key": "previousAndNextHiddenDoc", "type": "SWITCH"}),
+            new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
         ]}),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),

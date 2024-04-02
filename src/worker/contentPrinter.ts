@@ -654,7 +654,25 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 break;
             }
         }
-        if (iCurrentDoc >= 0 && siblingDocs.length > 1) {
+        // 我们应该根据情况获取，如果是按照月构建的dailynote，同一笔记上可能有多个标签
+        let minCurrentDate = "99999999"; // 向上跳转用
+        let maxCurrentDate = "0";
+        const protyle = protyleEnvInfo.originProtyle as IProtyle
+        const ialObject = protyle.background?.ial;
+        if (g_setting.previousAndNextFollowDailynote) {
+            for (const key in ialObject) {
+                if (key.startsWith("custom-dailynote-")) {
+                    if (parseInt(ialObject[key]) > parseInt(maxCurrentDate)) {
+                        maxCurrentDate = ialObject[key];
+                    }
+                    if (parseInt(ialObject[key]) < parseInt(minCurrentDate)) {
+                        minCurrentDate = ialObject[key];
+                    }
+                }
+            }
+        }
+        
+        if (iCurrentDoc >= 0 && siblingDocs.length >= 1) {
             let flag = false;
             if (iCurrentDoc > 0) {
                 let simpleName = lang("previous_doc") + htmlTransferParser(siblingDocs[iCurrentDoc - 1]["name"]);
@@ -662,6 +680,26 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 previousElem = this.docLinkGenerator(docInfo);
                 flag = true;
+            } else if (isValidStr(minCurrentDate) && minCurrentDate != "99999999" && g_setting.previousAndNextFollowDailynote) {
+                const response = await queryAPI(`
+                SELECT b.content as name, b.id
+                FROM attributes AS a
+                JOIN blocks AS b ON a.root_id = b.id
+                WHERE a.name LIKE 'custom-dailynote%' AND a.block_id = a.root_id
+                AND b.box = '${basicInfo.docBasicInfo.box}' 
+                AND a.value < '${minCurrentDate}'
+                ORDER BY
+                a.value DESC
+                LIMIT 1`);
+                debugPush("上一层", response);
+                if (response && response.length > 0) {
+                    const thisDocInfo = response[0];
+                    thisDocInfo["ogSimpleName"] = lang("previous_doc") + htmlTransferParser(thisDocInfo.name);
+                    thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    const oneLinkElem = super.docLinkGenerator(thisDocInfo);
+                    previousElem = oneLinkElem;
+                    flag = true;
+                }
             }
             if (iCurrentDoc + 1 < siblingDocs.length) {
                 let simpleName = lang("next_doc") + htmlTransferParser(siblingDocs[iCurrentDoc + 1]["name"]);
@@ -669,6 +707,26 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 nextElem = this.docLinkGenerator(docInfo);
                 flag = true;
+            } else if (isValidStr(maxCurrentDate) && maxCurrentDate != "0" && g_setting.previousAndNextFollowDailynote) {
+                const response = await queryAPI(`
+                SELECT b.content as name, b.id, a.value
+                FROM attributes AS a
+                JOIN blocks AS b ON a.root_id = b.id
+                WHERE a.name LIKE 'custom-dailynote%' AND a.block_id = a.root_id
+                AND b.box = '${basicInfo.docBasicInfo.box}' 
+                AND a.value > '${maxCurrentDate}'
+                ORDER BY
+                a.value ASC
+                LIMIT 1`);
+                debugPush("下一层", response);
+                if (response && response.length > 0) {
+                    const thisDocInfo = response[0];
+                    thisDocInfo["ogSimpleName"] = lang("next_doc") + htmlTransferParser(thisDocInfo.name);
+                    thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    const oneLinkElem = super.docLinkGenerator(thisDocInfo);
+                    nextElem = oneLinkElem;
+                    flag = true;
+                }
             }
             if (flag) {
                 if (previousElem) {
@@ -678,6 +736,9 @@ class NeighborContentPrinter extends BasicContentPrinter {
                     result.appendChild(nextElem);
                 }
                 result.classList.add(CONSTANTS.NEXT_CONTAINER_CLASS_NAME);
+            } else {
+                const noneElem = this.getNoneElement();
+                result.appendChild(noneElem);
             }
         } else {
             const noneElem = this.getNoneElement();
@@ -842,7 +903,9 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
         AND b.box = "${basicInfo.docBasicInfo.box}"`);
         if (response.length <= 1) {
             logPush("没有往年今日", response);
-            return undefined;
+            const noneElem = super.getNoneElement();
+            result.appendChild(noneElem);
+            return result;
         }
         for (let i = 0; i < response.length; i++) {
             const thisDocInfo = response[i];
