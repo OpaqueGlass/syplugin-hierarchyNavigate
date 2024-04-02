@@ -62,8 +62,8 @@ export default class EventHandler {
             // 颜色状态码可以参考https://blog.csdn.net/weixin_44110772/article/details/105860997
             // x1b是十六进制，和文中的/033八进制没啥不同，同时应用加粗和Cryan就像下面这样;分隔
             debugPush("\x1b[1;36m%s\x1b[0m", ">>>>>>>> mutex 新任务开始");
-            // 移动端触发后以全局为准
-            const protyle = isMobile() ? window.siyuan.mobile.editor.protyle : event.detail.protyle;
+            // 移动端由于闪卡面包屑，需要后面获取envInfo后处理；
+            let protyle = event.detail.protyle;
             // 可能还需要套一个重试的壳
             // 另外，和swtich 共同存在时，需要防止并发
             // 获取当前文档id
@@ -77,6 +77,10 @@ export default class EventHandler {
             if (protyleEnvInfo.notTraditional && !protyleEnvInfo.flashCard && !protyleEnvInfo.mobile && !getReadOnlyGSettings().enableForOtherCircumstance) {
                 debugPush("非常规情况，且设置不允许，跳过");
                 return true;
+            }
+            // 移动端且非闪卡，需要使用全局编辑器对象
+            if (!protyleEnvInfo.flashCard && isMobile()) {
+                protyle = window.siyuan.mobile.editor.protyle;
             }
             // 调用Provider获取必要信息
             const basicInfo = await getBasicInfo(docId, protyle.path, protyle.notebookId);
