@@ -182,7 +182,8 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
                 if (key.startsWith("custom-dailynote-")) {
                     if (parseInt(ialObject[key]) > parseInt(maxCurrentDate)) {
                         maxCurrentDate = ialObject[key];
-                    } else if (parseInt(ialObject[key]) < parseInt(minCurrentDate)) {
+                    } 
+                    if (parseInt(ialObject[key]) < parseInt(minCurrentDate)) {
                         minCurrentDate = ialObject[key];
                     }
                 }

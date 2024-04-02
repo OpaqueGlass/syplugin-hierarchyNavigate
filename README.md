@@ -52,3 +52,4 @@ For dependencies, please refer[package.json](./package.json).
 | [zuoez02](https://github.com/zuoez02)/[siyuan-plugin-system](https://github.com/zuoez02/siyuan-plugin-system) | A 3-rd plugin system for siyuan                              |                                                              |
 | [zxhd863943427](https://github.com/zxhd863943427)&[mozhux (赐我一胖)](https://github.com/mozhux) |                                                              | Suggestions or contributions about default style.            |
 |[wetoria](https://github.com/Wetoria)/[DailyNotesWalker](https://github.com/Wetoria/siyuan-plugin-DailyNotesWalker)|Shortcuts Quick View Previous Next Diary|Refer to its idea and shortcut binding method|
+| (qq) 八面风, 与路同飞, (Github) [QQQOrange](https://github.com/QQQOrange) |  | Assist in locating the issue |

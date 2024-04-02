@@ -92,7 +92,7 @@ let defaultSetting: any = {
     showHiddenDoc: false,
     previousAndNextHiddenDoc: true,
     hideBlockBreadcrumbInDesktop: true,
-    sameWidthColumn: 7,
+    sameWidthColumn: 6,
     sameWidthColumnMobile: 3,
     previousAndNextFollowDailynote: false,
 }

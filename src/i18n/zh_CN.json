@@ -203,7 +203,7 @@
     "go_to_next_doc": "前往下一篇",
     "is_first_document": "已经是第一篇",
     "is_last_document": "已经是最后一篇",
-    "jump_by_dailynote": "当前是根据日记顺序跳转，已进入新“文件夹”",
+    "jump_by_dailynote": "本次依据日记跳转，已进入新“文件夹”",
     "is_hidden_doc": "（当前文档是隐藏文档，无法显示相邻文档信息）",
 
     "settingpage_content_name": "内容区与顺序",
