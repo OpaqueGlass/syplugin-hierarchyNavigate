@@ -12,6 +12,7 @@ Add parent and children documents links under the document title.
 - Just turn on the plugin; (`Marketplace`--`Downloaded`--`Plugin`--Find this plugin, click switch icon)
 - For more information, please refer to the plugin setting page;  (`Marketplace`--`Downloaded`--`Plugin`--`HierarchyNavigate`-- Click setting icon)
 - Documents with the `og-hn-ignore` attribute or attribute value will be ignored and the hierarchical navigation will not be displayed.
+  - By using the `og-hn-content` attribute in the document, you can customize the display order of the current document's content. The attribute value is an array of strings, for example: `["info", "breadcrumb", "parent", "sibling", "previousAndNext", "backlinks", "child", "widget"]`.
 
 #### Shortcut
 
@@ -19,8 +20,8 @@ Add parent and children documents links under the document title.
 | --- | --- | --- | --- |
 | Open upper doc | `⌥⌘←` or `Ctrl + Alt + ←` | | |
 | Open first subdocument | `⌥⌘→` or `Ctrl + Alt + →` | | |
-| Open previous doc | / | `⌥⌘↑` or `Ctrl + Alt + ↑` |  |
-| Open next doc | /  | `⌥⌘↓` or `Ctrl + Alt + ↓` | |
+| Open previous doc | `⌥⌘↑` or `Ctrl + Alt + ↑` |  |  |
+| Open next doc | `⌥⌘↓` or `Ctrl + Alt + ↓`  |  | |
 | Insert the `listChildDocs` widget | / | `⌥⇧L` or `Shift + Alt + L` | Need download `listChildDocs` first |
 
 #### Other explanation
