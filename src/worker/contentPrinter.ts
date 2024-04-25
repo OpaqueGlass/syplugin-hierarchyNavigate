@@ -887,7 +887,7 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
         const ialObject = protyle.background?.ial;
         for (const key in ialObject) {
             if (key.startsWith("custom-dailynote-")) {
-                currentDateMonthDay = key.substring(4);
+                currentDateMonthDay = key.substring(key.length - 4);
                 break;
             }
         }
