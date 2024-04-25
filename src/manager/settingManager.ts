@@ -52,6 +52,8 @@ interface IPluginSettings {
     sameWidthColumn: number, // 等宽列
     sameWidthColumnMobile: number,
     previousAndNextFollowDailynote: boolean,
+    mobileBackReplace: boolean,
+    mobileRemoveAllArea: boolean
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -95,6 +97,8 @@ let defaultSetting: any = {
     sameWidthColumn: 6,
     sameWidthColumnMobile: 3,
     previousAndNextFollowDailynote: false,
+    mobileBackReplace: false,
+    mobileRemoveAllArea: false,
 }
 
 
@@ -157,6 +161,8 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "showHiddenDoc", "type": "SWITCH"}),
             new ConfigProperty({"key": "previousAndNextHiddenDoc", "type": "SWITCH"}),
             new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
+            new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
+            new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
         ]}),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),

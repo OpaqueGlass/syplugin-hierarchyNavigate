@@ -1,4 +1,5 @@
 import { debugPush, logPush, warnPush } from "@/logger";
+import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
 import { openRefLinkInProtyleWnd } from "@/utils/common";
 import { getPluginInstance } from "@/utils/getInstance";
@@ -15,7 +16,7 @@ export default class ContentApplyer {
     }
     // TODO: 各个部分依次替换，并能获取哪个部分不替换的信息
     async apply(printerAllResults: IAllPrinterResult) {
-        
+        const g_setting = getReadOnlyGSettings();
         // 判断是否存在，提供存在参数（解析类）
         // 这个是新的Element，如果要在旧的基础上替换，需要重新设置dataset
         const finalElement = document.createElement("div");
@@ -26,9 +27,16 @@ export default class ContentApplyer {
         // 看样子是ios快速切换时有残留
         if (isMobile()) {
             // showMessage(`单独处理测试，旧区域个数：${document.querySelectorAll(".og-hn-heading-docs-container")?.length}，backend ${getBackend()}，此编辑区旧区域个数 ${this.protyleElement.querySelectorAll(".og-hn-heading-docs-container")?.length}`);
-            document.querySelectorAll(".og-hn-heading-docs-container").forEach((elem) => {
-                elem.remove();
-            });
+            if (g_setting.mobileRemoveAllArea) {
+                document.querySelectorAll(".og-hn-heading-docs-container").forEach((elem) => {
+                    elem.remove();
+                });
+            } else {
+                this.protyleElement.querySelectorAll(".og-hn-heading-docs-container").forEach((elem) => {
+                    elem.remove();
+                });
+            }
+            
         }
         const allExistMainPart = this.protyleElement.querySelectorAll(".og-hn-heading-docs-container");
         const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;

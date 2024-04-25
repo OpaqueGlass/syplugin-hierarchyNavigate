@@ -30,11 +30,27 @@ export default class EventHandler {
 
     bindHandler() {
         const plugin = getPluginInstance();
+        const g_setting = getReadOnlyGSettings();
         // const g_setting = getReadOnlyGSettings();
         for (let key in this.handlerBindList) {
             // if (this.relateGsettingKeyStr[key] == null || g_setting[this.relateGsettingKeyStr[key]]) {
                 plugin.eventBus.on(key, this.handlerBindList[key]);
             // }
+        }
+        // 移动端高危操作，试图替换原有的goback，以使得插件响应此动作
+        if (isMobile() && g_setting.mobileBackReplace) {
+            const originGoBack = window.goBack;
+            window["ogGoBackOri"] = originGoBack;
+            if (originGoBack) {
+                window.goBack = () => {
+                    if (window["ogGoBackOri"]) {
+                        const result = window["ogGoBackOri"]();
+                        plugin.eventBus.emit("mobile-goback", {detail: {protyle: window.siyuan.mobile.editor.protyle}});
+                        this.loadedProtyleRetryEntry({detail: {protyle: window.siyuan.mobile.editor.protyle}});
+                        return result;
+                    }
+                }
+            }
         }
     }
 
@@ -47,7 +63,7 @@ export default class EventHandler {
 
     async loadedProtyleHandler(event: CustomEvent<IEventBusMap["loaded-protyle-static"]>) {
         // 多个文档同时触发则串行执行，理论上是要判断文档id是否相同（相同的才可能会在同一个Element上操作）；这里全部串行可能影响性能
-        // 我也忘了为什么要绑定load-了；只是打开文档的话，switch-protyle事件就够了
+        // 我也忘了为什么要绑定load-了（目前主要是其他载入情况使用，例如闪卡）；只是打开文档的话，switch-protyle事件就够了
         // 下面主要是避免两个事件同时触发造成的反复更新
         if (this.simpleMutex > 0) {
             return true;
@@ -69,7 +85,6 @@ export default class EventHandler {
             // 获取当前文档id
             logPush("loadedProtyleHandler", protyle);
             const docId:string = protyle.block.rootID;
-            logPush("docId", docId);
             // 区分工作环境 也就是区分个移动端、闪卡页面、桌面端（网页端通用）；判断优先顺序闪卡页面>移动端>桌面端；
             // 疯了的话可能加入判断使用什么内容顺序（预设模板）
             const protyleEnvInfo:IProtyleEnvInfo = getProtyleInfo(protyle);
@@ -81,7 +96,12 @@ export default class EventHandler {
             // 移动端且非闪卡，需要使用全局编辑器对象
             if (!protyleEnvInfo.flashCard && isMobile()) {
                 protyle = window.siyuan.mobile.editor.protyle;
+                protyleEnvInfo.originProtyle = protyle;
             }
+            // if (isMobile()) {
+            //     showMessage(`移动端触发 ${docId} ${window.siyuan.mobile.editor.protyle.block.rootID}`);
+            // }
+            
             // 调用Provider获取必要信息
             const basicInfo = await getBasicInfo(docId, protyle.path, protyle.notebookId);
             logPush("basicInfo", basicInfo);
