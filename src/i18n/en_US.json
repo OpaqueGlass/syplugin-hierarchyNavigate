@@ -83,6 +83,8 @@
     "setting_mobileBackReplace_desp": "When enabled, the plugin will attempt to replace the mobile back button logic of Siyuan to ensure that the navigation area updates when returning on Android devices (iOS not tested); this feature may not be compatible with other plugins or may encounter issues in version updates",
     "setting_mobileRemoveAllArea_name": "🧪🆕 Remove All Content Areas on Mobile Update",
     "setting_mobileRemoveAllArea_desp": "When enabled, the plugin will remove all content areas during updates, which can significantly reduce conflicts with other plugins and avoid duplicate content areas;<br/>Disadvantage: it causes the navigation area not to display after 'Interval Repetition' exited",
+    "setting_doNotAddToTitle_name": "🧪🆕 Do Not Insert Navigation Area into HTML Element Where Document Title Resides",
+  "setting_doNotAddToTitle_desp": "When enabled, the navigation area will no longer be inserted into the HTML element where the document title resides. This can prevent alignment issues with the document icon on the left side of the document title (please manually disable related settings in CSS). However, when adaptive width is enabled, the plugin will monitor and respond to width changes, which may cause lag.",
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
     "setting_childOrder_option_FILE_NAME_DESC": "File Name Descending",

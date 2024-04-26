@@ -53,7 +53,8 @@ interface IPluginSettings {
     sameWidthColumnMobile: number,
     previousAndNextFollowDailynote: boolean,
     mobileBackReplace: boolean,
-    mobileRemoveAllArea: boolean
+    mobileRemoveAllArea: boolean,
+    doNotAddToTitle: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -99,6 +100,7 @@ let defaultSetting: any = {
     previousAndNextFollowDailynote: false,
     mobileBackReplace: false,
     mobileRemoveAllArea: false,
+    doNotAddToTitle: false
 }
 
 
@@ -163,6 +165,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
             new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
             new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
+            new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}),
         ]}),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),

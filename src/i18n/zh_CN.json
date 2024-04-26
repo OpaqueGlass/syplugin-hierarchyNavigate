@@ -77,6 +77,8 @@
     "setting_mobileBackReplace_desp": "启用后，插件将尝试替换思源的移动端返回逻辑，以确保在安卓端（ios未测试）返回时触发导航区更新；此项可能与其他插件不兼容或在版本更新中遇到其他问题",
     "setting_mobileRemoveAllArea_name": "🧪🆕移动端更新时移除全部内容区",
     "setting_mobileRemoveAllArea_desp": "启用后，插件将在更新时移除所有位置的内容区，这可以很大程度上减少和其他插件的冲突、避免重复内容区的出现；<br/>缺点：导致“间隔重复”退出后不显示导航区",
+    "setting_doNotAddToTitle_name": "🧪🆕导航区不再插在文档标题所在的HTML元素",
+    "setting_doNotAddToTitle_desp": "启用后，导航区将不再插入到文档标题所在的HTML元素中，这样可以避免文档标题左侧的文档图标错位的问题（请手动关闭CSS中的相关设置），但在开启自适应宽度时，插件将监听并响应宽度更改，可能导致卡顿",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",

@@ -52,7 +52,11 @@ export default class ContentApplyer {
             } else if (this.protyleEnvInfo.mobile) {
                 this.mobileApply(finalElement);
             } else {
-                this.defaultApply(finalElement);
+                if (g_setting.doNotAddToTitle) {
+                    this.betaApply(finalElement);
+                } else {
+                    this.defaultApply(finalElement);
+                }
             }
         } else {
             // 已经存在，进入替换模式
@@ -136,6 +140,39 @@ export default class ContentApplyer {
             }
         }
         return -1;
+    }
+    async betaApply(finalElement: HTMLElement) {
+        this.protyleElement.querySelector(".og-hn-heading-docs-container")?.remove();
+        const titleTarget = this.protyleElement.querySelector(`.protyle-title`); //  .protyle-title__input
+        if (titleTarget) {
+            const marginRight = window.getComputedStyle(titleTarget).getPropertyValue("margin-right");
+            const marginLeft = window.getComputedStyle(titleTarget).getPropertyValue("margin-left");
+            finalElement.style.marginRight = marginRight;
+            finalElement.style.marginLeft = marginLeft;
+            finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
+            titleTarget.insertAdjacentElement("afterend", finalElement);
+        }
+        
+        let targetNode = this.protyleElement.querySelector('.protyle-title');
+        const protyleElement = this.protyleElement;
+        let observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                let targetNode = protyleElement.querySelector('.protyle-title');
+                // 获取更改后的样式
+                const marginRight = window.getComputedStyle(targetNode).getPropertyValue("margin-right");
+                const marginLeft = window.getComputedStyle(targetNode).getPropertyValue("margin-left");
+                debugPush("margin 2", marginLeft, marginRight);
+                const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container");
+                if (insertedElement) {
+                    finalElement.style.marginRight = targetNode.style.marginRight;
+                    finalElement.style.marginLeft = targetNode.style.marginLeft;
+                }
+            }
+        });
+        });
+        let config = { attributes: true, attributeFilter: ['style'] };
+        observer.observe(targetNode, config);
     }
 
     async defaultApply(finalElement: HTMLElement) {
