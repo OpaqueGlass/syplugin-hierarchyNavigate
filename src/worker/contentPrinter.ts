@@ -349,6 +349,7 @@ class ParentContentPrinter extends BasicContentPrinter {
                 result.appendChild(this.docLinkGenerator(basicInfo.parentDocBasicInfo));
             } else {
                 result.appendChild(this.getNoneElement());
+                result.classList.add(CONSTANTS.NONE_CLASS_NAME);
             }
         }
         logPush("parentAreaOutput", result);
@@ -739,11 +740,13 @@ class NeighborContentPrinter extends BasicContentPrinter {
             } else {
                 const noneElem = this.getNoneElement();
                 result.appendChild(noneElem);
+                result.classList.add(CONSTANTS.NONE_CLASS_NAME);
             }
         } else {
             const noneElem = this.getNoneElement();
             noneElem.title = lang("is_hidden_doc");
             result.appendChild(noneElem);
+            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
         }
         return result;
     }
@@ -762,6 +765,7 @@ class WidgetContentPrinter extends BasicContentPrinter {
             logPush("无子文档，不显示子文档区域");
             const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"));
             result.appendChild(this.getNoneElement());
+            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
             this.isDoNotUpdate = false;
             return result;
         }
@@ -905,6 +909,7 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
             logPush("没有往年今日", response);
             const noneElem = super.getNoneElement();
             result.appendChild(noneElem);
+            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
             return result;
         }
         for (let i = 0; i < response.length; i++) {
