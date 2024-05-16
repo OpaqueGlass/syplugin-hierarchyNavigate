@@ -53,6 +53,7 @@ import EventHandler from "./worker/eventHandler";
 import { removeStyle, setStyle } from "./worker/setStyle";
 import { bindCommand } from "./worker/shortcutHandler";
 import { CONSTANTS } from "./constants";
+import { generateUUID } from "./utils/common";
 // import "source-map-support/register";
 
 const STORAGE_NAME = "menu-config";
@@ -160,7 +161,7 @@ export default class OGPluginTemplate extends Plugin {
 
     openSetting() {
         // 生成Dialog内容
-        const uid = crypto.randomUUID();
+        const uid = generateUUID();
         // 创建dialog
         const settingDialog = new siyuan.Dialog({
             "title": this.i18n["setting_panel_title"],
