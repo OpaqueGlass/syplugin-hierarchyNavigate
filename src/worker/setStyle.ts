@@ -62,7 +62,9 @@ export function setStyle() {
     const linkColumnStyle = calColumnCount > 0 ? 
     `
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-children-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper{
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper,
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-onthisday-doc-container span.docLinksWrapper,
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-backlink-doc-container span.docLinksWrapper {
         width: calc( (100% - ${indicatorWidth} - ${calColumnCount - 1} * ${calColumnCount == 1 ? "0px" : "10px"}) / ${calColumnCount});
         ${calColumnCount == 1 ? "margin-right: 0px;" : ""}/*仅一列时忽略margin-right*/
     }
