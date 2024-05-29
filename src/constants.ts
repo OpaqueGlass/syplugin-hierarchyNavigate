@@ -17,6 +17,8 @@ export class CONSTANTS {
     public static readonly INDICATOR_CLASS_NAME: string = "og-hierachy-navigate-doc-indicator";
     public static readonly BREADCRUMB_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-breadcrumb-container";
     public static readonly CONTAINER_MULTILINE_STYLE_CLASS_NAME: string = "og-hn-container-multiline";
+
+    public static readonly AREA_NOT_FOLD_CLASS_NAME: string = "og-hn-not-fold";
     
     public static readonly MENU_ITEM_CLASS_NAME: string = "og-hn-breadcrumb-menu-item-container";
 

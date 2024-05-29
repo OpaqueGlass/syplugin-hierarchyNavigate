@@ -51,7 +51,7 @@
     "setting_sameWidthColumnMobile_desp": "",
     "setting_hideIndicator_name": "Hide hint words",
     "setting_hideIndicator_desp": "Do not display 'Parent: ', 'Children: ' etc. To modify hint words, please go to the i18n/en_US.json file located in the plugin directory.",
-    "setting_adjustDocIcon_name": "Adjust the position of document icon",
+    "setting_adjustDocIcon_name": "❌Adjust the position of document icon",
     "setting_adjustDocIcon_desp": "Inserting the navigation pane may cause the document icon on the left side of the title to be misaligned. Enable this option to fix this issue. If it conflicts with your custom settings or theme, please disable it here.",
     "setting_noneAreaHide_name": "Hide \"N/A\" when there is no document",
     "setting_noneAreaHide_desp": "When there is no corresponding document, hide the section and do not display \"N/A\". It is not recommended to enable it at the same time as \"Hide hint words\".",
@@ -83,8 +83,11 @@
     "setting_mobileBackReplace_desp": "When enabled, the plugin will attempt to replace the mobile back button logic of Siyuan to ensure that the navigation area updates when returning on Android devices (iOS not tested); this feature may not be compatible with other plugins or may encounter issues in version updates",
     "setting_mobileRemoveAllArea_name": "🧪 Remove All Content Areas on Mobile Update",
     "setting_mobileRemoveAllArea_desp": "When enabled, the plugin will remove all content areas during updates, which can significantly reduce conflicts with other plugins and avoid duplicate content areas;<br/>Disadvantage: it causes the navigation area not to display after 'Interval Repetition' exited",
-    "setting_doNotAddToTitle_name": "🧪🆕 Do Not Insert Navigation Area into HTML Element Where Document Title Resides",
-  "setting_doNotAddToTitle_desp": "When enabled, the navigation area will no longer be inserted into the HTML element where the document title resides. This can prevent alignment issues with the document icon on the left side of the document title (please manually disable related settings in CSS). However, when adaptive width is enabled, the plugin will monitor and respond to width changes, which may cause lag.",
+    "setting_doNotAddToTitle_name": "🧪❌ Do Not Insert Navigation Area into HTML Element Where Document Title Resides",
+    "setting_doNotAddToTitle_desp": "When enabled, the navigation area will no longer be inserted into the HTML element where the document title resides. This can prevent alignment issues with the document icon on the left side of the document title (please manually disable related settings in CSS). However, when adaptive width is enabled, the plugin will monitor and respond to width changes, which may cause lag.",
+  "setting_areaBorder_name": "🆕 Content Area Hover Border",
+  "setting_areaBorder_desp": "Enabling this will cause the content area to shrink inward by 1px",
+
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
     "setting_childOrder_option_FILE_NAME_DESC": "File Name Descending",

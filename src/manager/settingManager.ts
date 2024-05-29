@@ -55,6 +55,7 @@ interface IPluginSettings {
     mobileBackReplace: boolean,
     mobileRemoveAllArea: boolean,
     doNotAddToTitle: boolean,
+    areaBorder: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -73,7 +74,7 @@ let defaultSetting: any = {
     maxHeightLimit: 10,
     hideIndicator: false,
     sameWidth: 0,
-    adjustDocIcon: true,
+    adjustDocIcon: false,
     // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
     // immediatelyUpdate: false, // 数据库更新后立即执行，重构后无法实现，已弃用
     noneAreaHide: false,
@@ -100,7 +101,8 @@ let defaultSetting: any = {
     previousAndNextFollowDailynote: false,
     mobileBackReplace: false,
     mobileRemoveAllArea: false,
-    doNotAddToTitle: false
+    doNotAddToTitle: true,
+    areaBorder: false,
 }
 
 
@@ -151,6 +153,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "sameWidthColumn", "type": "NUMBER", min: 0, max: 15}),
             new ConfigProperty({"key": "sameWidthColumnMobile", "type": "NUMBER", min: 0, max: 15}),
             new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
+            new ConfigProperty({"key": "areaBorder", "type": "SWITCH"}),
             new ConfigProperty({"key": "adjustDocIcon", "type": "SWITCH"}),
             new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),
             new ConfigProperty({"key": "parentBoxCSS", "type": "TEXTAREA"}),
@@ -205,6 +208,13 @@ export async function loadSettings() {
         } else {
             loadResult = defaultSetting;
         }
+    }
+    const currentVersion = 20240529;
+    if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
+        // 旧版本
+        loadResult["@version"] = currentVersion;
+        loadResult["doNotAddToTitle"] = true;
+        loadResult["adjustDocIcon"] = false;
     }
     // 检查选项类设置项，如果发现不在列表中的，重置为默认
     try {

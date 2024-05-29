@@ -1,3 +1,4 @@
+import { CONSTANTS } from "@/constants";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
@@ -14,7 +15,7 @@ export default class ContentApplyer {
         this.protyleEnvInfo = protyleEnvInfo;
         this.protyleElement = protyleElement;
     }
-    // TODO: 各个部分依次替换，并能获取哪个部分不替换的信息
+
     async apply(printerAllResults: IAllPrinterResult) {
         const g_setting = getReadOnlyGSettings();
         // 判断是否存在，提供存在参数（解析类）
@@ -52,6 +53,31 @@ export default class ContentApplyer {
             } else if (this.protyleEnvInfo.mobile) {
                 this.mobileApply(finalElement);
             } else {
+                // 响应点击折叠
+                finalElement.addEventListener("pointerdown", (e) => {
+                    if (e.button != 2) {
+                        return;
+                    }
+                    const targetElem = e.target as HTMLElement;
+                    let actualTarget = targetElem;
+                    let maxLoop = 10;
+                    while (!actualTarget.classList.contains(CONSTANTS.CONTAINER_CLASS_NAME) && maxLoop > 0 && actualTarget) {
+                        actualTarget = actualTarget.parentElement;
+                        maxLoop--;
+                    }
+                    if (actualTarget && actualTarget.classList.contains(CONSTANTS.CONTAINER_CLASS_NAME)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (actualTarget.classList.contains(CONSTANTS.AREA_NOT_FOLD_CLASS_NAME)) {
+                            actualTarget.classList.remove(CONSTANTS.AREA_NOT_FOLD_CLASS_NAME);
+                        } else {
+                            actualTarget.classList.add(CONSTANTS.AREA_NOT_FOLD_CLASS_NAME);
+                        }
+                    } else {
+                        debugPush("右键折叠无效，源Ele未找到", e);
+                    }
+                });
+                // 响应右键折叠结束
                 if (g_setting.doNotAddToTitle) {
                     this.betaApply(finalElement);
                 } else {
@@ -152,7 +178,11 @@ export default class ContentApplyer {
             finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
             titleTarget.insertAdjacentElement("afterend", finalElement);
         }
-        
+        // 响应自适应宽度
+        if (window.siyuan?.config?.editor?.fullWidth !== true) {
+            logPush("自适应宽度未开启，插件不响应宽度变化");
+            return;
+        }
         let targetNode = this.protyleElement.querySelector('.protyle-title');
         const protyleElement = this.protyleElement;
         let observer = new MutationObserver(function(mutations) {
@@ -160,9 +190,6 @@ export default class ContentApplyer {
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 let targetNode = protyleElement.querySelector('.protyle-title');
                 // 获取更改后的样式
-                const marginRight = window.getComputedStyle(targetNode).getPropertyValue("margin-right");
-                const marginLeft = window.getComputedStyle(targetNode).getPropertyValue("margin-left");
-                debugPush("margin 2", marginLeft, marginRight);
                 const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container");
                 if (insertedElement) {
                     finalElement.style.marginRight = targetNode.style.marginRight;
@@ -171,7 +198,16 @@ export default class ContentApplyer {
             }
         });
         });
+        // 防止多个observer，但理论上不会有多个
+        if (!window["og_hn_observe"]) {
+            window["og_hn_observe"] = {};
+        }
+        if (window["og_hn_observe"][this.basicInfo.currentDocId]) {
+            observer?.disconnect();
+        }
+        window["og_hn_observe"][this.basicInfo.currentDocId] = observer;
         let config = { attributes: true, attributeFilter: ['style'] };
+        
         observer.observe(targetNode, config);
     }
 

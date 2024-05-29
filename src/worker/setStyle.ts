@@ -26,6 +26,17 @@ export function setStyle() {
     }
     `:"";
 
+    let borderDisplayStyle = g_setting.areaBorder ? 
+    `
+    .og-hierachy-navigate-doc-container {
+        border: 1px solid rgba(0, 0, 0, 0);
+    }
+    
+    .og-hierachy-navigate-doc-container:hover {
+        border: 1px solid var(--b3-theme-surface-lighter);
+    }
+    `: "";
+
     let noneDisplayStyle = g_setting.noneAreaHide ? `
     .${CONSTANTS.NONE_CLASS_NAME} {
         display: none;
@@ -171,6 +182,8 @@ export function setStyle() {
 
     ${linkColumnStyle}
 
+    ${borderDisplayStyle}
+
     /* 限制相邻文档区域 链接宽度*/
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
         max-width: calc( (100% - 2em - 1 * 10px) / 2);
@@ -181,8 +194,12 @@ export function setStyle() {
         overflow-y: auto;
     }
 
+    .og-hierachy-navigate-doc-container.og-hn-not-fold {
+        max-height: 50vh;
+    }
+
     .og-hierachy-navigate-doc-container + .og-hierachy-navigate-doc-container {
-        padding-top: 3px;
+        padding-top: 6px;
     }
 
     .og-hn-create-at-wrapper, .og-hn-modify-at-wrapper, .og-hn-child-doc-count-wrapper, .og-hn-child-word-count-wrapper {
