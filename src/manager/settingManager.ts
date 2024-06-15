@@ -242,7 +242,7 @@ export async function loadSettings() {
             setStyle();
             updateTimeout = null;
         }, 1000);
-    }, {deep: true, immediate: true});
+    }, {deep: true, immediate: false});
 }
 
 function checkSettingType(input:any) {
