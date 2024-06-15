@@ -5,6 +5,7 @@
     "neighbor_nodes": "邻：",
     "backlink_nodes": "反：",
     "on_this_day_nodes": "往：",
+    "forwardlink_nodes": "正：",
     "number_span": "（%NUM%）",
     "number_count": "共%NUM%个",
     "none": "无",
@@ -64,7 +65,7 @@
     "setting_noChildIfHasAv_name": "含数据库文档不显示子文档部分",
     "setting_noChildIfHasAv_desp": "启用后，当发现文档中包含数据库时，将不在该文档显示子文档、挂件区域。插件已支持通过文档属性单独为文档设置显示内容与顺序，详见README。",
     "setting_showBackLinksType_name": "反链部分显示类型",
-    "setting_showBackLinksType_desp": "",
+    "setting_showBackLinksType_desp": "目前正链显示类型跟随此设置",
     "setting_showBackLinksType_option_show_all_as_doc": "常规",
     "setting_showBackLinksType_option_doc_only": "仅文档",
     "setting_showHiddenDoc_name": "🧪在子文档、同级文档区域显示文档树隐藏文档",
@@ -119,7 +120,7 @@
     "setting_openDocContentGroup_option_widget_desp": "挂件需要另外下载，请使用v0.2.2及以上版本。建议将listChildDocs全局设置-自动高度打开。插件、挂件的listChildDocs全局设置是隔离的、互不影响。默认仅在文档空白时显示（其他情况将改为显示子文档区域），如要调整，请修改“空白文档判定阈值”",
     "setting_openDocContentGroup_option_breadcrumb": "文档面包屑",
     "setting_openDocContentGroup_option_breadcrumb_desp": "显示当前文档路径（可以点击跳转）；如要保持显示在编辑区首部，请使用“（伪）文档面包屑”插件 。",
-    "setting_openDocContentGroup_option_backlinks": "反链（文档标题）",
+    "setting_openDocContentGroup_option_backlinks": "反向链接（文档标题）",
     "setting_openDocContentGroup_option_backlinks_desp": "显示当前文档的反向链接所对应的文档",
     "setting_openDocContentGroup_option_previousAndNext": "上一篇、下一篇",
     "setting_openDocContentGroup_option_previousAndNext_desp": "根据文档树显示顺序，获取上一篇/下一篇文档；",
@@ -127,6 +128,9 @@
     "setting_openDocContentGroup_option_info_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数。",
     "setting_openDocContentGroup_option_onThisDay": "🧪往年今日",
     "setting_openDocContentGroup_option_onThisDay_desp": "（测试中功能，如有问题请反馈）显示同月同日的日记链接；此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本，并使用今日笔记等插件为过去的日记批量添加）；在目前的实现中，实际上是显示同一个笔记本内同月同日的其他日记",
+    "setting_openDocContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",
+    "setting_openDocContentGroup_option_forwardlinks_desp": "显示当前文档引用的文档（不识别<code class='fn__code'>siyuan://</code>URL）",
+
 
 
     "setting_mobileContentGroup_name": "✈安卓端（移动端）内容显示顺序",
@@ -141,7 +145,7 @@
     "setting_mobileContentGroup_option_widget_desp": "",
     "setting_mobileContentGroup_option_breadcrumb": "文档面包屑",
     "setting_mobileContentGroup_option_breadcrumb_desp": "",
-    "setting_mobileContentGroup_option_backlinks": "反链（文档标题）",
+    "setting_mobileContentGroup_option_backlinks": "反向链接（文档标题）",
     "setting_mobileContentGroup_option_backlinks_desp": "",
     "setting_mobileContentGroup_option_previousAndNext": "上一篇、下一篇",
     "setting_mobileContentGroup_option_previousAndNext_desp": "",
@@ -149,6 +153,8 @@
     "setting_mobileContentGroup_option_info_desp": "",
     "setting_mobileContentGroup_option_onThisDay": "🧪往年今日",
     "setting_mobileContentGroup_option_onThisDay_desp": "",
+    "setting_mobileContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",
+    "setting_mobileContentGroup_option_forwardlinks_desp": "",
 
 
     "setting_flashcardContentGroup_name": "🧪闪卡页面内容显示顺序",
@@ -163,7 +169,7 @@
     "setting_flashcardContentGroup_option_widget_desp": "",
     "setting_flashcardContentGroup_option_breadcrumb": "文档面包屑",
     "setting_flashcardContentGroup_option_breadcrumb_desp": "",
-    "setting_flashcardContentGroup_option_backlinks": "反链（文档标题）",
+    "setting_flashcardContentGroup_option_backlinks": "反向链接（文档标题）",
     "setting_flashcardContentGroup_option_backlinks_desp": "",
     "setting_flashcardContentGroup_option_previousAndNext": "上一篇、下一篇",
     "setting_flashcardContentGroup_option_previousAndNext_desp": "",

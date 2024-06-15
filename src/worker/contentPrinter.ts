@@ -25,6 +25,7 @@ export default class ContentPrinter {
         [PRINTER_NAME.WIDGET]: WidgetContentPrinter,
         [PRINTER_NAME.BLOCK_BREADCRUMB]: BlockTitleBreadcrumbContentPrinter,
         [PRINTER_NAME.ON_THIS_DAY]: OnThisDayInPreviousYears,
+        [PRINTER_NAME.FORWARDLINK]: ForwardLinkPrinter,
     }
     
     constructor(basicInfo:IBasicInfo, protyleBasicInfo:IProtyleEnvInfo) {
@@ -925,5 +926,83 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
     }
     static async isOnlyOnce(basicInfo: IBasicInfo): Promise<boolean> {
         return true;    
+    }
+}
+
+
+
+
+class ForwardLinkPrinter extends BasicContentPrinter {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        let result = null;
+        switch (g_setting.showBackLinksType) {
+            case CONSTANTS.BACKLINK_DOC_ONLY: {
+                result = await this.docOnlyBackLinkElement(basicInfo);
+                break;
+            }
+            case CONSTANTS.BACKLINK_NORMAL: {
+                result = await this.normalBackLinkElement(basicInfo);
+                break;
+            }
+            default: {
+                warnPush("BackLink（forward）配置项值错误", g_setting.showBackLinksType);
+                break;
+            }
+        }
+        if (result == null) {
+            result = super.getBasicElement(CONSTANTS.FOWARDLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"));
+            result.appendChild(super.getNoneElement());
+            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        }
+        return result;
+    }
+    static async normalBackLinkElement(basicInfo: IBasicInfo) {
+        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"));
+        const backlinkDocSqlResponse = await queryAPI(`SELECT id, content FROM blocks WHERE id in (
+            SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}"
+            ) AND type = "d" ORDER BY updated DESC;`);
+        debugPush("backlinkSQLResponse", backlinkDocSqlResponse);
+        if (backlinkDocSqlResponse != null && backlinkDocSqlResponse.length > 0) {
+            for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
+                const oneBacklinkItem = backlinkDocSqlResponse[i];
+                let tempDocItem = {
+                    "ogSimpleName": oneBacklinkItem.content,
+                    "name": oneBacklinkItem.content + ".sy",
+                    "icon": "",
+                    "id": oneBacklinkItem.id,
+                    "alias": "",
+                    "path": "",
+                };
+                result.appendChild(this.docLinkGenerator(tempDocItem));
+            }
+        } else {
+            return null;
+        }
+        return result;
+    }
+    static async docOnlyBackLinkElement(basicInfo: IBasicInfo) {
+        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"));
+        const backlinkDocSqlResponse = await queryAPI(`SELECT id, content FROM blocks WHERE id in (
+            SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}" AND def_block_root_id = def_block_id
+            )  AND type = "d" ORDER BY updated DESC;`);
+        debugPush("forwardlinkSQLResponse", backlinkDocSqlResponse);
+        if (backlinkDocSqlResponse != null && backlinkDocSqlResponse.length > 0) {
+            for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
+                const oneBacklinkItem = backlinkDocSqlResponse[i];
+                let tempDocItem = {
+                    "ogSimpleName": oneBacklinkItem.content,
+                    "name": oneBacklinkItem.content + ".sy",
+                    "icon": "",
+                    "id": oneBacklinkItem.id,
+                    "alias": "",
+                    "path": "",
+                };
+                result.appendChild(this.docLinkGenerator(tempDocItem));
+            }
+        } else {
+            return null;
+        }
+        return result;
     }
 }

@@ -25,6 +25,7 @@ export class CONSTANTS {
     public static readonly NONE_CLASS_NAME: string = "og-hierachy-navigate-doc-not-exist";
     public static readonly NEXT_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-next-doc-container";
     public static readonly BACKLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-backlink-doc-container";
+    public static readonly FOWARDLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-forwardlink-doc-container";
     public static readonly POP_NONE: string = "disable"; // 0
     public static readonly POP_LIMIT: string = "icon_only"; // 1
     public static readonly POP_ALL: string = "all"; // 2
@@ -44,5 +45,6 @@ export class PRINTER_NAME {
     public static readonly WIDGET: string = "widget";
     public static readonly BLOCK_BREADCRUMB: string = "blockBreadcrumb";
     public static readonly ON_THIS_DAY: string = "onThisDay";
+    public static readonly FORWARDLINK: string = "forwardlinks";
 }
   
