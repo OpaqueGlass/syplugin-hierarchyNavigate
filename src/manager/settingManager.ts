@@ -56,6 +56,7 @@ interface IPluginSettings {
     mobileRemoveAllArea: boolean,
     doNotAddToTitle: boolean,
     areaBorder: boolean,
+    debugMode: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -103,6 +104,7 @@ let defaultSetting: any = {
     mobileRemoveAllArea: false,
     doNotAddToTitle: true,
     areaBorder: false,
+    debugMode: false,
 }
 
 
@@ -168,11 +170,12 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
             new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
             new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
-            new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}),
+            new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
         ]}),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),
             new ConfigProperty({"key": "settingIconTips", "type": "TIPS"}),
+            new ConfigProperty({"key": "debugMode", "type": "SWITCH"}),
         ]}),
     );
 }
@@ -240,9 +243,30 @@ export async function loadSettings() {
             saveSettings(newVal);
             // logPush("保存设置项", newVal);
             setStyle();
+            changeDebug(newVal);
             updateTimeout = null;
         }, 1000);
     }, {deep: true, immediate: false});
+}
+
+function changeDebug(newVal) {
+    if (newVal.debugMode) {
+        debugPush("调试模式已开启");
+        window.top["OpaqueGlassDebug"] = true;
+        if (window.top["OpaqueGlassDebugV2"]["hn"]) {
+            window.top["OpaqueGlassDebugV2"]["hn"] = 5;
+        } else {
+            window.top["OpaqueGlassDebugV2"] = {
+                "hn": 5
+            }
+        }
+        
+    } else {
+        debugPush("调试模式已关闭");
+        if (window.top["OpaqueGlassDebugV2"]["hn"]) {
+            delete window.top["OpaqueGlassDebugV2"]["hn"];
+        }
+    }
 }
 
 function checkSettingType(input:any) {

@@ -79,7 +79,7 @@
     "setting_mobileRemoveAllArea_name": "🧪移动端更新时移除全部内容区",
     "setting_mobileRemoveAllArea_desp": "启用后，插件将在更新时移除所有位置的内容区，这可以很大程度上减少和其他插件的冲突、避免重复内容区的出现；<br/>缺点：导致“间隔重复”退出后不显示导航区",
     "setting_doNotAddToTitle_name": "🧪❌导航区不再插在文档标题所在的HTML元素",
-    "setting_doNotAddToTitle_desp": "启用后，导航区将不再插入到文档标题所在的HTML元素中，这样可以避免文档标题左侧的文档图标错位的问题（请手动关闭CSS中的相关设置），但在开启自适应宽度时，插件将监听并响应宽度更改，可能导致卡顿",
+    "setting_doNotAddToTitle_desp": "【推荐开启，此设置项将在未来版本中默认开启并从设置界面移除】启用后，导航区将不再插入到文档标题所在的HTML元素中，这样可以避免文档标题左侧的文档图标错位的问题（请手动关闭CSS中的相关设置），但在开启自适应宽度时，插件将监听并响应宽度更改，可能导致卡顿；由于冲突，禁用此项后，右键展开/折叠内容区功能将同时出现编辑器上下文菜单",
     "setting_areaBorder_name": "🆕内容区悬停边框",
     "setting_areaBorder_desp": "启用后导致内容区向内缩小1px",
 
@@ -192,6 +192,8 @@
     "setting_aboutAuthor_desp": "作者：<a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>问题反馈&赞助支持：<a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate'>github</a> 或 <a target='_blank' href='https://wj.qq.com/s2/12395364/b69f/'>填写问卷</a>；<br/>插件基于<a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a>授权使用；",
     "setting_settingIconTips_name": "设置页图标含义",
     "setting_settingIconTips_desp": "🔄表示在最近版本中，设置项含义或效果有所变更；（请阅读<a target='_blank' href='https://cdn.jsdelivr.net/gh/OpaqueGlass/syplugin-hierarchyNavigate/CHANGELOG.md'>更新日志</a>了解变更和你可能要做的更改）<br/>🆕表示最近版本新添加的设置项；（请阅读<a target='_blank' href='https://cdn.jsdelivr.net/gh/OpaqueGlass/syplugin-hierarchyNavigate/CHANGELOG.md'>更新日志</a>了解新功能）<br/>🧪或🚧表示实验性功能，开发者会尽力维护，但存在无法处理的缺陷时将移除；<br/>🚅表示公测中功能，小范围测试通过后的功能将标注（但并没有几个人测试，所以可靠性未知）；<br/>❌表示历史兼容选项，将很快被移除；",
+    "setting_debugMode_name": "显示详细日志并加入测试",
+    "setting_debugMode_desp": "启用后，将在控制台输出详细日志，用于调试；也将强制启用部分测试中功能；请在开发者建议下使用，并在日常使用时关闭。",
 
 
     "order_panel_enable": "启用/显示：",

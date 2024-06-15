@@ -9,7 +9,7 @@ import Mutex from "@/utils/mutex";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { sleep } from "@/utils/common";
 import { CONSTANTS } from "@/constants";
-import { isMobile } from "@/syapi";
+import { getHPathById, isMobile } from "@/syapi";
 export default class EventHandler {
     private handlerBindList: Record<string, (arg1: CustomEvent)=>void> = {
         "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性
@@ -66,6 +66,11 @@ export default class EventHandler {
         // 我也忘了为什么要绑定load-了（目前主要是其他载入情况使用，例如闪卡）；只是打开文档的话，switch-protyle事件就够了
         // 下面主要是避免两个事件同时触发造成的反复更新
         if (this.simpleMutex > 0) {
+            getHPathById(event.detail.protyle.block.id).then((path) => {
+                logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, path);
+            }).catch((err)=>{
+                logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, "未能显示hpath");
+            });
             return true;
         }
         this.simpleMutex++;
@@ -77,16 +82,23 @@ export default class EventHandler {
             await this.loadAndSwitchMutex.lock();
             // 颜色状态码可以参考https://blog.csdn.net/weixin_44110772/article/details/105860997
             // x1b是十六进制，和文中的/033八进制没啥不同，同时应用加粗和Cryan就像下面这样;分隔
-            debugPush("\x1b[1;36m%s\x1b[0m", ">>>>>>>> mutex 新任务开始");
+            logPush("\x1b[1;36m%s\x1b[0m", ">>>>>>>> mutex 新任务开始");
             // 移动端由于闪卡面包屑，需要后面获取envInfo后处理；
             let protyle = event.detail.protyle;
             // 可能还需要套一个重试的壳
             // 另外，和swtich 共同存在时，需要防止并发
             // 获取当前文档id
             logPush("loadedProtyleHandler", protyle);
+            logPush("currentDoc", JSON.stringify(protyle?.block));
             const docId:string = protyle.block.rootID;
             // 区分工作环境 也就是区分个移动端、闪卡页面、桌面端（网页端通用）；判断优先顺序闪卡页面>移动端>桌面端；
             // 疯了的话可能加入判断使用什么内容顺序（预设模板）
+            if (protyle.element.classList.contains("fn__none")) {
+                if (isDebugMode()) {
+                    showMessage(`当前文档不可见, ${protyle.id}, ${docId}, ${protyle.element.children.length}——[syplugin-hierarchyNavigate]`);
+                }
+                debugPush(`当前文档不可见, ${protyle.id}, ${docId}, ${protyle.element.children.length}`);
+            }
             const protyleEnvInfo:IProtyleEnvInfo = getProtyleInfo(protyle);
             logPush("protyleInfo", protyleEnvInfo);
             if (protyleEnvInfo.notTraditional && !protyleEnvInfo.flashCard && !protyleEnvInfo.mobile && !getReadOnlyGSettings().enableForOtherCircumstance) {
@@ -123,7 +135,7 @@ export default class EventHandler {
             errorPush("ERROR", error);
             doNotRetryFlag = true;
         } finally {
-            debugPush("\x1b[1;36m%s\x1b[0m", "<<<<<<<< mutex 任务结束");
+            logPush("\x1b[1;36m%s\x1b[0m", "<<<<<<<< mutex 任务结束");
             if (isDebugMode()) {
                 console.timeEnd(CONSTANTS.PLUGIN_NAME);
             }

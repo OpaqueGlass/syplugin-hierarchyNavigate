@@ -68,6 +68,7 @@ export default class ContentApplyer {
                     if (actualTarget && actualTarget.classList.contains(CONSTANTS.CONTAINER_CLASS_NAME)) {
                         e.preventDefault();
                         e.stopPropagation();
+                        e.stopImmediatePropagation();
                         if (actualTarget.classList.contains(CONSTANTS.AREA_NOT_FOLD_CLASS_NAME)) {
                             actualTarget.classList.remove(CONSTANTS.AREA_NOT_FOLD_CLASS_NAME);
                         } else {
@@ -77,6 +78,7 @@ export default class ContentApplyer {
                         debugPush("右键折叠无效，源Ele未找到", e);
                     }
                 });
+                
                 // 响应右键折叠结束
                 if (g_setting.doNotAddToTitle) {
                     this.betaApply(finalElement);
