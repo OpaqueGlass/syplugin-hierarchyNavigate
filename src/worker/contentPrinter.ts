@@ -147,10 +147,11 @@ class BasicContentPrinter {
      * @param indicatorLang 区域提示词
      * @returns HTMLElement
      */
-    static getBasicElement(uniqueClassName: string, classNames: string[], indicatorLang?: string):HTMLElement {
+    static getBasicElement(uniqueClassName: string, classNames: string[], indicatorLang?: string, hoverTitleLang?: string):HTMLElement {
         const contentElem = document.createElement("div");
         // 这里有点重复，看看再说
         contentElem.classList.add(uniqueClassName);
+        contentElem.setAttribute("title", hoverTitleLang);
         if (classNames) {
             for (const className of classNames) {
                 contentElem.classList.add(className);
@@ -336,7 +337,7 @@ class DocInfoContentPrinter extends BasicContentPrinter {
 
 class ParentContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
-        const result = super.getBasicElement(CONSTANTS.PARENT_CONTAINER_ID, null, lang("parent_nodes"));
+        const result = super.getBasicElement(CONSTANTS.PARENT_CONTAINER_ID, null, lang("parent_nodes"), lang("parent_area"));
         if (basicInfo.docBasicInfo == null) {
             const g_setting = getReadOnlyGSettings();
             // 历史兼容选项，当没有父文档时，将显示兄弟文档
@@ -361,7 +362,7 @@ class ParentContentPrinter extends BasicContentPrinter {
 class SiblingContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const result = super.getBasicElement(CONSTANTS.SIBLING_CONTAINER_ID, null, lang("sibling_nodes"));
+        const result = super.getBasicElement(CONSTANTS.SIBLING_CONTAINER_ID, null, lang("sibling_nodes"), lang("sibling_area"));
         if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
             result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.userDemandSiblingDocInfoList.length));
         }
@@ -391,7 +392,7 @@ class SiblingContentPrinter extends BasicContentPrinter {
 class ChildContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"));
+        const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"), lang("child_area"));
         if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
             logPush("文档中含有数据库，不显示子文档区域");
             return null;
@@ -588,14 +589,14 @@ class BackLinkContentPrinter extends BasicContentPrinter {
             }
         }
         if (result == null) {
-            result = super.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"));
+            result = super.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
             result.appendChild(super.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
         }
         return result;
     }
     static async normalBackLinkElement(basicInfo: IBasicInfo) {
-        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"));
+        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
         const backlinkResponse = await getBackLink2T(basicInfo.currentDocId);
         debugPush("backlinkResponse", backlinkResponse);
         if (backlinkResponse.backlinks.length == 0) {
@@ -618,7 +619,7 @@ class BackLinkContentPrinter extends BasicContentPrinter {
         return result;
     }
     static async docOnlyBackLinkElement(basicInfo: IBasicInfo) {
-        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"));
+        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
         const backlinkDocSqlResponse = await queryAPI(`SELECT id, content FROM blocks WHERE id in (
             SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${basicInfo.currentDocId}"
             ) AND type = "d" ORDER BY updated DESC;`);
@@ -647,7 +648,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         const siblingDocs = await getUserDemandSiblingDocuments(basicInfo.docBasicInfo.path, basicInfo.docBasicInfo.box, undefined, g_setting.previousAndNextHiddenDoc);//basicInfo.allSiblingDocInfoList;
-        const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"));
+        const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"), lang("neighbor_area"));
         let iCurrentDoc = -1;
         let previousElem = null, nextElem = null;
         for (let iSibling = 0; iSibling < siblingDocs.length; iSibling++) {
@@ -764,7 +765,7 @@ class WidgetContentPrinter extends BasicContentPrinter {
         }
         if (basicInfo.docBasicInfo.subFileCount <= 0) {
             logPush("无子文档，不显示子文档区域");
-            const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"));
+            const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"), lang("child_area"));
             result.appendChild(this.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
             this.isDoNotUpdate = false;
@@ -886,7 +887,7 @@ class BlockTitleBreadcrumbContentPrinter extends BasicContentPrinter {
 class OnThisDayInPreviousYears extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const result = super.getBasicElement(CONSTANTS.ON_THIS_DAY_CONTAINER_CLASS_NAME, null, lang("on_this_day_nodes"));
+        const result = super.getBasicElement(CONSTANTS.ON_THIS_DAY_CONTAINER_CLASS_NAME, null, lang("on_this_day_nodes"), lang("on_this_day_area"));
         let currentDateMonthDay = "";
         const protyle = protyleEnvInfo.originProtyle as IProtyle
         const ialObject = protyle.background?.ial;
@@ -951,14 +952,14 @@ class ForwardLinkPrinter extends BasicContentPrinter {
             }
         }
         if (result == null) {
-            result = super.getBasicElement(CONSTANTS.FOWARDLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"));
+            result = super.getBasicElement(CONSTANTS.FOWARDLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"), lang("forwardlink_area"));
             result.appendChild(super.getNoneElement());
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
         }
         return result;
     }
     static async normalBackLinkElement(basicInfo: IBasicInfo) {
-        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"));
+        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"), lang("forwardlink_area"));
         const backlinkDocSqlResponse = await queryAPI(`SELECT id, content FROM blocks WHERE id in (
             SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}"
             ) AND type = "d" ORDER BY updated DESC;`);
@@ -982,7 +983,7 @@ class ForwardLinkPrinter extends BasicContentPrinter {
         return result;
     }
     static async docOnlyBackLinkElement(basicInfo: IBasicInfo) {
-        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"));
+        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"), lang("forwardlink_area"));
         const backlinkDocSqlResponse = await queryAPI(`SELECT id, content FROM blocks WHERE id in (
             SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}" AND def_block_root_id = def_block_id
             )  AND type = "d" ORDER BY updated DESC;`);
