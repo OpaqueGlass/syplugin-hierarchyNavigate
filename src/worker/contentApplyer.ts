@@ -227,11 +227,12 @@ export default class ContentApplyer {
 
     async mobileApply(finalElement: HTMLElement) {
         // if (window.document.querySelector(`.protyle-background[data-node-id="${docId}"] .og-hn-heading-docs-container`) != null) return;
-        if (window.document.querySelector(`.protyle-background__icon`).classList.contains("fn__none")) {
-            finalElement.style.paddingTop = "16px";
-        } else {
-            finalElement.style.paddingTop = "56px";
-        }
+        // if (window.document.querySelector(`.protyle-background__icon`).classList.contains("fn__none")) {
+        //     finalElement.style.paddingTop = "16px";
+        // } else {
+            
+        // }
+        finalElement.style.paddingTop = "16px";
         finalElement.style.paddingLeft = "24px";
         finalElement.style.paddingRight = "16px";
         // finalElement.style.paddingTop = "16px";
