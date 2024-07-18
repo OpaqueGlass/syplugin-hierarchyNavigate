@@ -89,6 +89,8 @@
     "setting_doNotAddToTitle_desp": "【推荐开启，此设置项将在未来版本中默认开启并从设置界面移除】启用后，导航区将不再插入到文档标题所在的HTML元素中，这样可以避免文档标题左侧的文档图标错位的问题（请手动关闭CSS中的相关设置），但在开启自适应宽度时，插件将监听并响应宽度更改，可能导致卡顿；由于冲突，禁用此项后，右键展开/折叠内容区功能将同时出现编辑器上下文菜单",
     "setting_areaBorder_name": "🆕内容区悬停边框",
     "setting_areaBorder_desp": "启用后导致内容区向内缩小1px",
+    "setting_showNotebookInBreadcrumb_name": "🆕在面包屑中显示笔记本层级",
+    "setting_showNotebookInBreadcrumb_desp": "启用后，文档面包屑中将首先显示笔记本名称",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",
@@ -132,7 +134,7 @@
     "setting_openDocContentGroup_option_previousAndNext": "上一篇、下一篇",
     "setting_openDocContentGroup_option_previousAndNext_desp": "根据文档树显示顺序，获取上一篇/下一篇文档；",
     "setting_openDocContentGroup_option_info": "文档信息行",
-    "setting_openDocContentGroup_option_info_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数。",
+    "setting_openDocContentGroup_option_info_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；通过使用开发者工具与css代码片段，可以隐藏不需要的内容，详询GPT；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数；",
     "setting_openDocContentGroup_option_onThisDay": "🧪往年今日",
     "setting_openDocContentGroup_option_onThisDay_desp": "（测试中功能，如有问题请反馈）显示同月同日的日记链接；此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本，并使用今日笔记等插件为过去的日记批量添加）；在目前的实现中，实际上是显示同一个笔记本内同月同日的其他日记",
     "setting_openDocContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",

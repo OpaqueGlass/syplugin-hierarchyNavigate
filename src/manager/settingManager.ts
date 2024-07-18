@@ -105,6 +105,7 @@ let defaultSetting: any = {
     doNotAddToTitle: true,
     areaBorder: false,
     debugMode: false,
+    showNotebookInBreadcrumb: false,
 }
 
 
@@ -140,6 +141,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "hideIndicator", "type": "SWITCH"}),
             new ConfigProperty({"key": "noneAreaHide", "type": "SWITCH"}),
             new ConfigProperty({"key": "hideBlockBreadcrumbInDesktop", "type": "SWITCH"}),
+            new ConfigProperty({"key": "showNotebookInBreadcrumb", "type": "SWITCH"}),
         ]}),
         new TabProperty({key: "general", "iconKey": "iconSettings", props: [
             new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),

@@ -103,16 +103,22 @@ export function setStyle() {
         background-color: color-mix(in srgb, var(--b3-protyle-code-background) 95%, var(--b3-theme-on-background));
         border: 0.55px dashed color-mix(in srgb, var(--b3-protyle-code-background) 35%, var(--b3-theme-on-background));
     }
+    .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper.og-none-click {
+        background-color: transparent;
+        color: var(--b3-theme-on-background);
+    }
 
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {
         margin: 0 auto; /*居中显示*/
         text-overflow: ellipsis;
         overflow-x: hidden; /* 修复文字下侧被截断的问题 */
     }
-    .og-hierachy-navigate-sibling-doc-container  span.refLinks, 
-    .og-hierachy-navigate-children-doc-container span.refLinks,
-    .og-hierachy-navigate-next-doc-container span.refLinks,
-    .og-hierachy-navigate-backlink-doc-container span.refLinks {
+    
+    /* 语义调整 refLinks 的可点击，其他仅样式 https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/issues/61 */
+    .og-hierachy-navigate-sibling-doc-container  span.docLinksWrapper, 
+    .og-hierachy-navigate-children-doc-container span.docLinksWrapper,
+    .og-hierachy-navigate-next-doc-container span.docLinksWrapper,
+    .og-hierachy-navigate-backlink-doc-container span.docLinksWrapper {
         margin-right: 10px;
     }
     `;
@@ -152,8 +158,8 @@ export function setStyle() {
         width: 16px;
         height: 16px;
     }
-
-    .og-hn-heading-docs-container span.docLinksWrapper:hover {
+    /* 语义调整 refLink的可点击，其他仅样式 https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/issues/61 */
+    .og-hn-heading-docs-container span.docLinksWrapper.refLinks:hover {
         cursor: pointer;
         box-shadow: 0 0 2px var(--b3-list-hover);
         opacity: .86;

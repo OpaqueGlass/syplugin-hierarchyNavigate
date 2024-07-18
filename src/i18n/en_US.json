@@ -93,8 +93,10 @@
     "setting_mobileRemoveAllArea_desp": "When enabled, the plugin will remove all content areas during updates, which can significantly reduce conflicts with other plugins and avoid duplicate content areas;<br/>Disadvantage: it causes the navigation area not to display after 'Interval Repetition' exited",
     "setting_doNotAddToTitle_name": "🧪❌ Do Not Insert Navigation Area into HTML Element Where Document Title Resides",
     "setting_doNotAddToTitle_desp": "When enabled, the navigation area will no longer be inserted into the HTML element where the document title resides. This can prevent alignment issues with the document icon on the left side of the document title (please manually disable related settings in CSS). However, when adaptive width is enabled, the plugin will monitor and respond to width changes, which may cause lag.",
-  "setting_areaBorder_name": "🆕 Content Area Hover Border",
-  "setting_areaBorder_desp": "Enabling this will cause the content area to shrink inward by 1px",
+    "setting_areaBorder_name": "🆕 Content Area Hover Border",
+    "setting_areaBorder_desp": "Enabling this will cause the content area to shrink inward by 1px",
+    "setting_showNotebookInBreadcrumb_name": "🆕Display notebook in breadcrumbs.",
+    "setting_showNotebookInBreadcrumb_desp": "After enabling it, the notebook name will be displayed first in the document breadcrumbs.",
 
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
@@ -139,7 +141,7 @@
     "setting_openDocContentGroup_option_previousAndNext": "Previous and Next",
     "setting_openDocContentGroup_option_previousAndNext_desp": "Get the previous/next document based on the document tree display order;",
     "setting_openDocContentGroup_option_info": "Document Information Row",
-    "setting_openDocContentGroup_option_info_desp": "Document information includes: creation time, modification time, number of child documents, total character count of child documents (estimated value, including spaces, OCR results, code blocks); even if closed, you can still know the number of documents by hovering the mouse over the prompt word.",
+    "setting_openDocContentGroup_option_info_desp": "Document information includes: creation time, modification time, number of child documents, total character count of child documents (estimated value, including spaces, OCR results, code blocks); even if closed, you can still know the number of documents by hovering the mouse over the prompt word.<br/>By using developer tools and CSS code snippets, it is possible to hide unwanted content. For more details, please consult GPT.",
     "setting_openDocContentGroup_option_onThisDay": "🧪On This Day in Previous Years",
     "setting_openDocContentGroup_option_onThisDay_desp": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) Displays links to diary entries from the same month and day; this feature only works with the new version of diaries (requires the `custom-dailynote-yyyyMMdd` attribute; if not available, please upgrade to a newer version of Siyuan and use plugins like siyuan-dailynote-today to bulk-add past diaries attribute); currently, it actually displays other diary entries from the same month and day within the same notebook.",
     "setting_openDocContentGroup_option_forwardlinks": "🧪Forward Links (Doc title only)",

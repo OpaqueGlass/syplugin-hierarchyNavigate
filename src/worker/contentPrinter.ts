@@ -177,7 +177,7 @@ class BasicContentPrinter {
     }
 
     // 请注意，传入的doc.name应当包含.sy后缀（即IFile类型原始值），本函数会进行处理！
-    static docLinkGenerator(doc:IDocLinkGenerateInfo) {
+    static docLinkGenerator(doc:IDocLinkGenerateInfo, unclickable:boolean = false) {
         let g_setting = getReadOnlyGSettings();
         let emojiStr = this.getEmojiHtmlStr(doc.icon, doc?.subFileCount != 0, g_setting);
         // 这里需要区分doc.content 和 doc.name，或者，传入前就将doc.name加入.sy后缀
@@ -225,14 +225,23 @@ class BasicContentPrinter {
         const trimedDocNameElem = document.createElement("span");
         trimedDocNameElem.classList.add("trimDocName");
         trimedDocNameElem.innerText = trimDocName;
-
+        /* 语义调整 refLink的可点击，docLinksWrapper仅样式 https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/issues/61 */
+        if (unclickable) {
+            result.classList.add("og-none-click");
+            result.classList.remove("refLinks");
+        }
         switch (g_setting.popupWindow) {
             case CONSTANTS.POP_ALL: {
-                result.dataset["type"] = "block-ref";
+                if (!unclickable) {
+                    result.dataset["type"] = "block-ref";
+                }
                 emojiAndName.innerHTML = emojiStr;
                 break;
             }
             case CONSTANTS.POP_LIMIT: {
+                if (unclickable) {
+                    break;
+                }
                 emojiAndName.appendChild(emojiHoverElem);
                 break;
             }
@@ -471,6 +480,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
     static async generateBreadCrumbElement(pathObjects: any) {
         const result = document.createElement("div");
         result.classList.add("og-hn-parent-area-replace-with-breadcrumb");
+        const g_setting = getReadOnlyGSettings();
 
         const divideArrow = `<span class="og-fake-breadcrumb-arrow-span" data-type="%4%" data-parent-id="%5%"  data-next-id="%6%"><svg class="${CONSTANTS.ARROW_CLASS_NAME}"
             data-type="%4%" data-parent-id="%5%">
@@ -480,6 +490,8 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             let onePathObject = pathObjects[i];
             if (i != 0) { // 这里排除了Notebook节点
                 result.appendChild(this.docLinkGenerator(pathObjects[i]));
+            } else if (g_setting.showNotebookInBreadcrumb) {
+                result.appendChild(this.docLinkGenerator(pathObjects[i], true));
             }
             if (i == pathObjects.length - 1 && !await isChildDocExist(onePathObject.id)) {
                 continue;
