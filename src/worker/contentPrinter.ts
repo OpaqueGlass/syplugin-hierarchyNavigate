@@ -151,7 +151,9 @@ class BasicContentPrinter {
         const contentElem = document.createElement("div");
         // 这里有点重复，看看再说
         contentElem.classList.add(uniqueClassName);
-        contentElem.setAttribute("title", hoverTitleLang);
+        if (isValidStr(hoverTitleLang)) {
+            contentElem.setAttribute("title", hoverTitleLang);
+        }
         if (classNames) {
             for (const className of classNames) {
                 contentElem.classList.add(className);
