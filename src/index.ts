@@ -163,6 +163,7 @@ export default class OGPluginTemplate extends Plugin {
         // 生成Dialog内容
         const uid = generateUUID();
         // 创建dialog
+        const app = createApp(settingVue);
         const settingDialog = new siyuan.Dialog({
             "title": this.i18n["setting_panel_title"],
             "content": `
@@ -170,8 +171,8 @@ export default class OGPluginTemplate extends Plugin {
             `,
             "width": isMobile() ? "92vw":"1040px",
             "height": isMobile() ? "50vw":"80vh",
+            "destroyCallback": ()=>{app.unmount(); },
         });
-        const app = createApp(settingVue);
         app.mount(`#og_plugintemplate_${uid}`);
         
     }
