@@ -268,6 +268,14 @@ export function setStyle() {
         padding-right: 16px;
     } 
 
+    .og-hn-more-less {
+        color: var(--b3-protyle-inline-link-color);
+        cursor: pointer;
+    }
+    .og-hn-more-less:hover {
+        text-decoration: underline;
+    }
+
     ${g_setting.docLinkCSS == g_setting_default.docLinkCSS && g_setting.docLinkClass == g_setting_default.docLinkClass ? defaultLinkStyle:""}
     .${CONSTANTS.PARENT_CONTAINER_ID} {${styleEscape(g_setting.parentBoxCSS)}}
 
@@ -288,4 +296,15 @@ function styleEscape(str) {
 
 export function removeStyle() {
     document.getElementById(CONSTANTS.STYLE_ID)?.remove();
+}
+
+export function setCouldHideStyle() {
+    const style = document.createElement("style");
+    style.id = CONSTANTS.HIDE_COULD_FOLD_STYLE_ID;
+    style.innerHTML = `.${CONSTANTS.COULD_FOLD_CLASS_NAME} {display: none !important;}`;
+    document.head.appendChild(style);
+}
+
+export function removeCouldHideStyle() {
+    document.getElementById(CONSTANTS.HIDE_COULD_FOLD_STYLE_ID)?.remove();
 }

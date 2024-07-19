@@ -16,7 +16,11 @@ export class CONSTANTS {
     public static readonly ON_THIS_DAY_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-onthisday-doc-container";
     public static readonly INDICATOR_CLASS_NAME: string = "og-hierachy-navigate-doc-indicator";
     public static readonly BREADCRUMB_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-breadcrumb-container";
+    public static readonly MORE_OR_LESS_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-moreorless-container";
     public static readonly CONTAINER_MULTILINE_STYLE_CLASS_NAME: string = "og-hn-container-multiline";
+    public static readonly COULD_FOLD_CLASS_NAME: string = "og-hn-container-could-fold";
+    public static readonly HIDE_COULD_FOLD_STYLE_ID: string = "og-hn-hide-could-fold";
+
 
     public static readonly AREA_NOT_FOLD_CLASS_NAME: string = "og-hn-not-fold";
     
@@ -46,5 +50,6 @@ export class PRINTER_NAME {
     public static readonly BLOCK_BREADCRUMB: string = "blockBreadcrumb";
     public static readonly ON_THIS_DAY: string = "onThisDay";
     public static readonly FORWARDLINK: string = "forwardlinks";
+    public static readonly MORE_OR_LESS: string = "moreorless";
 }
   

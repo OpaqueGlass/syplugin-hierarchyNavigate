@@ -91,6 +91,8 @@
     "setting_areaBorder_desp": "启用后导致内容区向内缩小1px",
     "setting_showNotebookInBreadcrumb_name": "🆕在面包屑中显示笔记本层级",
     "setting_showNotebookInBreadcrumb_desp": "启用后，文档面包屑中将首先显示笔记本名称",
+    "setting_areaHideFrom_name": "🆕隐藏第x之后的内容区",
+    "setting_areaHideFrom_desp": "设置后，自第x个内容区开始将被隐藏，插件启动时默认隐藏，全局共用隐藏状态；设置为0以禁用；（以内容区与顺序中设定的顺序计算序号，含隐藏或当前文档不生效的内容区）",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",
@@ -230,6 +232,7 @@
     "is_last_document": "已经是最后一篇",
     "jump_by_dailynote": "本次依据日记跳转，已进入新“文件夹”",
     "is_hidden_doc": "（当前文档是隐藏文档，无法显示相邻文档信息）",
+    "more_or_less": "---更多/更少---",
 
     "settingpage_content_name": "内容区与顺序",
     "settingpage_showType_name": "内容展示逻辑",

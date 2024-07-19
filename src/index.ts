@@ -50,7 +50,7 @@ import { initSettingProperty } from './manager/settingManager';
 import { setPluginInstance } from "./utils/getInstance";
 import { loadSettings } from "./manager/settingManager";
 import EventHandler from "./worker/eventHandler";
-import { removeStyle, setStyle } from "./worker/setStyle";
+import { removeCouldHideStyle, removeStyle, setCouldHideStyle, setStyle } from "./worker/setStyle";
 import { bindCommand } from "./worker/shortcutHandler";
 import { CONSTANTS } from "./constants";
 import { generateUUID } from "./utils/common";
@@ -117,7 +117,7 @@ export default class OGPluginTemplate extends Plugin {
 
 
         const textareaElement = document.createElement("textarea");
-        
+        setCouldHideStyle();
 
         //
         // const server = http.createServer();
@@ -157,6 +157,7 @@ export default class OGPluginTemplate extends Plugin {
             elem.remove();
         });
         removeStyle();
+        removeCouldHideStyle();
     }
 
     openSetting() {

@@ -9,6 +9,7 @@ import { openRefLink } from "@/utils/common";
 import { IProtyle, Menu } from "siyuan";
 import { getUserDemandSiblingDocuments } from "./commonProvider";
 import { htmlTransferParser } from "@/utils/onlyThisUtil";
+import { setCouldHideStyle } from "./setStyle";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -99,6 +100,17 @@ export default class ContentPrinter {
         }
     
         const results = await Promise.all(promises);
+        if (g_setting.areaHideFrom > 0) {
+            for (let i = g_setting.areaHideFrom - 1; i < results.length; i++) {
+                results[i]?.element.classList.add(CONSTANTS.COULD_FOLD_CLASS_NAME);
+            }
+            // 请注意，在其他位置使用Printer，应当为element增加ogContentType
+            results.push({
+                element: await MoreOrLessPrinter.getBindedElement(this.basicInfo, this.protyleBasicInfo),
+                onlyOnce: await MoreOrLessPrinter.isOnlyOnce(this.basicInfo),
+                relateContentKey: PRINTER_NAME.MORE_OR_LESS
+            });
+        }
     
         return {
             elements: results.filter((result) => result !== null).map((result) => result.element),
@@ -1019,5 +1031,29 @@ class ForwardLinkPrinter extends BasicContentPrinter {
             return null;
         }
         return result;
+    }
+}
+
+class MoreOrLessPrinter extends BasicContentPrinter {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const result = super.getBasicElement(CONSTANTS.MORE_OR_LESS_CONTAINER_CLASS_NAME, null, null, null);
+        const moreOrLess = document.createElement("span");
+        moreOrLess.innerHTML = lang("more_or_less");
+        result.appendChild(moreOrLess);
+        //
+        result.classList.add("og-hn-more-less");
+        result.addEventListener("click", ()=>{
+            const styleElem = document.getElementById(CONSTANTS.HIDE_COULD_FOLD_STYLE_ID);
+            if (styleElem) {
+                styleElem.remove();
+            } else {
+                setCouldHideStyle();
+            }
+        });
+        result.dataset.ogContentType = PRINTER_NAME.MORE_OR_LESS;
+        return result;
+    }
+    static async isOnlyOnce(basicInfo:IBasicInfo): Promise<boolean> {
+        return true;
     }
 }

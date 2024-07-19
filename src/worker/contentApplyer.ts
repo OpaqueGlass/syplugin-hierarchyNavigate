@@ -3,8 +3,6 @@ import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
 import { openRefLinkInProtyleWnd } from "@/utils/common";
-import { getPluginInstance } from "@/utils/getInstance";
-import { getBackend, getFrontend, showMessage } from "siyuan";
 
 export default class ContentApplyer {
     private basicInfo: IBasicInfo;
@@ -190,7 +188,7 @@ export default class ContentApplyer {
         let observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                let targetNode = protyleElement.querySelector('.protyle-title');
+                let targetNode = protyleElement.querySelector('.protyle-title') as HTMLElement;
                 // 获取更改后的样式
                 const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container");
                 if (insertedElement) {

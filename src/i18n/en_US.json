@@ -97,7 +97,8 @@
     "setting_areaBorder_desp": "Enabling this will cause the content area to shrink inward by 1px",
     "setting_showNotebookInBreadcrumb_name": "🆕Display notebook in breadcrumbs.",
     "setting_showNotebookInBreadcrumb_desp": "After enabling it, the notebook name will be displayed first in the document breadcrumbs.",
-
+    "setting_areaHideFrom_name": "🆕 Hide the content area after the xth part.",
+    "setting_areaHideFrom_desp": "After setting it, the content area will be hidden starting from the xth part. The hide state will be shared globally. Set it to 0 to disable this feature. (The numbering is calculated based on the order in settings, including hidden or inactive parts in the current document.)",
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
     "setting_childOrder_option_FILE_NAME_DESC": "File Name Descending",
@@ -227,6 +228,7 @@
     "is_last_document": "Already on the last document",
     "jump_by_dailynote": "The current navigation is based on the diary (daily note) order and has entered a new 'folder'.",
     "is_hidden_doc": "(The current document is a hidden document, and adjacent document information cannot be displayed)",
+    "more_or_less": "---More/Less---",
 
     "settingpage_content_name": "Content Order",
     "settingpage_showType_name": "Content Setting",
