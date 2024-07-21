@@ -11,9 +11,6 @@ permissions:
 jobs:
   close-issues:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
     steps:
       - uses: actions/stale@v9
         with:
@@ -22,6 +19,6 @@ jobs:
           stale-issue-label: "stale"
           stale-issue-message: "This issue has been marked as stale because it has been open for 45 days with no activity. If you believe this issue is still relevant, please comment to keep it active. Otherwise, it will be closed in 14 days. Thank you for your contributions!"
           close-issue-message: "This issue is about to be closed because it has been inactive for 14 days since being marked as stale. If you still have questions or concerns, please leave a comment."
-          exempt-issue-labels: "in-progress", "working on", "working_on", "stage/working on", "stage/queue", "stage/queue(next)"
+          exempt-issue-labels: "in-progress,working on,working_on,stage/working on,stage/queue,stage/queue(next)"
           exempt-all-milestones: true
           repo-token: ${{ secrets.GITHUB_TOKEN }}
