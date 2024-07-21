@@ -1,0 +1,42 @@
+name: Issue Commenter
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: gacts/is-stargazer@v1
+        id: check-star
+
+      - name: Comment 1
+        if: steps.check-star.outputs.is-stargazer == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Thank you for your feedback! We appreciate you taking the time to contribute.
+
+              We usually respond within 7 days. To ensure you don't miss any updates, we recommend subscribing to email notifications or checking back regularly.
+
+              Also, Thank you for starring our repository!🌟`
+            })
+
+      - name: Comment 2
+        if: steps.check-star.outputs.is-stargazer == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Thank you for your feedback. We appreciate you taking the time to contribute.
+              
+              We usually respond within 7 days. To ensure you don't miss any updates, we recommend subscribing to email notifications or checking back regularly.`
+            })
