@@ -104,8 +104,11 @@ export function setStyle() {
         border: 0.55px dashed color-mix(in srgb, var(--b3-protyle-code-background) 35%, var(--b3-theme-on-background));
     }
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper.og-none-click {
-        background-color: transparent;
         color: var(--b3-theme-on-background);
+    }
+
+    .og-hn-heading-docs-container .${CONSTANTS.IS_FOLDING_CLASS_NAME} {
+        display: none !important;
     }
 
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {

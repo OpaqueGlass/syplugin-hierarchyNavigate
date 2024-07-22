@@ -19,6 +19,7 @@ export class CONSTANTS {
     public static readonly MORE_OR_LESS_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-moreorless-container";
     public static readonly CONTAINER_MULTILINE_STYLE_CLASS_NAME: string = "og-hn-container-multiline";
     public static readonly COULD_FOLD_CLASS_NAME: string = "og-hn-container-could-fold";
+    public static readonly IS_FOLDING_CLASS_NAME: string = "og-hn-is-folding";
     public static readonly HIDE_COULD_FOLD_STYLE_ID: string = "og-hn-hide-could-fold";
 
 

@@ -101,12 +101,12 @@ export default class ContentPrinter {
     
         const results = await Promise.all(promises);
         if (g_setting.areaHideFrom > 0) {
-            for (let i = g_setting.areaHideFrom - 1; i < results.length; i++) {
-                results[i]?.element.classList.add(CONSTANTS.COULD_FOLD_CLASS_NAME);
-            }
+            // for (let i = g_setting.areaHideFrom - 1; i < results.length; i++) {
+            //     results[i]?.element.classList.add(CONSTANTS.COULD_FOLD_CLASS_NAME);
+            // }
             // 请注意，在其他位置使用Printer，应当为element增加ogContentType
-            results.push({
-                element: await MoreOrLessPrinter.getBindedElement(this.basicInfo, this.protyleBasicInfo),
+            results.unshift({
+                element: await MoreOrLessPrinter.getMoreOrLessElement(this.basicInfo, this.protyleBasicInfo, results.slice()),
                 onlyOnce: await MoreOrLessPrinter.isOnlyOnce(this.basicInfo),
                 relateContentKey: PRINTER_NAME.MORE_OR_LESS
             });
@@ -201,7 +201,7 @@ class BasicContentPrinter {
                 docName = doc.name.substring(0, doc.name.length - 3);
             } else {
                 docName = doc.name;
-                errorPush("doc.name必须以.sy结尾");
+                warnPush("DEV_WARN: doc.name必须以.sy结尾");
             }
         } else {
             docName = doc.content;
@@ -463,7 +463,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         let resultArray = [];
         let box = getNotebookInfoLocallyF(docDetail.box);
         let temp = {
-            "name": box.name,
+            "name": box.name + ".sy",
             "id": box.id,
             "icon": box.icon,
             "box": box.id,
@@ -1035,6 +1035,46 @@ class ForwardLinkPrinter extends BasicContentPrinter {
 }
 
 class MoreOrLessPrinter extends BasicContentPrinter {
+    static async getMoreOrLessElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo, printerElemList: Array<any>
+    ): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        const result = super.getBasicElement(CONSTANTS.MORE_OR_LESS_CONTAINER_CLASS_NAME, null, null, null);
+        const moreOrLess = document.createElement("span");
+        result.appendChild(moreOrLess);
+        // 默认状态处理
+        if (protyleEnvInfo.originProtyle?.element?.querySelectorAll(".og-hn-more-less[data-og-hide-flag=false]").length > 0) {
+            debugPush("MoreOrLessPrinter 生成时判定原内容区存在，且未折叠，更新后也调整为未折叠");
+            result.dataset.ogHideFlag = "false";
+            moreOrLess.innerHTML = lang("less");
+        } else {
+            result.dataset.ogHideFlag = "true";
+            moreOrLess.innerHTML = lang("more");
+            for (let i = g_setting.areaHideFrom - 1; i < printerElemList.length; i++) {
+                printerElemList[i]?.element.classList.add(CONSTANTS.IS_FOLDING_CLASS_NAME);
+            }
+        }
+        
+        result.classList.add("og-hn-more-less");
+        result.addEventListener("click", ()=>{
+            if (moreOrLess.innerHTML === lang("more")) {
+                // 遍历移除
+                for (let i = g_setting.areaHideFrom - 1; i < printerElemList.length; i++) {
+                    printerElemList[i]?.element.classList.remove(CONSTANTS.IS_FOLDING_CLASS_NAME);
+                }
+                moreOrLess.innerHTML = lang("less");
+                result.dataset.ogHideFlag = "false";
+            }else {
+                // 遍历添加
+                for (let i = g_setting.areaHideFrom - 1; i < printerElemList.length; i++) {
+                    printerElemList[i]?.element.classList.add(CONSTANTS.IS_FOLDING_CLASS_NAME);
+                }
+                moreOrLess.innerHTML = lang("more");
+                result.dataset.ogHideFlag = "true";
+            }
+        });
+        result.dataset.ogContentType = PRINTER_NAME.MORE_OR_LESS;
+        return result;
+    }
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const result = super.getBasicElement(CONSTANTS.MORE_OR_LESS_CONTAINER_CLASS_NAME, null, null, null);
         const moreOrLess = document.createElement("span");
@@ -1054,6 +1094,6 @@ class MoreOrLessPrinter extends BasicContentPrinter {
         return result;
     }
     static async isOnlyOnce(basicInfo:IBasicInfo): Promise<boolean> {
-        return true;
+        return false;
     }
 }
