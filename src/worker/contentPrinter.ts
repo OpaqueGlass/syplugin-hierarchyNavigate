@@ -163,8 +163,10 @@ class BasicContentPrinter {
         const contentElem = document.createElement("div");
         // 这里有点重复，看看再说
         contentElem.classList.add(uniqueClassName);
+        contentElem.classList.add("ariaLabel")
         if (isValidStr(hoverTitleLang)) {
-            contentElem.setAttribute("title", hoverTitleLang);
+            // contentElem.setAttribute("title", hoverTitleLang);
+            contentElem.setAttribute("aria-label", hoverTitleLang);
         }
         if (classNames) {
             for (const className of classNames) {
@@ -222,7 +224,9 @@ class BasicContentPrinter {
         }
         result.dataset["subtype"] = "d";
         result.dataset["id"] = doc.id;
-        result.title = docName;
+        // result.title = docName;
+        result.setAttribute("aria-label", docName);
+        result.classList.add("ariaLabel");
 
         // result.style.fontSize = `${g_setting.fontSize}px`;
         const emojiAndName = document.createElement("span");
