@@ -30,7 +30,7 @@ jobs:
         id: check-star
 
       - name: Comment 1
-        if: steps.check-star.outputs.is-stargazer == 'true' and steps.checkskip.outputs.skip != 'true'
+        if: steps.check-star.outputs.is-stargazer == 'true' && steps.checkskip.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -46,7 +46,7 @@ jobs:
             })
 
       - name: Comment 2
-        if: steps.check-star.outputs.is-stargazer == 'false' and steps.checkskip.outputs.skip != 'true'
+        if: steps.check-star.outputs.is-stargazer == 'false' && steps.checkskip.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
