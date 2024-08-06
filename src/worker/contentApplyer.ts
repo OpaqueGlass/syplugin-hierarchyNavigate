@@ -3,6 +3,7 @@ import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
 import { openRefLinkInProtyleWnd } from "@/utils/common";
+import { isValidStr } from "@/utils/commonCheck";
 
 export default class ContentApplyer {
     private basicInfo: IBasicInfo;
@@ -179,14 +180,17 @@ export default class ContentApplyer {
             titleTarget.insertAdjacentElement("afterend", finalElement);
         }
         // 响应自适应宽度
+        // #65 自适应宽度关闭后，仍然存在宽度调整，因此需要启用observer
         if (window.siyuan?.config?.editor?.fullWidth !== true) {
-            logPush("自适应宽度未开启，插件不响应宽度变化");
-            return;
+            logPush("自适应宽度未开启");
         }
         let targetNode = this.protyleElement.querySelector('.protyle-title');
         const protyleElement = this.protyleElement;
+        debugPush("observer 挂载", targetNode, this.protyleEnvInfo.originProtyle?.id);
+        let that = this;
         let observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
+            debugPush("observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 let targetNode = protyleElement.querySelector('.protyle-title') as HTMLElement;
                 // 获取更改后的样式
@@ -198,14 +202,25 @@ export default class ContentApplyer {
             }
         });
         });
-        // 防止多个observer，但理论上不会有多个
+        // 防止多个observer，分屏的时候会有多个
         if (!window["og_hn_observe"]) {
             window["og_hn_observe"] = {};
         }
-        if (window["og_hn_observe"][this.basicInfo.currentDocId]) {
-            observer?.disconnect();
+        // 如果protyle已不存在，则断开
+        for (const key in window["og_hn_observe"]) {
+            if (!window.document.querySelector(`[data-id="${key}"]`)) {
+                debugPush("断开先前observer", key);
+                window["og_hn_observe"][key]?.disconnect();
+                delete window["og_hn_observe"][key];
+            }
         }
-        window["og_hn_observe"][this.basicInfo.currentDocId] = observer;
+
+        if (!isValidStr(this.protyleElement.dataset.id)) {
+            warnPush("设置observer时没有唯一id，可能无法及时销毁，请@开发者检查此问题", this.protyleElement.dataset.id);
+        } else {
+            debugPush("observer set at ", this.protyleElement.dataset.id);
+        }
+        window["og_hn_observe"][this.protyleElement.dataset.id] = observer;
         let config = { attributes: true, attributeFilter: ['style'] };
         
         observer.observe(targetNode, config);
