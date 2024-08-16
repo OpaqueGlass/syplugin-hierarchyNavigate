@@ -3,7 +3,7 @@ import { createApp, ref, watch } from "vue";
 import settingVue from "../components/settings/setting.vue";
 import { getPluginInstance } from "@/utils/getInstance";
 import { debugPush, logPush } from "@/logger";
-import { CONSTANTS, PRINTER_NAME } from "@/constants";
+import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { setStyle } from "@/worker/setStyle";
 import { DOC_SORT_TYPES, getJSONFile } from "@/syapi";
 import { isValidStr } from "@/utils/commonCheck";
@@ -114,7 +114,8 @@ let defaultSetting: any = {
     areaHideFrom: 0,
     removeRegStrListForLinks: "",
     pinRegStrListForLinks: "",
-    orderByForBackLink: 0,
+    sortForBackLink: LINK_SORT_TYPES.NAME_ALPHABET_ASC,
+    sortForForwardLink: LINK_SORT_TYPES.NAME_ALPHABET_ASC,
 }
 
 
@@ -185,7 +186,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
             new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
             new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
-
+            new ConfigProperty({"key": "sortForBackLink", "type": "SELECT", "options": Object.values(LINK_SORT_TYPES)}),
         ]}),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),

@@ -93,6 +93,12 @@
     "setting_showNotebookInBreadcrumb_desp": "启用后，文档面包屑中将首先显示笔记本名称",
     "setting_areaHideFrom_name": "🆕 自第x个启用的内容区起，隐藏内容区",
     "setting_areaHideFrom_desp": "设置后，自第x个启用的内容区开始将被隐藏，使用更多/更少展开或收起，各个文档的隐藏状态相互独立，但插件启动时默认隐藏；设置为0以禁用；以“内容区与顺序”中设定的顺序计算内容区次序，包括由于“不存在文档时隐藏”设置隐藏的或当前文档不生效的内容区",
+    "setting_removeRegStrListForLinks_name": "🧪反向链接：排除文档名匹配正则表达式",
+    "setting_removeRegStrListForLinks_desp": "一行一个正则表达式；匹配时使用选项gm",
+    "setting_pinRegStrListForLinks_name": "🧪反向链接：置顶文档名匹配正则表达式",
+    "setting_pinRegStrListForLinks_desp": "一行一个正则表达式；匹配时使用选项gm",
+    "setting_sortForBackLink_name": "🧪反向链接排序方式",
+    "setting_sortForBackLink_desp": "目前正向连接也使用此排序方式；请注意，对正向链接或反向链接模式为“仅文档”时，文档名自然排序由插件实现；",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",
@@ -113,6 +119,19 @@
     "setting_childOrder_option_CUSTOM_SORT": "自定义排序",
     "setting_childOrder_option_FOLLOW_DOC_TREE": "跟随文档树排序",
     "setting_childOrder_option_UNASSIGNED": "未指定",   
+
+    "===========反链排序===========": null,
+
+
+    "setting_sortForBackLink_option_alphabet_asc": "文档名字母升序",
+    "setting_sortForBackLink_option_alphabet_desc": "文档名字母降序",
+    "setting_sortForBackLink_option_natural_asc": "文档名自然升序",
+    "setting_sortForBackLink_option_natural_desc": "文档名自然降序",
+    "setting_sortForBackLink_option_create_asc": "创建时间升序",
+    "setting_sortForBackLink_option_create_desc": "创建时间降序",
+    "setting_sortForBackLink_option_update_asc": "更新时间升序",
+    "setting_sortForBackLink_option_update_desc": "更新时间降序",
+
 
     "===========显示内容顺序控制选项卡===========": null,
 

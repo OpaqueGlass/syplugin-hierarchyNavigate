@@ -1,4 +1,4 @@
-import { CONSTANTS, PRINTER_NAME } from "@/constants";
+import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
 import { getBackLink2T, getBlockBreadcrumb, getDocInfo, getNotebookInfoLocallyF, isMobile, queryAPI } from "@/syapi"
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
@@ -10,7 +10,7 @@ import { IProtyle, Menu } from "siyuan";
 import { getUserDemandSiblingDocuments } from "./commonProvider";
 import { htmlTransferParser } from "@/utils/onlyThisUtil";
 import { setCouldHideStyle } from "./setStyle";
-import { pinAndRemoveByDocNameForBackLinks } from "@/utils/docSortUtils";
+import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -318,6 +318,41 @@ class BasicContentPrinter {
                 errorPush("emoji处理时发生错误", iconString, err);
                 return hasChild ? "📑" : "📄";
             }
+        }
+    }
+    /**
+     * 排序方式转sql orderby
+     * @param sortType 
+     * @returns 
+     */
+    static linkSortTypeToFowardLinkSortSql(sortType: string): string {
+        switch (sortType) {
+            case LINK_SORT_TYPES.NAME_ALPHABET_ASC:
+                return " ORDER BY content ASC";
+            case LINK_SORT_TYPES.NAME_ALPHABET_DESC:
+                return " ORDER BY content DESC";
+            case LINK_SORT_TYPES.NAME_NATURAL_ASC:
+    //             return ` ORDER BY 
+    // REGEXP_REPLACE(content, '[0-9]+', '') ASC,
+    // CAST(REGEXP_SUBSTR(content, '[0-9]+') AS UNSIGNED) ASC;`;
+                return " ORDER BY content ASC";
+            case LINK_SORT_TYPES.NAME_NATURAL_DESC:
+    //             return ` ORDER BY 
+    // REGEXP_REPLACE(content, '[0-9]+', '') DESC,
+    // CAST(REGEXP_SUBSTR(content, '[0-9]+') AS UNSIGNED) DESC;`;
+                return " ORDER BY content DESC";
+
+            case LINK_SORT_TYPES.CREATE_TIME_ASC:
+                return " ORDER BY created ASC";
+            case LINK_SORT_TYPES.CREATE_TIME_DESC:
+                return " ORDER BY created DESC";
+            case LINK_SORT_TYPES.UPDATE_TIME_ASC:
+                return " ORDER BY updated ASC";
+            case LINK_SORT_TYPES.UPDATE_TIME_DESC:
+                return " ORDER BY updated DESC";
+            default:
+                warnPush("未知的排序类型：" + sortType);
+                return " ORDER BY updated DESC";
         }
     }
 }
@@ -630,7 +665,9 @@ class BackLinkContentPrinter extends BasicContentPrinter {
     }
     static async normalBackLinkElement(basicInfo: IBasicInfo) {
         const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
-        const backlinkResponse = await getBackLink2T(basicInfo.currentDocId);
+        // 处理不同排序方式
+        const g_setting = getReadOnlyGSettings();
+        const backlinkResponse = await getBackLink2T(basicInfo.currentDocId, linkSortTypeToBackLinkApiSortNum(g_setting.sortForBackLink));
         debugPush("backlinkResponse", backlinkResponse);
         if (backlinkResponse.backlinks.length == 0) {
             return null;
@@ -662,11 +699,18 @@ class BackLinkContentPrinter extends BasicContentPrinter {
     }
     static async docOnlyBackLinkElement(basicInfo: IBasicInfo) {
         const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
-        const backlinkDocSqlResponse = await queryAPI(`SELECT id, content FROM blocks WHERE id in (
+        // 处理不同排序方式
+        const g_setting = getReadOnlyGSettings();
+        let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
             SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${basicInfo.currentDocId}"
-            ) AND type = "d" ORDER BY updated DESC;`);
+            ) AND type = "d" ` + this.linkSortTypeToFowardLinkSortSql(g_setting.sortForBackLink);
+        let backlinkDocSqlResponse = await queryAPI(sqlStmt);
         debugPush("backlinkSQLResponse", backlinkDocSqlResponse);
         if (backlinkDocSqlResponse != null && backlinkDocSqlResponse.length > 0) {
+            if (g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_ASC || g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_DESC) {
+                backlinkDocSqlResponse = sortIFileWithNatural(backlinkDocSqlResponse.slice(), "content", g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_DESC);
+                logPush("自然排序", backlinkDocSqlResponse);
+            }
             const prepareBackLinkInfo = [];
             for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
                 const oneBacklinkItem = backlinkDocSqlResponse[i];
@@ -1011,11 +1055,18 @@ class ForwardLinkPrinter extends BasicContentPrinter {
     }
     static async normalBackLinkElement(basicInfo: IBasicInfo) {
         const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"), lang("forwardlink_area"));
-        const backlinkDocSqlResponse = await queryAPI(`SELECT id, content FROM blocks WHERE id in (
+        // 处理不同排序方式
+        const g_setting = getReadOnlyGSettings();
+        let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
             SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}"
-            ) AND type = "d" ORDER BY updated DESC;`);
+            ) AND type = "d" ` + this.linkSortTypeToFowardLinkSortSql(g_setting.sortForBackLink);
+        let backlinkDocSqlResponse = await queryAPI(sqlStmt);
         debugPush("backlinkSQLResponse", backlinkDocSqlResponse);
         if (backlinkDocSqlResponse != null && backlinkDocSqlResponse.length > 0) {
+            if (g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_ASC || g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_DESC) {
+                backlinkDocSqlResponse = sortIFileWithNatural(backlinkDocSqlResponse.slice(), "content", g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_DESC);
+                logPush("自然排序", backlinkDocSqlResponse);
+            }
             for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
                 const oneBacklinkItem = backlinkDocSqlResponse[i];
                 let tempDocItem = {
@@ -1035,11 +1086,18 @@ class ForwardLinkPrinter extends BasicContentPrinter {
     }
     static async docOnlyBackLinkElement(basicInfo: IBasicInfo) {
         const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"), lang("forwardlink_area"));
-        const backlinkDocSqlResponse = await queryAPI(`SELECT id, content FROM blocks WHERE id in (
+        // 处理不同排序方式
+        const g_setting = getReadOnlyGSettings();
+        let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
             SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}" AND def_block_root_id = def_block_id
-            )  AND type = "d" ORDER BY updated DESC;`);
+            )  AND type = "d" ` + this.linkSortTypeToFowardLinkSortSql(g_setting.sortForBackLink);
+        let backlinkDocSqlResponse = await queryAPI(sqlStmt);
         debugPush("forwardlinkSQLResponse", backlinkDocSqlResponse);
         if (backlinkDocSqlResponse != null && backlinkDocSqlResponse.length > 0) {
+            if (g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_ASC || g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_DESC) {
+                backlinkDocSqlResponse = sortIFileWithNatural(backlinkDocSqlResponse.slice(), "content", g_setting.sortForBackLink == LINK_SORT_TYPES.NAME_NATURAL_DESC);
+                logPush("自然排序", backlinkDocSqlResponse);
+            }
             for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
                 const oneBacklinkItem = backlinkDocSqlResponse[i];
                 let tempDocItem = {

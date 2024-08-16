@@ -147,6 +147,12 @@
     "setting_openDocContentGroup_option_onThisDay_desp": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) Displays links to diary entries from the same month and day; this feature only works with the new version of diaries (requires the `custom-dailynote-yyyyMMdd` attribute; if not available, please upgrade to a newer version of Siyuan and use plugins like siyuan-dailynote-today to bulk-add past diaries attribute); currently, it actually displays other diary entries from the same month and day within the same notebook.",
     "setting_openDocContentGroup_option_forwardlinks": "🧪Forward Links (Doc title only)",
     "setting_openDocContentGroup_option_forwardlinks_desp": "Displays documents referenced by the current document (Not including <code class='fn__code'>siyuan://</code> URL)",
+    "setting_removeRegStrListForLinks_name": "🧪Backlinks: Exclude document names matching the regular expression",
+    "setting_removeRegStrListForLinks_desp": "One regular expression per line; use options gm when matching.",
+    "setting_pinRegStrListForLinks_name": "🧪Backlinks: Pin document names that match the regular expression",
+    "setting_pinRegStrListForLinks_desp": "One regular expression per line; use options gm when matching.",
+    "setting_sortForBackLink_name": "🧪Backlink sort order",
+    "setting_sortForBackLink_desp": "Currently, the forward links also use this sorting order. Please note that for forward or reverse link modes set to 'document only', the natural sorting of document names is implemented by the plugin.",
 
     "setting_mobileContentGroup_name": "✈Android (Mobile) Content Display Order",
     "setting_mobileContentGroup_desp": "You can control the order of content modules displayed when opening documents on Android by dragging the ∷ on the left side of the items below",

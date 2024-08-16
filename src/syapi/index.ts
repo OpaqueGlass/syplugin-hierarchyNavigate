@@ -725,7 +725,7 @@ export async function getDocInfo(id) {
 /**
  * 反向链接面板用的API（标注有T，该API不是正式API）
  * @param id 
- * @param sort 
+ * @param sort 反链结果排序方式 字母0/1、自然4/5创建9/10，修改2/3
  * @param msort 
  * @param k 
  * @param mk 看起来是提及部分的关键词

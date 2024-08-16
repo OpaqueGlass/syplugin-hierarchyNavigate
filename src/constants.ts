@@ -39,6 +39,17 @@ export class CONSTANTS {
     public static readonly BACKLINK_DOC_ONLY: string = "doc_only";
 }
 
+export class LINK_SORT_TYPES {
+    public static readonly NAME_ALPHABET_ASC:string = "alphabet_asc";
+    public static readonly NAME_ALPHABET_DESC:string = "alphabet_desc";
+    public static readonly NAME_NATURAL_ASC:string = "natural_asc";
+    public static readonly NAME_NATURAL_DESC:string = "natural_desc";
+    public static readonly CREATE_TIME_ASC:string = "create_asc";
+    public static readonly CREATE_TIME_DESC:string = "create_desc";
+    public static readonly UPDATE_TIME_ASC:string = "update_asc";
+    public static readonly UPDATE_TIME_DESC:string = "update_desc";
+}
+
 export class PRINTER_NAME {
     public static readonly PARENT: string = "parent";
     public static readonly CHILD: string = "child";
