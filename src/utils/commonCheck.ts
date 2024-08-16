@@ -9,3 +9,17 @@ export function isValidStr(s: any): boolean {
 	}
 	return true;
 }
+
+/**
+ * 判断字符串是否为空白
+ * @param s 字符串
+ * @returns true 字符串为空或无效或只包含空白字符
+ */
+export function isBlankStr(s: any): boolean {
+	if (!isValidStr(s)) return true;
+	const clearBlankStr = s.replace(/\s+/g, '');
+	if (clearBlankStr === '') {
+		return true;
+	}
+	return false;
+}

@@ -10,6 +10,7 @@ import { IProtyle, Menu } from "siyuan";
 import { getUserDemandSiblingDocuments } from "./commonProvider";
 import { htmlTransferParser } from "@/utils/onlyThisUtil";
 import { setCouldHideStyle } from "./setStyle";
+import { pinAndRemoveByDocNameForBackLinks } from "@/utils/docSortUtils";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -634,6 +635,7 @@ class BackLinkContentPrinter extends BasicContentPrinter {
         if (backlinkResponse.backlinks.length == 0) {
             return null;
         }
+        const prepareBackLinkInfo = [];
         for (let i = 0; i < backlinkResponse.backlinks.length; i++) {
             const oneBacklinkItem = backlinkResponse.backlinks[i];
             if (oneBacklinkItem.nodeType === "NodeDocument") {
@@ -645,8 +647,16 @@ class BackLinkContentPrinter extends BasicContentPrinter {
                     "alias": "",
                     "path": "",
                 };
-                result.appendChild(this.docLinkGenerator(tempDocItem));
+                prepareBackLinkInfo.push(tempDocItem);
             }
+        }
+        const sortedBackLinkInfos = pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo);
+
+        sortedBackLinkInfos.forEach((item)=>{
+            result.appendChild(this.docLinkGenerator(item));
+        });
+        if (sortedBackLinkInfos.length == 0) {
+            return null;
         }
         return result;
     }
@@ -657,6 +667,7 @@ class BackLinkContentPrinter extends BasicContentPrinter {
             ) AND type = "d" ORDER BY updated DESC;`);
         debugPush("backlinkSQLResponse", backlinkDocSqlResponse);
         if (backlinkDocSqlResponse != null && backlinkDocSqlResponse.length > 0) {
+            const prepareBackLinkInfo = [];
             for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
                 const oneBacklinkItem = backlinkDocSqlResponse[i];
                 let tempDocItem = {
@@ -667,7 +678,15 @@ class BackLinkContentPrinter extends BasicContentPrinter {
                     "alias": "",
                     "path": "",
                 };
-                result.appendChild(this.docLinkGenerator(tempDocItem));
+                prepareBackLinkInfo.push(tempDocItem);
+            }
+            const sortedBackLinkInfos = pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo);
+
+            sortedBackLinkInfos.forEach((item)=>{
+                result.appendChild(this.docLinkGenerator(item));
+            });
+            if (sortedBackLinkInfos.length == 0) {
+                return null;
             }
         } else {
             return null;

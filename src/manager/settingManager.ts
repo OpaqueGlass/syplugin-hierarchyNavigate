@@ -57,6 +57,11 @@ interface IPluginSettings {
     doNotAddToTitle: boolean,
     areaBorder: boolean,
     debugMode: boolean,
+    showNotebookInBreadcrumb: boolean,
+    areaHideFrom: number,
+    removeRegStrListForLinks: string,
+    pinRegStrListForLinks: string,
+    orderByForBackLink: string,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -107,6 +112,9 @@ let defaultSetting: any = {
     debugMode: false,
     showNotebookInBreadcrumb: false,
     areaHideFrom: 0,
+    removeRegStrListForLinks: "",
+    pinRegStrListForLinks: "",
+    orderByForBackLink: 0,
 }
 
 
@@ -175,6 +183,9 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
             new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
             new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
+            new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
+            new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
+
         ]}),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),
