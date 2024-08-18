@@ -15,47 +15,53 @@
             <!-- TODO: 这里换成v-for根据列表生成，不再手动填充了 -->
             <!-- 在Page上通过当前显示的标签页名称key一致匹配确定是否显示这个标签页 -->
             <Page v-for="(tab, index) in tabList" v-show="activeTab === tab.key">
-                <template v-for="(item, index) in tab.props">
-                    <template v-if="['TEXTAREA', 'CUSTOM', 'ORDER', 'TIPS'].indexOf(item.type) == -1">
-                        <Item :key="index" :setting-key="item.key"  :config-name="item.configName" :config-desp="item.description">
-                            <template v-if="item.type == 'SWITCH'">
-                                <Switch v-model="g_setting[item.key]"></Switch>
+                <Column :hide="!tab.isColumn" :column-keys="tab.columnKeys" :column-names="tab.columnNames" >
+                    <template #[key] v-for="(items, key) in tab.props">
+                        <template v-for="(item, index) in items">
+                            <template v-if="['TEXTAREA', 'CUSTOM', 'ORDER', 'TIPS'].indexOf(item.type) == -1">
+                                <Item :key="index" :setting-key="item.key"  :config-name="item.configName" :config-desp="item.description">
+                                    <template v-if="item.type == 'SWITCH'">
+                                        <Switch v-model="g_setting[item.key]"></Switch>
+                                    </template>
+                                    <template v-else-if="item.type == 'SELECT'">
+                                        <Select :option-names="item.optionNames" :option-keys="item.options"
+                                            v-model="g_setting[item.key]"></Select>
+                                    </template>
+                                    <template v-else-if="item.type == 'NUMBER'">
+                                        <Input :min="item.min" :max="item.max" :type="item.type"
+                                            v-model="g_setting[item.key]"></Input>
+                                    </template>
+                                    <template v-else-if="item.type == 'TEXT'">
+                                        <Input :min="item.min" :max="item.max" :type="item.type"
+                                            v-model="g_setting[item.key]"></Input>
+                                    </template>
+                                    <template v-else-if="item.type == 'BUTTON'">
+                                        <Button :btn-name="settingLang(item.key)[2]" :btndo="item.btndo"></Button>
+                                    </template>
+                                    
+                                    <template v-else>
+                                        出错啦，不能载入设置项，请检查设置代码实现。 Key: {{ item.key }}
+                                        <br />
+                                        Oops, can't load settings, check code please. Key: {{ item.key }}
+                                    </template>
+                                </Item>
                             </template>
-                            <template v-else-if="item.type == 'SELECT'">
-                                <Select :option-names="item.optionNames" :option-keys="item.options"
-                                    v-model="g_setting[item.key]"></Select>
-                            </template>
-                            <template v-else-if="item.type == 'NUMBER'">
-                                <Input :min="item.min" :max="item.max" :type="item.type"
-                                    v-model="g_setting[item.key]"></Input>
-                            </template>
-                            <template v-else-if="item.type == 'TEXT'">
-                                <Input :min="item.min" :max="item.max" :type="item.type"
-                                    v-model="g_setting[item.key]"></Input>
-                            </template>
-                            <template v-else-if="item.type == 'BUTTON'">
-                                <Button :btn-name="settingLang(item.key)[2]" :btndo="item.btndo"></Button>
-                            </template>
-                            
                             <template v-else>
-                                出错啦，不能载入设置项，请检查设置代码实现。 Key: {{ item.key }}
-                                <br />
-                                Oops, can't load settings, check code please. Key: {{ item.key }}
+                                <Block :setting-key="item.key" :config-name="item.configName" :config-desp="item.description">
+                                    <template v-if="item.type == 'TEXTAREA'">
+                                        <Textarea v-model="g_setting[item.key]"></Textarea>
+                                    </template>
+                                    <template v-else-if="item.type == 'ORDER'">
+                                        <Order :option-names="item.optionNames" :option-desps="item.optionDesps" :option-keys="item.options"
+                                            :setting-key="item.key" v-model="g_setting[item.key]"></Order>
+                                    </template>
+                                </Block>
                             </template>
-                        </Item>
+                        </template>
                     </template>
-                    <template v-else>
-                        <Block :setting-key="item.key" :config-name="item.configName" :config-desp="item.description">
-                            <template v-if="item.type == 'TEXTAREA'">
-                                <Textarea v-model="g_setting[item.key]"></Textarea>
-                            </template>
-                            <template v-else-if="item.type == 'ORDER'">
-                                <Order :option-names="item.optionNames" :option-desps="item.optionDesps" :option-keys="item.options"
-                                    :setting-key="item.key" v-model="g_setting[item.key]"></Order>
-                            </template>
-                        </Block>
-                    </template>
-                </template>
+                    
+                </Column>
+                
 
                 
             </Page>
@@ -67,6 +73,7 @@
 import { ref } from 'vue';
 import { settingLang, settingPageLang } from '@/utils/lang';
 import Page from './page.vue';
+import Column from './column.vue';
 import Block from "./block.vue";
 import Item from './item.vue';
 import Button from './items/button.vue';

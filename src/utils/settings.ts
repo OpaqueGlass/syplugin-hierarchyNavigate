@@ -62,14 +62,17 @@ export class ConfigProperty {
 
 interface ITabProperty {
     key: string,
-    props: Array<ConfigProperty>,
+    props: Array<ConfigProperty>|Record<string, Array<ConfigProperty>>,
     iconKey?: string
 }
 
 export class TabProperty {
     key: string;
     iconKey: string;
-    props: Array<ConfigProperty>;
+    props: {[name:string]:Array<ConfigProperty>};
+    isColumn: boolean = false;
+    columnNames: Array<string> = new Array<string>();
+    columnKeys: Array<string> = new Array<string>();
 
     constructor({key, props, iconKey}: ITabProperty){
         this.key = key;
@@ -78,26 +81,38 @@ export class TabProperty {
         } else {
             this.iconKey = "setting";
         }
-        this.props = props;
+        if (!Array.isArray(props)) {
+            this.isColumn = true;
+            Object.keys(props).forEach((columnKey) => {
+                this.columnNames.push(lang(`setting_column_${columnKey}_name`));
+                this.columnKeys.push(columnKey);
+            });
+            this.props = props;
+        } else {
+            this.props = {"none": props};
+            this.columnNames.push(lang(`setting_column_none_name`));
+            this.columnKeys.push("none");
+        }
     }
 
 }
+
 
 /**
  * 设置标签页
  * @param tabDefinitions 设置标签页定义
  * @returns 
  */
-export function loadDefinitionFromTabProperty(tabDefinitions: Array<ITabProperty>):Array<ConfigProperty> {
-    let result: Array<ConfigProperty> = [];
-    tabDefinitions.forEach((tabDefinition) => {
-        tabDefinition.props.forEach((property) => {
-            result.push(property);
-        });
-    });
+// export function loadDefinitionFromTabProperty(tabDefinitions: Array<ITabProperty>):Array<ConfigProperty> {
+//     let result: Array<ConfigProperty> = [];
+//     tabDefinitions.forEach((tabDefinition) => {
+//         tabDefinition.props.forEach((property) => {
+//             result.push(property);
+//         });
+//     });
     
-    return result;
-}
+//     return result;
+// }
 
 /**
  * 获得ConfigMap对象
@@ -107,8 +122,10 @@ export function loadDefinitionFromTabProperty(tabDefinitions: Array<ITabProperty
 export function loadAllConfigPropertyFromTabProperty(tabDefinitions: Array<ITabProperty>):Record<string, ConfigProperty> {
     let result: Record<string, ConfigProperty> = {};
     tabDefinitions.forEach((tabDefinition) => {
-        tabDefinition.props.forEach((property) => {
-            result[property.key] = property;
+        Object.values(tabDefinition.props).forEach((properties) => {
+            properties.forEach((property) => {
+                result[property.key] = property;
+            });
         });
     });
     return result;

@@ -45,7 +45,7 @@ import "@/index.scss";
 import { createApp } from "vue";
 import settingVue from "./components/settings/setting.vue";
 import { setLanguage } from "./utils/lang";
-import { debugPush, logPush } from "./logger";
+import { debugPush, errorPush, logPush } from "./logger";
 import { initSettingProperty } from './manager/settingManager';
 import { setPluginInstance } from "./utils/getInstance";
 import { loadSettings } from "./manager/settingManager";
@@ -144,8 +144,9 @@ export default class OGPluginTemplate extends Plugin {
         loadSettings().then(()=>{
             this.myEventHandler.bindHandler();
             setStyle();
-        }).catch(()=>{
+        }).catch((e)=>{
             showMessage("文档层级导航插件载入设置项失败。Load plugin settings faild. syplugin-hierarchy-navigate");
+            errorPush(e);
         });
     }
 

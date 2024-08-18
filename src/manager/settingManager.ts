@@ -2,11 +2,15 @@ import { TabProperty, ConfigProperty, loadAllConfigPropertyFromTabProperty } fro
 import { createApp, ref, watch } from "vue";
 import settingVue from "../components/settings/setting.vue";
 import { getPluginInstance } from "@/utils/getInstance";
-import { debugPush, logPush } from "@/logger";
+import { debugPush, logPush, warnPush } from "@/logger";
 import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { setStyle } from "@/worker/setStyle";
-import { DOC_SORT_TYPES, getJSONFile } from "@/syapi";
+import { DOC_SORT_TYPES, getJSONFile, isMobile } from "@/syapi";
 import { isValidStr } from "@/utils/commonCheck";
+import * as siyuan from "siyuan";
+import outdatedSettingVue from "@/components/dialog/outdatedSetting.vue";
+import { generateUUID } from "@/utils/common";
+import { lang } from "@/utils/lang";
 
 // const pluginInstance = getPluginInstance();
 
@@ -104,7 +108,7 @@ let defaultSetting: any = {
     hideBlockBreadcrumbInDesktop: true,
     sameWidthColumn: 6,
     sameWidthColumnMobile: 3,
-    previousAndNextFollowDailynote: false,
+    previousAndNextFollowDailynote: true,
     mobileBackReplace: false,
     mobileRemoveAllArea: false,
     doNotAddToTitle: true,
@@ -114,8 +118,8 @@ let defaultSetting: any = {
     areaHideFrom: 0,
     removeRegStrListForLinks: "",
     pinRegStrListForLinks: "",
-    sortForBackLink: LINK_SORT_TYPES.NAME_ALPHABET_ASC,
-    sortForForwardLink: LINK_SORT_TYPES.NAME_ALPHABET_ASC,
+    sortForBackLink: LINK_SORT_TYPES.NAME_NATURAL_ASC,
+    sortForForwardLink: LINK_SORT_TYPES.NAME_NATURAL_ASC,
 }
 
 
@@ -142,27 +146,47 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": flashCardOptions}),
             
         ]}),
-        new TabProperty({key: "showType", "iconKey": "iconTags", props:[
-            new ConfigProperty({"key": "childOrder", "type": "SELECT", "options": Object.keys(DOC_SORT_TYPES)}),
-            new ConfigProperty({"key": "showBackLinksType", "type": "SELECT", "options": [CONSTANTS.BACKLINK_NORMAL, CONSTANTS.BACKLINK_DOC_ONLY]}),
-            new ConfigProperty({"key": "noChildIfHasAv", "type": "SWITCH"}),
-            new ConfigProperty({"key": "sibling", "type": "SWITCH"}),
-            new ConfigProperty({"key": "lcdEmptyDocThreshold", "type": "NUMBER", "min": -1}),
-            new ConfigProperty({"key": "hideIndicator", "type": "SWITCH"}),
-            new ConfigProperty({"key": "noneAreaHide", "type": "SWITCH"}),
-            new ConfigProperty({"key": "hideBlockBreadcrumbInDesktop", "type": "SWITCH"}),
-            new ConfigProperty({"key": "showNotebookInBreadcrumb", "type": "SWITCH"}),
-            new ConfigProperty({"key": "areaHideFrom", "type": "NUMBER", min: 0, max: 15}),
-        ]}),
-        new TabProperty({key: "general", "iconKey": "iconSettings", props: [
-            new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),
-            new ConfigProperty({"key": "popupWindow", "type": "SELECT", options: [CONSTANTS.POP_NONE, CONSTANTS.POP_LIMIT, CONSTANTS.POP_ALL]}),
-            new ConfigProperty({"key": "docMaxNum", "type": "NUMBER"}),
-            new ConfigProperty({"key": "nameMaxLength", "type": "NUMBER"}),
-            new ConfigProperty({"key": "icon", "type": "SELECT", options: [CONSTANTS.ICON_NONE, CONSTANTS.ICON_CUSTOM_ONLY, CONSTANTS.ICON_ALL]}),
-            new ConfigProperty({"key": "linkDivider", "type": "TEXT"}),
-            // new ConfigProperty({"key": "mainRetry", "type": "NUMBER", "max": 3}),
-        ]}),
+        new TabProperty({key: "showType", "iconKey": "iconTags", props: {
+            "showOrNot": [
+                new ConfigProperty({"key": "noChildIfHasAv", "type": "SWITCH"}),
+                new ConfigProperty({"key": "sibling", "type": "SWITCH"}),
+                new ConfigProperty({"key": "hideBlockBreadcrumbInDesktop", "type": "SWITCH"}),
+                new ConfigProperty({"key": "showNotebookInBreadcrumb", "type": "SWITCH"}),
+                new ConfigProperty({"key": "hideIndicator", "type": "SWITCH"}),
+                new ConfigProperty({"key": "noneAreaHide", "type": "SWITCH"}),
+            ],
+            "order": [
+                new ConfigProperty({"key": "childOrder", "type": "SELECT", "options": Object.keys(DOC_SORT_TYPES)}),
+                new ConfigProperty({"key": "sortForBackLink", "type": "SELECT", "options": Object.values(LINK_SORT_TYPES)}),
+            ],
+            "extend": [
+                new ConfigProperty({"key": "showHiddenDoc", "type": "SWITCH"}),
+                new ConfigProperty({"key": "lcdEmptyDocThreshold", "type": "NUMBER", "min": -1}),
+                new ConfigProperty({"key": "showBackLinksType", "type": "SELECT", "options": [CONSTANTS.BACKLINK_NORMAL, CONSTANTS.BACKLINK_DOC_ONLY]}),
+                new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
+                new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
+            ],
+            }
+        }),
+        new TabProperty({key: "general", "iconKey": "iconSettings", props: 
+            [
+                new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),
+                new ConfigProperty({"key": "popupWindow", "type": "SELECT", options: [CONSTANTS.POP_NONE, CONSTANTS.POP_LIMIT, CONSTANTS.POP_ALL]}),
+                new ConfigProperty({"key": "docMaxNum", "type": "NUMBER"}),
+                new ConfigProperty({"key": "nameMaxLength", "type": "NUMBER"}),
+                new ConfigProperty({"key": "icon", "type": "SELECT", options: [CONSTANTS.ICON_NONE, CONSTANTS.ICON_CUSTOM_ONLY, CONSTANTS.ICON_ALL]}),
+                new ConfigProperty({"key": "linkDivider", "type": "TEXT"}),
+                new ConfigProperty({"key": "areaHideFrom", "type": "NUMBER", min: 0, max: 15}),
+                
+                // new ConfigProperty({"key": "mainRetry", "type": "NUMBER", "max": 3}),
+                new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
+                new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
+            ],
+            // "extend": [
+            //     new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
+            //     new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
+            // ]
+        }),
         new TabProperty({"key": "appearance", "iconKey": "iconTheme", props: [
             new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),
             new ConfigProperty({"key": "sameWidthColumn", "type": "NUMBER", min: 0, max: 15}),
@@ -176,18 +200,20 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "childBoxCSS", "type": "TEXTAREA"}),
             new ConfigProperty({"key": "docLinkCSS", "type": "TEXTAREA"}),
         ]}),
-        new TabProperty({"key": "lab", "iconKey": "iconHelp", props: [
-            new ConfigProperty({"key": "enableForOtherCircumstance", "type": "SWITCH"}),
-            new ConfigProperty({"key": "showHiddenDoc", "type": "SWITCH"}),
-            new ConfigProperty({"key": "previousAndNextHiddenDoc", "type": "SWITCH"}),
-            new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
-            new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
-            new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
-            new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
-            new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
-            new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
-            new ConfigProperty({"key": "sortForBackLink", "type": "SELECT", "options": Object.values(LINK_SORT_TYPES)}),
-        ]}),
+        new TabProperty({"key": "lab", "iconKey": "iconHelp", props: {
+            "ing": [
+                
+                new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
+                new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
+                new ConfigProperty({"key": "sortForBackLink", "type": "SELECT", "options": Object.values(LINK_SORT_TYPES)}),
+            ],
+            "stop": [
+                new ConfigProperty({"key": "enableForOtherCircumstance", "type": "SWITCH"}),
+                new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
+                new ConfigProperty({"key": "previousAndNextHiddenDoc", "type": "SWITCH"}),
+                new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
+            ]},
+        }),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
             new ConfigProperty({"key": "aboutAuthor", "type": "TIPS"}),
             new ConfigProperty({"key": "settingIconTips", "type": "TIPS"}),
@@ -228,13 +254,16 @@ export async function loadSettings() {
             loadResult = defaultSetting;
         }
     }
-    const currentVersion = 20240529;
+    const currentVersion = 20240818;
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
         loadResult["@version"] = currentVersion;
-        loadResult["doNotAddToTitle"] = true;
-        loadResult["adjustDocIcon"] = false;
+        // loadResult["doNotAddToTitle"] = true;
+        // loadResult["adjustDocIcon"] = false;
+        // 检查数组中指定设置和defaultSetting是否一致
+        showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
     }
+    // showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
     // 检查选项类设置项，如果发现不在列表中的，重置为默认
     try {
         loadResult = checkSettingType(loadResult);
@@ -263,6 +292,41 @@ export async function loadSettings() {
             updateTimeout = null;
         }, 1000);
     }, {deep: true, immediate: false});
+}
+
+function checkOutdatedSettings(loadSetting) {
+    const CHECK_SETTING_KEYS = ["previousAndNextFollowDailynote",
+        "doNotAddToTitle",
+        "adjustDocIcon",
+        "enableForOtherCircumstance",
+        "previousAndNextHiddenDoc"
+    ];
+    let result = [];
+    for (let key of CHECK_SETTING_KEYS) {
+        if (loadSetting[key] != defaultSetting[key]) {
+            result.push(key);
+        }
+    }
+    return result;
+}
+
+function showOutdatedSettingWarnDialog(outdatedSettingKeys, defaultSettings) {
+    if (outdatedSettingKeys.length == 0) {
+        return;
+    }
+    const app = createApp(outdatedSettingVue, {"outdatedKeys": outdatedSettingKeys, "defaultSettings": defaultSettings});
+    const uid = generateUUID();
+    const settingDialog = new siyuan.Dialog({
+            "title": lang("dialog_panel_plugin_name") + lang("dialog_panel_outdate"),
+            "content": `
+            <div id="og_plugintemplate_${uid}" class="b3-dialog__content" style="overflow: hidden; position: relative;height: 100%;"></div>
+            `,
+            "width": isMobile() ? "42vw":"520px",
+            "height": isMobile() ? "auto":"auto",
+            "destroyCallback": ()=>{app.unmount();},
+        });
+    app.mount(`#og_plugintemplate_${uid}`);
+    return;
 }
 
 function changeDebug(newVal) {

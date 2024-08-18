@@ -19,6 +19,7 @@
     "button_save": "保存",
     "button_cancel": "取消",
     "setting_panel_title": "文档层级导航插件设置",
+    "dialog_panel_plugin_name": "文档层级导航插件",
 
 
     "setting_fontSize_name": "字号",
@@ -75,23 +76,23 @@
     "setting_showBackLinksType_desp": "目前正链显示类型跟随此设置",
     "setting_showBackLinksType_option_show_all_as_doc": "常规",
     "setting_showBackLinksType_option_doc_only": "仅文档",
-    "setting_showHiddenDoc_name": "🧪在子文档、同级文档区域显示文档树隐藏文档",
+    "setting_showHiddenDoc_name": "在子文档、同级文档区域显示文档树隐藏文档",
     "setting_showHiddenDoc_desp": "",
-    "setting_previousAndNextHiddenDoc_name": "🧪获取相邻文档时包括文档树隐藏文档",
-    "setting_previousAndNextHiddenDoc_desp": "为保证“上一篇、下一篇”内容区和快捷键切换的功能可用性，建议启用；若禁用，将无法切换到隐藏文档，如果当前文档被隐藏，也无法显示上一篇下一篇信息；",
-    "setting_previousAndNextFollowDailynote_name": "🧪获取相邻文档时考虑最近日期的日记（dailynote）",
-    "setting_previousAndNextFollowDailynote_desp": "目前相邻文档只获取相同上级文档的，而不考虑可能存在的上一篇日记。启用此项，将试图获取上、下一篇日记；请注意，当工作空间笔记数量大于3000时，在低性能设备上将导致层级导航区显示延迟；且此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本（大于v2.11.1），并使用今日笔记等插件为过去的日记批量添加该属性）",
-    "setting_mobileBackReplace_name": "🧪移动端返回键触发更新",
+    "setting_previousAndNextHiddenDoc_name": "❌🧪获取相邻文档时包括文档树隐藏文档",
+    "setting_previousAndNextHiddenDoc_desp": "（移除后，此选项将默认启用）为保证“上一篇、下一篇”内容区和快捷键切换的功能可用性，建议启用；若禁用，将无法切换到隐藏文档，如果当前文档被隐藏，也无法显示上一篇下一篇信息；",
+    "setting_previousAndNextFollowDailynote_name": "❌🧪获取相邻文档时考虑最近日期的日记（dailynote）",
+    "setting_previousAndNextFollowDailynote_desp": "（移除后，此选项将默认启用）目前相邻文档只获取相同上级文档的，而不考虑可能存在的上一篇日记。启用此项，将试图获取上、下一篇日记；请注意，当工作空间笔记数量大于3000时，在低性能设备上将导致层级导航区显示延迟；且此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本（大于v2.11.1），并使用今日笔记等插件为过去的日记批量添加该属性）",
+    "setting_mobileBackReplace_name": "移动端返回键触发更新",
     "setting_mobileBackReplace_desp": "启用后，插件将尝试替换思源的移动端返回逻辑，以确保在安卓端（ios未测试）返回时触发导航区更新；此项可能与其他插件不兼容或在版本更新中遇到其他问题",
-    "setting_mobileRemoveAllArea_name": "🧪移动端更新时移除全部内容区",
+    "setting_mobileRemoveAllArea_name": "移动端更新时移除全部内容区",
     "setting_mobileRemoveAllArea_desp": "启用后，插件将在更新时移除所有位置的内容区，这可以很大程度上减少和其他插件的冲突、避免重复内容区的出现；<br/>缺点：导致“间隔重复”退出后不显示导航区",
-    "setting_doNotAddToTitle_name": "🧪❌导航区不再插在文档标题所在的HTML元素",
+    "setting_doNotAddToTitle_name": "❌🧪导航区不再插在文档标题所在的HTML元素",
     "setting_doNotAddToTitle_desp": "【推荐开启，此设置项将在未来版本中默认开启并从设置界面移除】启用后，导航区将不再插入到文档标题所在的HTML元素中，这样可以避免文档标题左侧的文档图标错位的问题（请手动关闭CSS中的相关设置），但在开启自适应宽度时，插件将监听并响应宽度更改，可能导致卡顿；由于冲突，禁用此项后，右键展开/折叠内容区功能将同时出现编辑器上下文菜单",
     "setting_areaBorder_name": "内容区悬停边框",
     "setting_areaBorder_desp": "启用后导致内容区向内缩小1px",
-    "setting_showNotebookInBreadcrumb_name": "🆕 在面包屑中显示笔记本层级",
+    "setting_showNotebookInBreadcrumb_name": "在面包屑中显示笔记本层级",
     "setting_showNotebookInBreadcrumb_desp": "启用后，文档面包屑中将首先显示笔记本名称",
-    "setting_areaHideFrom_name": "🆕 自第x个启用的内容区起，隐藏内容区",
+    "setting_areaHideFrom_name": "自第x个启用的内容区起，隐藏内容区",
     "setting_areaHideFrom_desp": "设置后，自第x个启用的内容区开始将被隐藏，使用更多/更少展开或收起，各个文档的隐藏状态相互独立，但插件启动时默认隐藏；设置为0以禁用；以“内容区与顺序”中设定的顺序计算内容区次序，包括由于“不存在文档时隐藏”设置隐藏的或当前文档不生效的内容区",
     "setting_removeRegStrListForLinks_name": "🧪反向链接🛇：排除文档名匹配正则表达式",
     "setting_removeRegStrListForLinks_desp": "一行一个正则表达式；匹配时使用选项gm",
@@ -138,7 +139,7 @@
     "setting_contentOrderTip_name": "提示",
     "setting_contentOrderTip_desp": "本页面包括层级导航的显示内容和顺序调整，并区分：通用、安卓端、闪卡页面3种",
 
-    "setting_openDocContentGroup_name": "✈常规情况内容显示顺序",
+    "setting_openDocContentGroup_name": "常规情况内容显示顺序",
     "setting_openDocContentGroup_desp": "可以通过拖拽下方项目左侧的∷，控制“打开文档”时显示的内容模块顺序",
     "setting_openDocContentGroup_option_parent": "父文档",
     "setting_openDocContentGroup_option_parent_desp": "",
@@ -156,14 +157,14 @@
     "setting_openDocContentGroup_option_previousAndNext_desp": "根据文档树显示顺序，获取上一篇/下一篇文档；",
     "setting_openDocContentGroup_option_info": "文档信息行",
     "setting_openDocContentGroup_option_info_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；通过使用开发者工具与css代码片段，可以隐藏不需要的内容，详询GPT；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数；",
-    "setting_openDocContentGroup_option_onThisDay": "🧪往年今日",
+    "setting_openDocContentGroup_option_onThisDay": "往年今日",
     "setting_openDocContentGroup_option_onThisDay_desp": "（测试中功能，如有问题请反馈）显示同月同日的日记链接；此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本，并使用今日笔记等插件为过去的日记批量添加）；在目前的实现中，实际上是显示同一个笔记本内同月同日的其他日记",
     "setting_openDocContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",
     "setting_openDocContentGroup_option_forwardlinks_desp": "显示当前文档引用的文档（不识别<code class='fn__code'>siyuan://</code>URL）",
 
 
 
-    "setting_mobileContentGroup_name": "✈安卓端（移动端）内容显示顺序",
+    "setting_mobileContentGroup_name": "安卓端（移动端）内容显示顺序",
     "setting_mobileContentGroup_desp": "可以通过拖拽下方项目左侧的∷，控制“安卓端打开文档”时显示的内容模块顺序",
     "setting_mobileContentGroup_option_parent": "父文档",
     "setting_mobileContentGroup_option_parent_desp": "",
@@ -181,13 +182,13 @@
     "setting_mobileContentGroup_option_previousAndNext_desp": "",
     "setting_mobileContentGroup_option_info": "文档信息行",
     "setting_mobileContentGroup_option_info_desp": "",
-    "setting_mobileContentGroup_option_onThisDay": "🧪往年今日",
+    "setting_mobileContentGroup_option_onThisDay": "往年今日",
     "setting_mobileContentGroup_option_onThisDay_desp": "",
     "setting_mobileContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",
     "setting_mobileContentGroup_option_forwardlinks_desp": "",
 
 
-    "setting_flashcardContentGroup_name": "🧪闪卡页面内容显示顺序",
+    "setting_flashcardContentGroup_name": "闪卡页面内容显示顺序",
     "setting_flashcardContentGroup_desp": "可以通过拖拽下方项目左侧的∷，控制“间隔重复”时显示的内容模块顺序",
     "setting_flashcardContentGroup_option_parent": "父文档",
     "setting_flashcardContentGroup_option_parent_desp": "",
@@ -208,7 +209,7 @@
     "setting_flashcardContentGroup_option_blockBreadcrumb": "块面包屑",
     "setting_flashcardContentGroup_option_blockBreadcrumb_desp": "（测试中功能，如有问题请反馈）显示当前闪卡的块路径信息（仅标题、列表项），并忽略闪卡所在的节点；",
 
-    "setting_enableForOtherCircumstance_name": "🧪在其他情况也显示层级导航",
+    "setting_enableForOtherCircumstance_name": "❌🧪在其他情况也显示层级导航",
     "setting_enableForOtherCircumstance_desp": "可能与其他插件和（或）其他文档预览区域（或编辑区域）等冲突，请谨慎启用",
 
 
@@ -216,6 +217,14 @@
 
     "setting_hideBlockBreadcrumbInDesktop_name": "桌面端不显示块面包屑内容区",
     "setting_hideBlockBreadcrumbInDesktop_desp": "",
+
+    "===========分栏提示词===========": null,
+    "setting_column_ing_name": "正在测试",
+    "setting_column_stop_name": "即将移除",
+    "setting_column_extend_name": "扩展设置",
+    "setting_column_order_name": "文档排序",
+    "setting_column_showOrNot_name": "显示与否",
+    "setting_column_basic_name": "基本",
 
     "===========关于选项卡===========": null,
     "setting_aboutAuthor_name": "关于此插件",
@@ -231,7 +240,7 @@
     
     "setting_experimental": "（🚧实验性功能，不稳定，可能随时被移除）",
     "setting_testing": "（🚅公测中功能，可能不稳定，如有问题请反馈）",
-    "setting_deprecated": "（⛔历史兼容选项，可能随时被移除）",
+    "setting_deprecated": "（⛔历史兼容选项，将很快被移除）",
     "error_initFailed": "文档导航插件初始化失败，如果可以，请向开发者反馈此问题",
     "create_at": "创建于",
     "update_at": "更新于",
@@ -261,5 +270,11 @@
     "settingpage_appearance_name": "外观、CSS",
     "settingpage_settingSave_name": "设置项保存",
     "settingpage_lab_name": "试验田",
-    "settingpage_about_name": "关于"
+    "settingpage_about_name": "关于",
+    "default": "默认",
+
+    "===========对话框：过时的设置项===========": null,
+    "dialog_panel_outdate": ": Remove setting item info",
+    "dialog_panel_outdate_content1": "我们发现在当前设置中，以下设置项与插件默认设置不同，且该设置项即将被移除：",
+    "dialog_panel_outdate_content2": "自下个版本起，上述设置项将被删除，并重置为默认设置。如果仍然需要这些设置项，请停留在当前插件版本不要升级，或向插件开发者反馈。"
 }
