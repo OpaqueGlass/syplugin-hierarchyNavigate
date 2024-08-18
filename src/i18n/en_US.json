@@ -273,5 +273,5 @@
     "===========Dialog Outdated Settings 对话框：过时的设置项===========": null,
     "dialog_panel_outdate": ": Remove setting item prompt",
     "dialog_panel_outdate_content1": "We found that the following settings are different from the plugin defaults in the current settings and will be removed soon:",
-    "dialog_panel_outdate_content2": "Starting from the next version, the above settings will be deleted and reset to default settings. If you still need these settings, please stay in the current plug-in version and do not upgrade."
+    "dialog_panel_outdate_content2": "Starting from the next version, the above settings will be deleted and reset to default settings. If you still need these settings, please stay in the current plug-in version and do not upgrade. Modify the plugin settings once to ignore this prompt."
 }

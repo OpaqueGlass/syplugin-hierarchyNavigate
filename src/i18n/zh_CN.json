@@ -276,5 +276,5 @@
     "===========对话框：过时的设置项===========": null,
     "dialog_panel_outdate": ": Remove setting item info",
     "dialog_panel_outdate_content1": "我们发现在当前设置中，以下设置项与插件默认设置不同，且该设置项即将被移除：",
-    "dialog_panel_outdate_content2": "自下个版本起，上述设置项将被删除，并重置为默认设置。如果仍然需要这些设置项，请停留在当前插件版本不要升级，或向插件开发者反馈。"
+    "dialog_panel_outdate_content2": "自下个版本起，上述设置项将被删除，并重置为默认设置。如果仍然需要这些设置项，请停留在当前插件版本不要升级。修改一次插件设置以忽略本提示。"
 }
