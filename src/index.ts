@@ -159,6 +159,14 @@ export default class OGPluginTemplate extends Plugin {
         });
         removeStyle();
         removeCouldHideStyle();
+        // 清理绑定的宽度监听
+        if (window["og_hn_observe"]) {
+            for (const key in window["og_hn_observe"]) {
+                debugPush("插件卸载清理observer", key);
+                window["og_hn_observe"][key]?.disconnect();
+            }
+            delete window["og_hn_observe"];
+        }
     }
 
     openSetting() {
