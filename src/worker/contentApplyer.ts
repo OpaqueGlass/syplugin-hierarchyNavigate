@@ -2,7 +2,7 @@ import { CONSTANTS } from "@/constants";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
-import { openRefLinkInProtyleWnd } from "@/utils/common";
+import { isPluginExist, openRefLinkInProtyleWnd } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 
 export default class ContentApplyer {
@@ -182,13 +182,13 @@ export default class ContentApplyer {
         // 响应自适应宽度
         // #65 自适应宽度关闭后，仍然存在宽度调整，因此需要启用observer
         if (window.siyuan?.config?.editor?.fullWidth !== true) {
-            logPush("自适应宽度未开启");
+            debugPush("自适应宽度未开启");
         }
         let targetNode = this.protyleElement.querySelector('.protyle-title');
         const protyleElement = this.protyleElement;
         debugPush("observer 挂载", targetNode, this.protyleEnvInfo.originProtyle?.id);
         let that = this;
-        let observer = new MutationObserver(function(mutations) {
+        let observer:any = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             debugPush("observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
@@ -202,6 +202,30 @@ export default class ContentApplyer {
             }
         });
         });
+        // #67
+        if (window.siyuan?.config?.editor?.fullWidth !== true && isPluginExist("siyuan-center-width")) {
+            logPush("检测到特殊插件，插件将使用兼容模式运行");
+            finalElement.style.transition = "margin .2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
+            let timeout = null;
+            observer = new ResizeObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (timeout) {
+                        clearTimeout(timeout);
+                    }
+                    timeout = setTimeout(()=>{
+                        debugPush("[兼容模式]observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
+                        let targetNode = protyleElement.querySelector('.protyle-title') as HTMLElement;
+                        // 获取更改后的样式
+                        const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container");
+                        const computedStyle = window.getComputedStyle(targetNode);
+                        if (insertedElement) {
+                            finalElement.style.marginRight = computedStyle.marginRight;
+                            finalElement.style.marginLeft = computedStyle.marginLeft;
+                        }
+                    }, 200);
+                });
+            });
+        }
         // 防止多个observer，分屏的时候会有多个
         if (!window["og_hn_observe"]) {
             window["og_hn_observe"] = {};
@@ -222,6 +246,9 @@ export default class ContentApplyer {
         }
         window["og_hn_observe"][this.protyleElement.dataset.id] = observer;
         let config = { attributes: true, attributeFilter: ['style'] };
+        if (observer instanceof ResizeObserver) {
+            config = null;
+        }
         
         observer.observe(targetNode, config);
     }

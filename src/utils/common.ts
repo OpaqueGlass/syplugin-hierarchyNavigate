@@ -152,3 +152,12 @@ export function generateUUID() {
 
     return uuid;
 }
+
+export function isPluginExist(pluginName: string) {
+    const plugins = window.siyuan.ws.app.plugins;
+    return plugins?.some((plugin) => plugin.name === pluginName);
+}
+
+export function isAnyPluginExist(pluginNames: string[]) {
+    return pluginNames.some(isPluginExist);
+}
