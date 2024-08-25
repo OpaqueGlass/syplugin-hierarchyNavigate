@@ -205,7 +205,7 @@ export default class ContentApplyer {
         // #67
         if (window.siyuan?.config?.editor?.fullWidth !== true && isPluginExist("siyuan-center-width")) {
             logPush("检测到特殊插件，插件将使用兼容模式运行");
-            finalElement.style.transition = "margin .2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
+            finalElement.style.transition = "";
             let timeout = null;
             observer = new ResizeObserver(function(entries) {
                 entries.forEach(function(entry) {
@@ -222,7 +222,7 @@ export default class ContentApplyer {
                             finalElement.style.marginRight = computedStyle.marginRight;
                             finalElement.style.marginLeft = computedStyle.marginLeft;
                         }
-                    }, 200);
+                    }, 75);
                 });
             });
         }
