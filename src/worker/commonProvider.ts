@@ -127,3 +127,11 @@ export function getParentDocIdFromPath(docPath:string):string|undefined {
     if (docPathItem.length <= 2) return undefined;
     return docPathItem[docPathItem.length - 2];
 }
+
+export async function getCurrentDocSqlResult(docId: string) {
+    const sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
+    if (sqlResult.length == 0) {
+        return null;
+    }
+    return sqlResult[0];
+}

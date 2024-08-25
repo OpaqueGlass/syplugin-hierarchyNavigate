@@ -261,6 +261,7 @@
     "more_or_less": "---More/Less---",
     "more": "🔽 More",
     "less": "🔼 Less",
+    "show_switch_panel": "show_switch_panel",
 
     "settingpage_content_name": "Content Order",
     "settingpage_showType_name": "Content Setting",

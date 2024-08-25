@@ -263,6 +263,7 @@
     "more_or_less": "---更多/更少---",
     "more": "🔽更多",
     "less": "🔼更少",
+    "show_switch_panel": "显示切换面板",
 
     "settingpage_content_name": "内容区与顺序",
     "settingpage_showType_name": "内容展示逻辑",

@@ -1,11 +1,14 @@
 import { debugPush, logPush } from "@/logger";
-import { getblockAttr, getCurrentDocIdF, queryAPI } from "@/syapi";
-import { getFocusedBlockId, openRefLink } from "@/utils/common";
+import { getblockAttr, getCurrentDocIdF, isMobile, queryAPI } from "@/syapi";
+import { generateUUID, getFocusedBlockId, openRefLink } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { lang } from "@/utils/lang";
 import { openTab, showMessage, Plugin } from "siyuan";
 import { getAllChildDocuments, getAllSiblingDocuments, getParentDocument, getUserDemandSiblingDocuments } from "./commonProvider";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
+import { createApp } from "vue";
+import switchPanel from "@/components/dialog/switchPanel.vue";
+import * as siyuan from "siyuan";
 
 export function bindCommand(pluginInstance: Plugin) {
     pluginInstance.addCommand({
@@ -48,6 +51,35 @@ export function bindCommand(pluginInstance: Plugin) {
             goToNextDocShortcutHandler();
         },
     });
+
+    pluginInstance.addCommand({
+        langKey: "show_switch_panel",
+        hotkey: "⌥⌘R",
+        callback: () => {
+            showSwitchPanel();
+        },
+    });
+}
+
+
+async function showSwitchPanel() {
+    const docId = await getCurrentDocIdF();
+    let app = null;
+    const uid = generateUUID();
+    // 获取文档id
+    
+    const switchPanelDialog = new siyuan.Dialog({
+            "title": lang("dialog_panel_plugin_name") + lang("dialog_panel_outdate"),
+            "content": `
+            <div id="og_plugintemplate_${uid}" class="b3-dialog__content" style="overflow: hidden; position: relative;height: 100%;"></div>
+            `,
+            "width": isMobile() ? "42vw":"520px",
+            "height": isMobile() ? "auto":"auto",
+            "destroyCallback": ()=>{app.unmount();},
+        });
+    app = createApp(switchPanel, {docId: docId, dialog: switchPanelDialog});
+    app.mount(`#og_plugintemplate_${uid}`);
+    return;
 }
 
 

@@ -638,7 +638,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
     }
 }
 
-class BackLinkContentPrinter extends BasicContentPrinter {
+export class BackLinkContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         let result = null;
@@ -662,6 +662,30 @@ class BackLinkContentPrinter extends BasicContentPrinter {
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
         }
         return result;
+    }
+    static async getNormalBackLinks(docId: string, sortType: string) {
+        // 处理不同排序方式
+        let backlinkResponse = await getBackLink2T(docId, linkSortTypeToBackLinkApiSortNum(sortType));
+        debugPush("backlinkResponse", backlinkResponse);
+        if (backlinkResponse.backlinks.length == 0) {
+            return [];
+        }
+        const prepareBackLinkInfo = [];
+        for (let i = 0; i < backlinkResponse.backlinks.length; i++) {
+            const oneBacklinkItem = backlinkResponse.backlinks[i];
+            if (oneBacklinkItem.nodeType === "NodeDocument") {
+                let tempDocItem = {
+                    "ogSimpleName": oneBacklinkItem.name,
+                    "name": oneBacklinkItem.name + ".sy",
+                    "icon": "",
+                    "id": oneBacklinkItem.id,
+                    "alias": "",
+                    "path": "",
+                };
+                prepareBackLinkInfo.push(tempDocItem);
+            }
+        }
+        return pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo);
     }
     static async normalBackLinkElement(basicInfo: IBasicInfo) {
         const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
@@ -696,6 +720,35 @@ class BackLinkContentPrinter extends BasicContentPrinter {
             return null;
         }
         return result;
+    }
+    static async getDocOnlyBackLinks(docId: string, sortType: string) {
+        // 处理不同排序方式
+        let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
+            SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${docId}"
+            ) AND type = "d" ` + this.linkSortTypeToFowardLinkSortSql(sortType);
+        let backlinkDocSqlResponse = await queryAPI(sqlStmt);
+        if (backlinkDocSqlResponse != null && backlinkDocSqlResponse.length > 0) {
+            if (sortType == LINK_SORT_TYPES.NAME_NATURAL_ASC || sortType == LINK_SORT_TYPES.NAME_NATURAL_DESC) {
+                backlinkDocSqlResponse = sortIFileWithNatural(backlinkDocSqlResponse.slice(), "content", sortType == LINK_SORT_TYPES.NAME_NATURAL_DESC);
+                logPush("自然排序", backlinkDocSqlResponse);
+            }
+            const prepareBackLinkInfo = [];
+            for (let i = 0; i < backlinkDocSqlResponse.length; i++) {
+                const oneBacklinkItem = backlinkDocSqlResponse[i];
+                let tempDocItem = {
+                    "ogSimpleName": oneBacklinkItem.content,
+                    "name": oneBacklinkItem.content + ".sy",
+                    "icon": "",
+                    "id": oneBacklinkItem.id,
+                    "alias": "",
+                    "path": "",
+                };
+                prepareBackLinkInfo.push(tempDocItem);
+            }
+            return pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo);
+        } else {
+            return [];
+        }
     }
     static async docOnlyBackLinkElement(basicInfo: IBasicInfo) {
         const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
