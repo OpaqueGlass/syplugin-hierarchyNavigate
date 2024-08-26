@@ -9,6 +9,7 @@ import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { createApp } from "vue";
 import switchPanel from "@/components/dialog/switchPanel.vue";
 import * as siyuan from "siyuan";
+import { useShowSwitchPanel } from "./pluginHelper";
 
 export function bindCommand(pluginInstance: Plugin) {
     pluginInstance.addCommand({
@@ -66,6 +67,12 @@ async function showSwitchPanel() {
     const docId = await getCurrentDocIdF();
     let app = null;
     const uid = generateUUID();
+    const switchPanelDialogRef = useShowSwitchPanel();
+    if (switchPanelDialogRef.value) {
+        switchPanelDialogRef.value.destroy();
+        switchPanelDialogRef.value = null;
+        return;
+    }
     // 获取文档id
     
     const switchPanelDialog = new siyuan.Dialog({
@@ -73,10 +80,11 @@ async function showSwitchPanel() {
             "content": `
             <div id="og_plugintemplate_${uid}" class="b3-dialog__content" style="overflow: hidden; position: relative;height: 100%;"></div>
             `,
-            "width": isMobile() ? "42vw":"520px",
-            "height": isMobile() ? "auto":"auto",
-            "destroyCallback": ()=>{app.unmount();},
+            "width": isMobile() ? "42vw":"39vw",
+            "height": isMobile() ? "auto":"80vh",
+            "destroyCallback": ()=>{app.unmount(); switchPanelDialogRef.value = null;},
         });
+    switchPanelDialogRef.value = switchPanelDialog;
     app = createApp(switchPanel, {docId: docId, dialog: switchPanelDialog});
     app.mount(`#og_plugintemplate_${uid}`);
     return;

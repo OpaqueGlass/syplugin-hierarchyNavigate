@@ -1,34 +1,39 @@
 <template>
-    <div class="multi-category-list">
+    <div class="multi-category-list" style="height: 97%; ">
         <!-- 搜索栏 -->
-        <input type="text" v-model="searchQuery" placeholder="Search..." @keydown="handleKeydown" ref="searchInput" />
+        <div class="b3-form__icon">
+            <svg class="b3-form__icon-icon">
+                <use xlink:href="#iconSearch"></use>
+            </svg>
+            <input type="text" class="b3-text-field fn__block b3-form__icon-input" v-model="searchQuery"
+                placeholder="Search..." ref="searchInput" />
+        </div>
 
         <!-- 类别列表 -->
-        <div v-for="(category, categoryIndex) in filteredCategories" :key="categoryIndex">
-            <h4>{{ category.name }}</h4>
-            <div class="columns">
-                <div class="column" v-for="(column, colIndex) in category.columns" :key="colIndex">
-                    <ul>
-                        <li v-for="(item, rowIndex) in column" :key="rowIndex"
-                            :class="{ selected: isSelected(categoryIndex, colIndex, rowIndex) }"
-                            @click="selectItem(categoryIndex, colIndex, rowIndex)">
-                            {{ item.ogSimpleName }}
-                        </li>
-                    </ul>
-                </div>
+        <div class="categories">
+            <div v-for="(category, categoryIndex) in filteredCategories" :key="categoryIndex" class="category-column">
+                <h4>{{ category.name }}</h4>
+                <ul class="b3-list b3-list--background fn__flex-1" style="overflow: scroll;">
+                    <li v-for="(item, rowIndex) in category.items" :key="rowIndex"
+                        :class="{ 'b3-list-item--focus': isSelected(categoryIndex, rowIndex), 'b3-list-item': true }"
+                        @click="onItemClick(item)">
+                        <span class="b3-list-item__text">{{ item.ogSimpleName }}</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { errorPush, logPush } from '@/logger';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { debugPush, errorPush, logPush } from '@/logger';
 import { getReadOnlyGSettings } from '@/manager/settingManager';
 import { getAllChildDocuments, getAllSiblingDocuments, getCurrentDocSqlResult } from '@/worker/commonProvider';
 import { BackLinkContentPrinter } from '@/worker/contentPrinter';
-import { Dialog } from 'siyuan';
-import { ref, computed, onMounted } from 'vue';
-
+import { Dialog, openTab } from 'siyuan';
+import { getPluginInstance } from '@/utils/getInstance';
+import { useShowSwitchPanel } from '@/worker/pluginHelper';
 const props = defineProps<{
     docId: string,
     dialog: Dialog
@@ -48,111 +53,92 @@ const categories = ref<Category[]>([
 ]);
 
 // 获取数据
-const __init__ = async ()=>{
+const __init__ = async () => {
     const currentDoc = await getCurrentDocSqlResult(props.docId);
     logPush("data", currentDoc);
     const g_setting = getReadOnlyGSettings();
     const backLinks = await BackLinkContentPrinter.getNormalBackLinks(props.docId, g_setting.sortForBackLink);
     const siblings = await getAllSiblingDocuments(currentDoc.path, currentDoc.box);
     const childrens = await getAllChildDocuments(currentDoc.path, currentDoc.box);
-    logPush("results", backLinks, siblings, childrens)
-    categories.value[0].items = siblings.map((item)=>{ item["ogSimpleName"] = item.name.substring(0, item.name.length - 3); return item});
-    categories.value[1].items = childrens.map((item)=>{ item["ogSimpleName"] = item.name; return item});
+
+    categories.value[0].items = siblings.map((item) => {
+        item["ogSimpleName"] = item.name.substring(0, item.name.length - 3);
+        return item;
+    });
+    categories.value[1].items = childrens.map((item) => {
+        item["ogSimpleName"] = item.name;
+        return item;
+    });
     categories.value[2].items = backLinks;
 };
 
-__init__().then(()=>{logPush("分类信息", categories.value)}).catch((err)=>{
+__init__().then(() => {
+    logPush("分类信息", categories.value);
+}).catch((err) => {
     errorPush("创建时出现错误", err);
 });
 
 // 搜索查询
 const searchQuery = ref('');
 
-// 分栏数
-const numColumns = ref(2); // 可以根据需要调整分栏数
-
 // 过滤后的类别列表
 const filteredCategories = computed(() => {
     return categories.value.map(category => ({
         name: category.name,
-        columns: splitIntoColumns(
-            category.items.filter(item =>
-                item.ogSimpleName.toLowerCase().includes(searchQuery.value.toLowerCase())
-            ),
-            numColumns.value
+        items: category.items.filter(item =>
+            item.ogSimpleName.toLowerCase().includes(searchQuery.value.toLowerCase())
         )
-    })).filter(category => category.columns.length > 0);
+    })).filter(category => category.items.length > 0);
 });
 
-// 将项目拆分成多个列
-const splitIntoColumns = (items: string[], numCols: number): string[][] => {
-    const result: string[][] = Array.from({ length: numCols }, () => []);
-    items.forEach((item, index) => {
-        result[index % numCols].push(item);
-    });
-    return result;
-};
-
-// 追踪选中的类别、列和项目
+// 追踪选中的类别和项目
 const selectedCategory = ref(0);
-const selectedColumn = ref(0);
 const selectedItem = ref(0);
 
 // 检查是否是当前选中项
-const isSelected = (categoryIndex: number, colIndex: number, rowIndex: number): boolean => {
+const isSelected = (categoryIndex: number, rowIndex: number): boolean => {
     return (
         selectedCategory.value === categoryIndex &&
-        selectedColumn.value === colIndex &&
         selectedItem.value === rowIndex
     );
 };
 
 // 点击选择项目
-const selectItem = (categoryIndex: number, colIndex: number, rowIndex: number): void => {
+const selectItem = (categoryIndex: number, rowIndex: number): void => {
     selectedCategory.value = categoryIndex;
-    selectedColumn.value = colIndex;
     selectedItem.value = rowIndex;
 };
 
 // 处理键盘事件
 const handleKeydown = (event: KeyboardEvent): void => {
     const maxCategories = filteredCategories.value.length;
-    const maxCols = filteredCategories.value[selectedCategory.value]?.columns.length || 0;
-    const maxItems = filteredCategories.value[selectedCategory.value]?.columns[selectedColumn.value]?.length || 0;
+    const maxItems = filteredCategories.value[selectedCategory.value]?.items.length || 0;
 
     switch (event.key) {
         case 'ArrowUp':
-            if (selectedItem.value > 0) {
-                selectedItem.value = (selectedItem.value - 1 + maxItems) % maxItems;
-            } else if (selectedCategory.value > 0) {
-                selectedCategory.value = (selectedCategory.value - 1 + maxCategories) % maxCategories;
-                selectedColumn.value = 0;
-                selectedItem.value = filteredCategories.value[selectedCategory.value].columns[selectedColumn.value].length - 1;
-            }
+            selectedItem.value = (selectedItem.value - 1 + maxItems) % maxItems;
             event.preventDefault();
             break;
         case 'ArrowDown':
-            if (selectedItem.value < maxItems - 1) {
-                selectedItem.value = (selectedItem.value + 1) % maxItems;
-            } else if (selectedCategory.value < maxCategories - 1) {
-                selectedCategory.value = (selectedCategory.value + 1) % maxCategories;
-                selectedColumn.value = 0;
+            selectedItem.value = (selectedItem.value + 1) % maxItems;
+            event.preventDefault();
+            break;
+        case 'ArrowLeft':
+            if (selectedCategory.value > 0) {
+                selectedCategory.value = (selectedCategory.value - 1 + maxCategories) % maxCategories;
                 selectedItem.value = 0;
             }
             event.preventDefault();
             break;
-        case 'ArrowLeft':
-            if (selectedColumn.value > 0) {
-                selectedColumn.value = (selectedColumn.value - 1 + maxCols) % maxCols;
-                selectedItem.value = Math.min(selectedItem.value, filteredCategories.value[selectedCategory.value].columns[selectedColumn.value].length - 1);
+        case 'ArrowRight':
+            if (selectedCategory.value < maxCategories - 1) {
+                selectedCategory.value = (selectedCategory.value + 1) % maxCategories;
+                selectedItem.value = 0;
             }
             event.preventDefault();
             break;
-        case 'ArrowRight':
-            if (selectedColumn.value < maxCols - 1) {
-                selectedColumn.value = (selectedColumn.value + 1) % maxCols;
-                selectedItem.value = Math.min(selectedItem.value, filteredCategories.value[selectedCategory.value].columns[selectedColumn.value].length - 1);
-            }
+        case 'Enter':
+            onItemClick(filteredCategories.value[selectedCategory.value].items[selectedItem.value]);
             event.preventDefault();
             break;
         default:
@@ -169,10 +155,28 @@ const handleKeydown = (event: KeyboardEvent): void => {
 // 在组件挂载时自动聚焦搜索框
 onMounted(() => {
     searchInput.value?.focus();
+    window.addEventListener('keydown', handleKeydown);
 });
+onUnmounted(() => {
+    debugPush("对话框销毁");
+    window.removeEventListener('keydown', handleKeydown);
+})
 
 // 搜索输入框引用
 const searchInput = ref<HTMLInputElement | null>(null);
+
+// 处理点击或Enter键
+const onItemClick = (item: any): void => {
+    console.log("Item clicked:", item);
+    // 可以在此处添加更多逻辑来处理选中项
+    openTab({
+        app: getPluginInstance().app,
+        doc: {
+            id: item.id
+        }
+    });
+    props.dialog.destroy();
+};
 
 </script>
 
@@ -187,12 +191,18 @@ h4 {
     margin: 10px 0 5px;
 }
 
-.columns {
+.categories {
     display: flex;
+    width: 100%;
+    flex-direction: row;
+    height: 100%;
 }
 
-.column {
+.category-column {
     margin-right: 20px;
+    width: 33%;
+    /* 每列占据1/3宽度 */
+    overflow: auto;
 }
 
 li {
