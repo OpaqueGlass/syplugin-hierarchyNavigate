@@ -1189,20 +1189,23 @@ class MoreOrLessPrinter extends BasicContentPrinter {
                 printerElemList[i]?.element.classList.add(CONSTANTS.IS_FOLDING_CLASS_NAME);
             }
         }
-        
         result.classList.add("og-hn-more-less");
         result.addEventListener("click", ()=>{
+            const childrens = result.parentElement?.children ?? [];
+            if (childrens.length <= 1) {
+                debugPush("折叠展开判定错误，不存在任何内容区元素");
+            }
             if (moreOrLess.innerHTML === lang("more")) {
                 // 遍历移除
-                for (let i = g_setting.areaHideFrom - 1; i < printerElemList.length; i++) {
-                    printerElemList[i]?.element.classList.remove(CONSTANTS.IS_FOLDING_CLASS_NAME);
+                for (let i = g_setting.areaHideFrom; i < childrens.length; i++) {
+                    childrens[i].classList.remove(CONSTANTS.IS_FOLDING_CLASS_NAME);
                 }
                 moreOrLess.innerHTML = lang("less");
                 result.dataset.ogHideFlag = "false";
             }else {
                 // 遍历添加
-                for (let i = g_setting.areaHideFrom - 1; i < printerElemList.length; i++) {
-                    printerElemList[i]?.element.classList.add(CONSTANTS.IS_FOLDING_CLASS_NAME);
+                for (let i = g_setting.areaHideFrom; i < childrens.length; i++) {
+                    childrens[i].classList.add(CONSTANTS.IS_FOLDING_CLASS_NAME);
                 }
                 moreOrLess.innerHTML = lang("more");
                 result.dataset.ogHideFlag = "true";
