@@ -604,12 +604,13 @@ export async function createDocWithMdAPI(notebookid, hpath, md) {
  * 
  * @param {*} notebookid 
  * @param {*} path 待创建的新文档path，即，最后应当为一个随机的id.sy
- * @param {*} title 
+ * @param {*} title 【可选】文档标题
+ * @param {*} contentMd 【可选】markdown格式的内容
  * @returns 
  */
-export async function createDocWithPath(notebookid, path, title = "Untitled") {
+export async function createDocWithPath(notebookid, path, title = "Untitled", contentMd = "") {
     let url = "/api/filetree/createDoc";
-    let response = await postRequest({"notebook": notebookid, "path": path, "md": "", "title": title}, url);
+    let response = await postRequest({"notebook": notebookid, "path": path, "md": contentMd, "title": title}, url);
     if (response.code == 0) {
         return true;
     }

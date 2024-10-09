@@ -116,3 +116,56 @@ export function getActiveEditorIds() {
     });
     return result;
 }
+
+
+
+/**
+ * 获取当前更新时间字符串
+ * @returns 
+ */
+export function getUpdateString(){
+    let nowDate = new Date();
+    let hours = nowDate.getHours();
+    let minutes = nowDate.getMinutes();
+    let seconds = nowDate.getSeconds();
+    hours = formatTime(hours);
+    minutes = formatTime(minutes);
+    seconds = formatTime(seconds);
+    let timeStr = nowDate.toJSON().replace(new RegExp("-", "g"),"").substring(0, 8) + hours + minutes + seconds;
+    return timeStr;
+    function formatTime(num) {
+        return num < 10 ? '0' + num : num;
+    }
+}
+
+/**
+ * 生成一个随机的块id
+ * @returns 
+ */
+export function generateBlockId(){
+    let timeStr = getUpdateString();
+    let alphabet = new Array();
+    for (let i = 48; i <= 57; i++) alphabet.push(String.fromCharCode(i));
+    for (let i = 97; i <= 122; i++) alphabet.push(String.fromCharCode(i));
+    let randomStr = "";
+    for (let i = 0; i < 7; i++){
+        randomStr += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    let result = timeStr + "-" + randomStr;
+    return result;
+}
+
+/**
+ * 转换块属性对象为{: }格式IAL字符串
+ * @param {*} attrData 其属性值应当为String类型
+ * @returns 
+ */
+export function transfromAttrToIAL(attrData) {
+    let result = "{:";
+    for (let key in attrData) {
+        result += ` ${key}=\"${attrData[key]}\"`;
+    }
+    result += "}";
+    if (result == "{:}") return null;
+    return result;
+}
