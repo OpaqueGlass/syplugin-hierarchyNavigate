@@ -1,5 +1,5 @@
 import { debugPush } from "@/logger";
-import { queryAPI, listDocsByPathT, getTreeStat } from ".";
+import { queryAPI, listDocsByPathT, getTreeStat, getCurrentDocIdF } from ".";
 
 /**
  * 统计子文档字符数
@@ -93,4 +93,26 @@ export async function isDocEmpty(docId: string, blockCountThreshold = 0) {
         debugPush("sql判定文档非空，不插入挂件");
         return false;
     }
+}
+
+export function getActiveDocProtyle() {
+    const allProtyle = {};
+    window.siyuan.layout.centerLayout?.children?.forEach((wndItem) => {
+        wndItem?.children?.forEach((tabItem) => {
+            if (tabItem?.model) {
+                allProtyle[tabItem?.id](tabItem.model?.editor?.protyle);
+            }
+        });
+    });
+}
+
+export function getActiveEditorIds() {
+    let result = [];
+    let id = window.document.querySelector(`.layout__wnd--active [data-type="tab-header"].item--focus`)?.getAttribute("data-id");
+    if (id) return [id];
+    window.document.querySelectorAll(`[data-type="tab-header"].item--focus`).forEach(item=>{
+        let uid = item.getAttribute("data-id");
+        if (uid) result.push(uid);
+    });
+    return result;
 }

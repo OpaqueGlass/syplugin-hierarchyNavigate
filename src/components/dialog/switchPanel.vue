@@ -10,13 +10,17 @@
         </div>
 
         <!-- 类别列表 -->
-        <div class="categories">
+        <div class="categories" ref="categoriesContainer">
             <div v-for="(category, categoryIndex) in filteredCategories" :key="categoryIndex" class="category-column">
                 <h4>{{ category.name }}</h4>
                 <ul class="b3-list b3-list--background fn__flex-1" style="overflow: scroll;">
                     <li v-for="(item, rowIndex) in category.items" :key="rowIndex"
                         :class="{ 'b3-list-item--focus': isSelected(categoryIndex, rowIndex), 'b3-list-item': true }"
                         @click="onItemClick(item)">
+                        <img class="b3-list-item__graphic" :src="'/emojis/' + item.icon"
+                            v-if="item.icon?.includes('.')"></img>
+                        <span class="b3-list-item__graphic" v-else>{{ item.icon != undefined ?
+                            emojiIconHandler(item.icon) : "" }}</span>
                         <span class="b3-list-item__text">{{ item.ogSimpleName }}</span>
                     </li>
                 </ul>
@@ -33,7 +37,10 @@ import { getAllChildDocuments, getAllSiblingDocuments, getCurrentDocSqlResult } 
 import { BackLinkContentPrinter } from '@/worker/contentPrinter';
 import { Dialog, openTab } from 'siyuan';
 import { getPluginInstance } from '@/utils/getInstance';
-import { useShowSwitchPanel } from '@/worker/pluginHelper';
+import { emojiIconHandler, htmlTransferParser } from '@/utils/onlyThisUtil';
+
+const categoriesContainer = ref();
+
 const props = defineProps<{
     docId: string,
     dialog: Dialog
@@ -62,11 +69,11 @@ const __init__ = async () => {
     const childrens = await getAllChildDocuments(currentDoc.path, currentDoc.box);
 
     categories.value[0].items = siblings.map((item) => {
-        item["ogSimpleName"] = item.name.substring(0, item.name.length - 3);
+        item["ogSimpleName"] = htmlTransferParser(item.name.substring(0, item.name.length - 3));
         return item;
     });
     categories.value[1].items = childrens.map((item) => {
-        item["ogSimpleName"] = item.name;
+        item["ogSimpleName"] = htmlTransferParser(item.name.substring(0, item.name.length - 3));
         return item;
     });
     categories.value[2].items = backLinks;
@@ -82,14 +89,32 @@ __init__().then(() => {
 const searchQuery = ref('');
 
 // 过滤后的类别列表
+// const filteredCategories = computed(() => {
+//     return categories.value.map(category => ({
+//         name: category.name,
+//         items: category.items.filter(item =>
+//             item.ogSimpleName.toLowerCase().includes(searchQuery.value.toLowerCase())
+//         )
+//     })).filter(category => category.items.length > 0);
+// });
+// 过滤后的类别列表（多个关键词匹配）
 const filteredCategories = computed(() => {
+    // 将 searchQuery 拆分为多个关键词（以空格分隔）
+    const keywords = searchQuery.value
+        .trim()
+        .toLowerCase()
+        .split(/\s+/);
+
     return categories.value.map(category => ({
         name: category.name,
         items: category.items.filter(item =>
-            item.ogSimpleName.toLowerCase().includes(searchQuery.value.toLowerCase())
+            // 检查每个关键词是否都匹配 item 的 ogSimpleName
+            keywords.every(keyword => item.ogSimpleName.toLowerCase().includes(keyword))
         )
     })).filter(category => category.items.length > 0);
 });
+
+
 
 // 追踪选中的类别和项目
 const selectedCategory = ref(0);
@@ -118,10 +143,12 @@ const handleKeydown = (event: KeyboardEvent): void => {
         case 'ArrowUp':
             selectedItem.value = (selectedItem.value - 1 + maxItems) % maxItems;
             event.preventDefault();
+            scrollIntoView();
             break;
         case 'ArrowDown':
             selectedItem.value = (selectedItem.value + 1) % maxItems;
             event.preventDefault();
+            scrollIntoView();
             break;
         case 'ArrowLeft':
             if (selectedCategory.value > 0) {
@@ -151,7 +178,22 @@ const handleKeydown = (event: KeyboardEvent): void => {
             break;
     }
 };
-
+// 上下移动超出显示范围调整
+const scrollIntoView = () => {
+    const outerContainer = categoriesContainer.value;
+    let container = null;
+    const selectedElement = outerContainer.querySelector('.b3-list-item--focus');
+    if (selectedElement) {
+        container = selectedElement.closest('.category-column');
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = selectedElement.getBoundingClientRect();
+        if (elementRect.top < containerRect.top) {
+            container.scrollTop -= (containerRect.top - elementRect.top) + elementRect.height;
+        } else if (elementRect.bottom > containerRect.bottom) {
+            container.scrollTop += (elementRect.bottom - containerRect.bottom) + elementRect.height;
+        }
+    }
+}
 // 在组件挂载时自动聚焦搜索框
 onMounted(() => {
     searchInput.value?.focus();
@@ -207,7 +249,7 @@ h4 {
 
 li {
     list-style-type: none;
-    padding: 5px;
+    /*padding: 5px;*/
     cursor: pointer;
 }
 

@@ -302,7 +302,6 @@ export async function getCurrentDocIdF() {
     if (!thisDocId && isMobile()) {
         // UNSTABLE: 面包屑样式变动将导致此方案错误！
         try {
-            
             temp = window.top.document.querySelector(".protyle-breadcrumb .protyle-breadcrumb__item .popover__block[data-id]")?.getAttribute("data-id");
             let iconArray = window.top.document.querySelectorAll(".protyle-breadcrumb .protyle-breadcrumb__item .popover__block[data-id]");
             for (let i = 0; i < iconArray.length; i++) {
