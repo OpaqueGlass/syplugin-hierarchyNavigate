@@ -108,6 +108,12 @@ export async function getUserDemandSiblingDocuments(currentDocPath: string, note
     return siblingDocs;
 }
 
+export async function getAllDescendantDocuments(currentDocPath: string, notebookId: string) {
+    const path = currentDocPath.substring(0, currentDocPath.length - 3) + "/";
+    const sqlResult = await queryAPI(`SELECT * FROM blocks WHERE path like "%${path}%" AND box = "${notebookId}" AND type = 'd'`);
+    return sqlResult;
+}
+
 /**
  * 从文档路径中提取父文档路径
  * @param docPath sy格式的文档路径

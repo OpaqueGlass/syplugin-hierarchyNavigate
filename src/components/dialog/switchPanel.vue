@@ -35,9 +35,9 @@
                 <kbd>Esc</kbd> 退出搜索
                 <kbd>F1</kbd> 新建为同级文档
                 <kbd>F2</kbd> 新建为子文档
-                <kbd>F3</kbd> <span style="text-decoration: line-through;">新建为反向链接文档</span>[如有需要，请和开发者确认实现细节]
-                <kbd>Ctrl+回车</kbd> 使用“基于文档搜索”插件进行全文检索
-                <kbd>Shift+回车</kbd> 使用“基于文档搜索”插件进行仅标题检索
+                <kbd>F3</kbd> <span style="text-decoration: line-through;">新建为反向链接文档</span>[暂不支持，如有需要，请和开发者确认实现细节]
+                <kbd>Ctrl+回车</kbd> 切换到“基于文档搜索”插件并进行全文检索
+                <kbd>Shift+回车</kbd> 切换到“基于文档搜索”插件并进行仅标题检索
                 
         </div>
     </div>
@@ -49,7 +49,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { debugPush, errorPush, logPush } from '@/logger';
 import { getReadOnlyGSettings } from '@/manager/settingManager';
-import { getAllChildDocuments, getAllSiblingDocuments, getCurrentDocSqlResult } from '@/worker/commonProvider';
+import { getAllChildDocuments, getAllDescendantDocuments, getAllSiblingDocuments, getCurrentDocSqlResult } from '@/worker/commonProvider';
 import { BackLinkContentPrinter } from '@/worker/contentPrinter';
 import { Dialog, openTab } from 'siyuan';
 import { getPluginInstance } from '@/utils/getInstance';
@@ -90,6 +90,7 @@ const __init__ = async () => {
     const backLinks = await BackLinkContentPrinter.getNormalBackLinks(props.docId, g_setting.sortForBackLink);
     const siblings = await getAllSiblingDocuments(currentDoc.path, currentDoc.box);
     const childrens = await getAllChildDocuments(currentDoc.path, currentDoc.box);
+    const descendants = await getAllDescendantDocuments(currentDoc.path, currentDoc.box);
 
     categories.value[0].items = siblings.map((item) => {
         item["ogSimpleName"] = htmlTransferParser(item.name.substring(0, item.name.length - 3));
@@ -99,6 +100,11 @@ const __init__ = async () => {
         item["ogSimpleName"] = htmlTransferParser(item.name.substring(0, item.name.length - 3));
         return item;
     });
+    // 在categories.value[1] 中追加所有子孙文档
+    categories.value[1].items.push(...descendants.map((item) => {
+        item["ogSimpleName"] = htmlTransferParser(item.content.substring(0, item.content.length));
+        return item;
+    }));
     categories.value[2].items = backLinks;
 };
 

@@ -772,6 +772,23 @@ export async function getHPathById(docId:string): Promise<string|undefined> {
     return getResponseData(postRequest(data, url)) as Promise<string|undefined>;
 }
 
+/**
+ * 批量设置属性
+ * @param {*} blockAttrs 数组，每一个元素为对象，包含 id 和 attrs两个属性值，attrs为对象，其属性和属性值即为 attr-key: attr-value
+ * @ref https://github.com/siyuan-note/siyuan/issues/10337
+ */
+export async function batchSetBlockAtrs(blockAttrs: string) {
+    let url = "/api/attr/batchSetBlockAttrs";
+    let postBody = {
+        blockAttrs: blockAttrs,
+    };
+    let response = await postRequest(postBody, url);
+    if (response.code == 0 && response.data != null) {
+        return response.data;
+    }
+    return null;
+}
+
 export const DOC_SORT_TYPES = {
     FILE_NAME_ASC: 0,
     FILE_NAME_DESC: 1,
