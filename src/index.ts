@@ -82,18 +82,8 @@ export default class OGPluginTemplate extends Plugin {
         
         const frontEnd = getFrontend();
         this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";
-        // 图标的制作参见帮助文档
-        this.addIcons(`<symbol id="iconTestStatistics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
-        </symbol>
-        `);
-        // const topBarElement = this.addTopBar({
-        //     icon: "iconTestStatistics",
-        //     title: this.i18n.addTopBarIcon,
-        //     position: "right",
-        //     callback: () => {
-        //         this.openStatisticTab();
-        //     }
-        // });
+        
+        
         
         
         this.customTab = this.addTab({

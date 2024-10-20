@@ -1,6 +1,6 @@
 <template>
     <div style="height: 100%; display: flex; flex-direction: column;">
-        <div class="multi-category-list" style="">
+        <div class="og-hn-dialog-multi-category-list" style="">
             <!-- 搜索栏 -->
             <div class="b3-form__icon">
                 <svg class="b3-form__icon-icon">
@@ -11,8 +11,8 @@
             </div>
 
             <!-- 类别列表 -->
-            <div class="categories" ref="categoriesContainer">
-                <div v-for="(category, categoryIndex) in filteredCategories" :key="categoryIndex" class="category-column">
+            <div class="og-hn-dialog-categories" ref="categoriesContainer">
+                <div v-for="(category, categoryIndex) in filteredCategories" :key="categoryIndex" class="og-hn-dialog-category-column">
                     <h4>{{ category.name }}</h4>
                     <ul class="b3-list b3-list--background fn__flex-1" style="overflow: scroll;">
                         <li v-for="(item, rowIndex) in category.items" :key="rowIndex"
@@ -30,15 +30,14 @@
             
         </div>
         <div class="search__tip" style="height: 4.5em;">
-                <kbd>↑/↓/Tab/Shift+Tab</kbd> 上下左右切换所选文档
-                <kbd>回车/单击</kbd> 打开 
-                <kbd>Esc</kbd> 退出搜索
-                <kbd>F1</kbd> 新建为同级文档
-                <kbd>F2</kbd> 新建为子文档
-                <kbd>F3</kbd> <span style="text-decoration: line-through;">新建为反向链接文档</span>[暂不支持，如有需要，请和开发者确认实现细节]
-                <kbd>Ctrl+回车</kbd> 切换到“基于文档搜索”插件并进行全文检索
-                <kbd>Shift+回车</kbd> 切换到“基于文档搜索”插件并进行仅标题检索
-                
+                <kbd>↑/↓/Tab/Shift+Tab</kbd> {{lang("dialog_panel_switchDoc_switch")}}
+                <kbd>{{lang("dialog_panel_switchDoc_enter")}}/{{lang("dialog_panel_switchDoc_click")}}</kbd>{{lang("dialog_panel_switchDoc_open")}}
+                <kbd>Esc</kbd>{{lang("dialog_panel_switchDoc_esc")}}
+                <kbd>F1</kbd>{{lang("dialog_panel_switchDoc_f1")}}
+                <kbd>F2</kbd>{{lang("dialog_panel_switchDoc_f2")}}
+                <kbd>F3</kbd> <span style="text-decoration: line-through;">{{lang("dialog_panel_switchDoc_f3")}}</span>{{lang("dialog_panel_switchDoc_f3_warn")}}
+                <kbd>Ctrl+{{lang("dialog_panel_switchDoc_enter")}}</kbd>{{lang("dialog_panel_switchDoc_ctrl")}}
+                <kbd>Shift+{{lang("dialog_panel_switchDoc_enter")}}</kbd>{{lang("dialog_panel_switchDoc_shift")}}
         </div>
     </div>
     
@@ -51,13 +50,14 @@ import { debugPush, errorPush, logPush } from '@/logger';
 import { getReadOnlyGSettings } from '@/manager/settingManager';
 import { getAllChildDocuments, getAllDescendantDocuments, getAllSiblingDocuments, getCurrentDocSqlResult } from '@/worker/commonProvider';
 import { BackLinkContentPrinter } from '@/worker/contentPrinter';
-import { Dialog, openTab } from 'siyuan';
+import { Dialog, openTab, showMessage } from 'siyuan';
 import { getPluginInstance } from '@/utils/getInstance';
 import { emojiIconHandler, htmlTransferParser } from '@/utils/onlyThisUtil';
 import { sleep } from '@/utils/common';
 import { createDocWithPath } from '@/syapi';
 import { isValidStr } from '@/utils/commonCheck';
 import { generateBlockId } from '@/syapi/custom';
+import { lang } from '@/utils/lang';
 
 const categoriesContainer = ref();
 
@@ -74,9 +74,9 @@ interface Category {
 
 // 定义类别数据
 const categories = ref<Category[]>([
-    { name: '同级文档', items: [] },
-    { name: '子文档', items: [] },
-    { name: '反向链接', items: [] }
+    { name: lang("sibling_area"), items: [] },
+    { name: lang("child_area"), items: [] },
+    { name: lang("backlink_area"), items: [] }
 ]);
 
 let currentDocInfo = null;
@@ -133,14 +133,19 @@ const filteredCategories = computed(() => {
         .trim()
         .toLowerCase()
         .split(/\s+/);
-
-    return categories.value.map(category => ({
+    
+    const result = categories.value.map(category => ({
         name: category.name,
         items: category.items.filter(item =>
             // 检查每个关键词是否都匹配 item 的 ogSimpleName
             keywords.every(keyword => item.ogSimpleName.toLowerCase().includes(keyword))
         )
     })).filter(category => category.items.length > 0);
+    // 每次搜索过滤后重置index
+    selectedCategory.value = 0;
+    selectedItem.value = 0;
+
+    return result;
 });
 
 
@@ -165,7 +170,11 @@ const isSelected = (categoryIndex: number, rowIndex: number): boolean => {
 
 const maxItems = computed(()=>{
     return filteredCategories.value[selectedCategory.value]?.items.length || 0;
-})
+});
+
+const getSelectedItem = ()=>{
+    return filteredCategories.value[selectedCategory.value]?.items[selectedItem.value];
+}
 
 // 处理键盘事件
 const handleKeydown = (event: KeyboardEvent): void => {
@@ -220,7 +229,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
             } else if (event.ctrlKey) {
                 callSypluginDocumentSearch(searchQuery.value);
             } else {
-                onItemClick(filteredCategories.value[selectedCategory.value].items[selectedItem.value]);
+                onItemClick(getSelectedItem());
             }
             event.preventDefault();
             break;
@@ -277,6 +286,7 @@ const callSypluginDocumentSearch = async (query: string) => {
         await sleep(300);
     } else if (panelBtn == null) {
         debugPush("基于文档搜索插件dock按钮不存在");
+        showMessage(lang("dialog_panel_switchDoc_search_plugin_not_found"));
         return;
     }
     const searchInput = document.getElementById("documentSearchInput") as HTMLInputElement;
@@ -296,6 +306,7 @@ const callSypluginDocumentSearchOnlyTitle = async (query: string) => {
         panelBtn.click();
     } else if (panelBtn == null) {
         debugPush("基于文档搜索插件dock按钮不存在");
+        showMessage(lang("dialog_panel_switchDoc_search_plugin_not_found"));
         return;
     }
     const searchInput = document.querySelector(".layout__tab--active.sy__syplugin-document-searchflat_doc_tree_dock[data-id] .search__header input") as HTMLInputElement;
@@ -349,8 +360,9 @@ const searchInput = ref<HTMLInputElement | null>(null);
 
 // 处理点击或Enter键
 const onItemClick = (item: any): void => {
-    console.log("Item clicked:", item);
-    // 可以在此处添加更多逻辑来处理选中项
+    if (!item) {
+        return;
+    }
     openDocAndCloseById(item.id);
 };
 
@@ -367,7 +379,7 @@ const openDocAndCloseById = (docId: string) => {
 </script>
 
 <style scoped>
-.multi-category-list {
+.og-hn-dialog-multi-category-list {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -379,7 +391,7 @@ h4 {
     margin: 10px 0 5px;
 }
 
-.categories {
+.og-hn-dialog-categories {
     display: flex;
     width: 100%;
     flex-direction: row;
@@ -387,10 +399,11 @@ h4 {
     overflow: hidden;
 }
 
-.category-column {
+.og-hn-dialog-category-column {
     margin-right: 20px;
     /* width: 33%; */
     flex-shrink: 1;
+    flex: 1;
     /* 每列占据1/3宽度 */
     overflow: hidden;
     display: flex;
@@ -401,11 +414,6 @@ li {
     list-style-type: none;
     /*padding: 5px;*/
     cursor: pointer;
-}
-
-.selected {
-    background-color: #42b983;
-    color: white;
 }
 
 input[type="text"] {

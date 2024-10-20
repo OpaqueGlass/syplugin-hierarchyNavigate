@@ -55,16 +55,43 @@ export function bindCommand(pluginInstance: Plugin) {
 
     pluginInstance.addCommand({
         langKey: "show_switch_panel",
-        hotkey: "⌥⌘R",
+        hotkey: "⌥⌘E",
         callback: () => {
             showSwitchPanel();
         },
     });
+
+    // 图标的制作参见帮助文档
+    pluginInstance.addIcons(`<symbol id="iconOgHnBookUp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13V7"/><path d="M18 2h1a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2"/><path d="m9 10 3-3 3 3"/><path d="m9 5 3-3 3 3"/>
+        </symbol>
+    `);
+    pluginInstance.addTopBar({
+        "icon": "iconOgHnBookUp",
+        "title": lang("dialog_panel_switchDoc"),
+        "position": "right",
+        "callback": () => {
+            showSwitchPanel();
+        }
+    });
+
+    // const topBarElement = this.addTopBar({
+        //     icon: "iconTestStatistics",
+        //     title: this.i18n.addTopBarIcon,
+        //     position: "right",
+        //     callback: () => {
+        //         this.openStatisticTab();
+        //     }
+        // });
 }
 
 
 async function showSwitchPanel() {
     const docId = await getCurrentDocIdF();
+    if (!isValidStr(docId)) {
+        debugPush("未能获取到当前文档id");
+        showMessage(lang("open_doc_first"));
+        return;
+    }
     let app = null;
     const uid = generateUUID();
     const switchPanelDialogRef = useShowSwitchPanel();
@@ -76,13 +103,13 @@ async function showSwitchPanel() {
     // 获取文档id
     
     const switchPanelDialog = new siyuan.Dialog({
-            "title": lang("dialog_panel_plugin_name") + lang("dialog_panel_outdate"),
+            "title": lang("dialog_panel_plugin_name") + "--" + lang("dialog_panel_switchDoc"),
             "content": `
             <div id="og_plugintemplate_${uid}" class="b3-dialog__content" style="overflow: hidden; position: relative;height: 100%;"></div>
             `,
-            "width": isMobile() ? "42vw":"39vw",
+            "width": isMobile() ? "42vw":"55vw",
             "height": isMobile() ? "auto":"80vh",
-            "destroyCallback": ()=>{app.unmount(); switchPanelDialogRef.value = null;},
+            "destroyCallback": ()=>{app.unmount(); switchPanelDialogRef.value = null; debugPush("对话框销毁成功")},
         });
     switchPanelDialogRef.value = switchPanelDialog;
     app = createApp(switchPanel, {docId: docId, dialog: switchPanelDialog});
@@ -95,8 +122,9 @@ async function showSwitchPanel() {
 
 async function goUpShortcutHandler() {
     const docId = await getCurrentDocIdF();
-    if (docId == null) {
+    if (!isValidStr(docId)) {
         logPush("未能读取到打开文档的id");
+        showMessage(lang("open_doc_first"));
         return ;
     }
     // 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
@@ -183,6 +211,10 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
     let docId;
 
     docId = await getCurrentDocIdF();
+    if (!isValidStr(docId)) {
+        showMessage(lang("open_doc_first"));
+        return ;
+    }
     let sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
     if (!sqlResult || sqlResult.length <= 0) {
         // debugPush(`第${retryCount}次获取文档信息失败，该文档可能是刚刚创建，休息一会儿后重新尝试`);
@@ -257,6 +289,7 @@ async function addWidgetShortcutHandler(protyle:any) {
     const docId = await getCurrentDocIdF();
     if (docId == null) {
         logPush("未能读取到打开文档的id");
+        showMessage(lang("open_doc_first"));
         return ;
     }
     const focusedBlockId = getFocusedBlockId();

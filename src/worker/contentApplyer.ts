@@ -287,11 +287,12 @@ export default class ContentApplyer {
     }
 
     bindBasicClickEvent(element: Element) {
+        const g_settings = getReadOnlyGSettings();
         // 理论上需要包含openRefLink的绑定（统一）其他的交给Printer管
         element.querySelectorAll(".og-hn-heading-docs-container span.refLinks").forEach((elem) => {
             // TODO: 这里设置为 openInFocus Flase，不在聚焦位置打开
-            elem.removeEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false));
-            elem.addEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false));
+            elem.removeEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false), g_settings.openDocClickListenerCompatibilityMode);
+            elem.addEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false), g_settings.openDocClickListenerCompatibilityMode);
         });
     }
 }

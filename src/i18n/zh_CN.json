@@ -277,5 +277,22 @@
     "===========对话框：过时的设置项===========": null,
     "dialog_panel_outdate": ": Remove setting item info",
     "dialog_panel_outdate_content1": "我们发现在当前设置中，以下设置项与插件默认设置不同，且该设置项即将被移除：",
-    "dialog_panel_outdate_content2": "自下个版本起，上述设置项将被删除，并重置为默认设置。如果仍然需要这些设置项，请停留在当前插件版本不要升级。修改一次插件设置以忽略本提示。"
+    "dialog_panel_outdate_content2": "自下个版本起，上述设置项将被删除，并重置为默认设置。如果仍然需要这些设置项，请停留在当前插件版本不要升级。修改一次插件设置以忽略本提示。",
+    "===========对话框：切换文档===========": null,
+    "dialog_panel_switchDoc": "层级导航-相关文档面板",
+    "dialog_panel_switchDoc_switch": "上下左右切换所选文档",
+    "dialog_panel_switchDoc_open": "打开",
+    "dialog_panel_switchDoc_enter": "回车",
+    "dialog_panel_switchDoc_click": "单击",
+    "dialog_panel_switchDoc_esc": "退出搜索",
+    "dialog_panel_switchDoc_f1": "新建为同级文档",
+    "dialog_panel_switchDoc_f2": "新建为子文档",
+    "dialog_panel_switchDoc_f3": "新建为反向链接文档",
+    "dialog_panel_switchDoc_f3_warn": "[暂无计划支持，如需要，请反馈]",
+    "dialog_panel_switchDoc_ctrl": "切换到“基于文档搜索”插件并进行全文检索",
+    "dialog_panel_switchDoc_shift": "切换到“基于文档搜索”插件并进行仅标题检索",
+    "dialog_panel_switchDoc_search_plugin_not_found": "未启用“基于文档搜索”插件，或不支持的插件版本。——层级导航插件",
+
+
+    "open_doc_first": "请先打开文档。——层级导航插件"
 }

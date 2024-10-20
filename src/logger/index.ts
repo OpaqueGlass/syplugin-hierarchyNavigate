@@ -45,6 +45,7 @@ export function logPush(str: string, ...args: any[]) {
 export function errorPush(str: string, ... args: any[]) {
     if (commonPushCheck() >= 1) {
         console.error(`${g_FULLNAME}[E] ${new Date().toLocaleTimeString()} ${str}`, ...args);
+        console.trace(args[0] ?? undefined);
     }
 }
 

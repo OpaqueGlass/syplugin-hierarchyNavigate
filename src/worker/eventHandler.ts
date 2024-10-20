@@ -24,6 +24,7 @@ export default class EventHandler {
 
     private loadAndSwitchMutex: Mutex;
     private simpleMutex: number = 0;
+    private docIdMutex: Record<string, number> = {};
     constructor() {
         this.loadAndSwitchMutex = new Mutex();
     }
@@ -46,7 +47,12 @@ export default class EventHandler {
                     if (window["ogGoBackOri"]) {
                         const result = window["ogGoBackOri"]();
                         plugin.eventBus.emit("mobile-goback", {detail: {protyle: window.siyuan.mobile.editor.protyle}});
-                        this.loadedProtyleRetryEntry({detail: {protyle: window.siyuan.mobile.editor.protyle}});
+                        const event = new CustomEvent<IEventBusMap["loaded-protyle-static"]>("loaded-protyle-static", {
+                            detail: { protyle: window.siyuan.mobile.editor.protyle },
+                            bubbles: true,
+                            cancelable: true
+                        });
+                        this.loadedProtyleRetryEntry(event);
                         return result;
                     }
                 }
@@ -65,7 +71,8 @@ export default class EventHandler {
         // 多个文档同时触发则串行执行，理论上是要判断文档id是否相同（相同的才可能会在同一个Element上操作）；这里全部串行可能影响性能
         // 我也忘了为什么要绑定load-了（目前主要是其他载入情况使用，例如闪卡）；只是打开文档的话，switch-protyle事件就够了
         // 下面主要是避免两个事件同时触发造成的反复更新
-        if (this.simpleMutex > 0) {
+        const originBlockId = event?.detail?.protyle?.block?.id ?? "undefined";
+        if (this.docIdMutex[originBlockId] > 0) {
             getHPathById(event.detail.protyle.block.id).then((path) => {
                 logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, path);
             }).catch((err)=>{
@@ -73,7 +80,7 @@ export default class EventHandler {
             });
             return true;
         }
-        this.simpleMutex++;
+        this.docIdMutex[originBlockId]++;
         let doNotRetryFlag = true;
         if (isDebugMode()) {
             console.time(CONSTANTS.PLUGIN_NAME);
@@ -140,7 +147,7 @@ export default class EventHandler {
                 console.timeEnd(CONSTANTS.PLUGIN_NAME);
             }
             this.loadAndSwitchMutex.unlock();
-            this.simpleMutex--;
+            this.docIdMutex[originBlockId]--;
         }
         return doNotRetryFlag;
     }

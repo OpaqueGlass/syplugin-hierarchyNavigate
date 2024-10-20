@@ -66,6 +66,7 @@ interface IPluginSettings {
     removeRegStrListForLinks: string,
     pinRegStrListForLinks: string,
     orderByForBackLink: string,
+    openDocClickListenerCompatibilityMode: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -120,6 +121,7 @@ let defaultSetting: any = {
     pinRegStrListForLinks: "",
     sortForBackLink: LINK_SORT_TYPES.NAME_NATURAL_ASC,
     sortForForwardLink: LINK_SORT_TYPES.NAME_NATURAL_ASC,
+    openDocClickListenerCompatibilityMode: false,
 }
 
 
@@ -206,6 +208,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
                 new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
                 new ConfigProperty({"key": "sortForBackLink", "type": "SELECT", "options": Object.values(LINK_SORT_TYPES)}),
+                new ConfigProperty({"key": "openDocClickListenerCompatibilityMode", "type": "SWITCH"}), 
             ],
             "stop": [
                 new ConfigProperty({"key": "enableForOtherCircumstance", "type": "SWITCH"}),

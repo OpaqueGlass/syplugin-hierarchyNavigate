@@ -274,5 +274,21 @@
     "===========Dialog Outdated Settings 对话框：过时的设置项===========": null,
     "dialog_panel_outdate": ": Remove setting item prompt",
     "dialog_panel_outdate_content1": "We found that the following settings are different from the plugin defaults in the current settings and will be removed soon:",
-    "dialog_panel_outdate_content2": "Starting from the next version, the above settings will be deleted and reset to default settings. If you still need these settings, please stay in the current plug-in version and do not upgrade. Modify the plugin settings once to ignore this prompt."
+    "dialog_panel_outdate_content2": "Starting from the next version, the above settings will be deleted and reset to default settings. If you still need these settings, please stay in the current plug-in version and do not upgrade. Modify the plugin settings once to ignore this prompt.",
+    "===========Dialog: switch doc 对话框：切换文档===========": null,
+    "dialog_panel_switchDoc": "Relevant documents panel",
+    "dialog_panel_switchDoc_switch": "Switch selected document",
+    "dialog_panel_switchDoc_open": "Open",
+    "dialog_panel_switchDoc_enter": "Enter",
+    "dialog_panel_switchDoc_click": "Click",
+    "dialog_panel_switchDoc_esc": "Exit search",
+    "dialog_panel_switchDoc_f1": "Create as sibling document",
+    "dialog_panel_switchDoc_f2": "Create as child document",
+    "dialog_panel_switchDoc_f3": "Create as backlinked document",
+    "dialog_panel_switchDoc_f3_warn": "[Not supported yet]",
+    "dialog_panel_switchDoc_ctrl": "Switch to 'Document Search' plugin and perform full-text search",
+    "dialog_panel_switchDoc_shift": "Switch to 'Document Search' plugin and perform title-only search",
+    "dialog_panel_switchDoc_search_plugin_not_found": "The \"Document Search\" plugin is not enabled, or the plugin version is not supported. --HierarchyNavigate",
+
+    "open_doc_first": "Please open a document first. --HierarchyNavigate"
 }
