@@ -20,11 +20,6 @@ export function setStyle() {
         display:none;
     }
     `:"";
-    let iconAdjustStyle = g_setting.adjustDocIcon ? `
-    .protyle-title__icon {
-        top: 25px;
-    }
-    `:"";
 
     let borderDisplayStyle = g_setting.areaBorder ? 
     `
@@ -178,8 +173,6 @@ export function setStyle() {
         padding: 0px 6px;
         font-size: ${g_setting.fontSize}px;
     }
-
-    ${iconAdjustStyle}
 
     ${linkWidthRestrict}
 

@@ -62,8 +62,6 @@
     "setting_sameWidthColumnMobile_desp": "",
     "setting_hideIndicator_name": "隐藏导航区提示词",
     "setting_hideIndicator_desp": "隐藏“父：”“子：”等提示词，界面更简洁。如要修改提示词，可到插件所在文件夹/i18n修改语言文件。",
-    "setting_adjustDocIcon_name": "❌调整文档图标位置",
-    "setting_adjustDocIcon_desp": "插入导航区会导致标题左侧文档图标错位，开启此选项以修复此问题。若与您的自定义设置或主题产生冲突，请在此关闭。",
     "setting_noneAreaHide_name": "不存在文档时隐藏",
     "setting_noneAreaHide_desp": "在无对应文档时，隐藏该区域，不显示“无”。不建议和“隐藏导航区提示词”同时启用。",
     "setting_mainRetry_name": "❌出错重试次数",

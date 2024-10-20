@@ -35,7 +35,7 @@ interface IPluginSettings {
     maxHeightLimit: number,
     hideIndicator: boolean,
     sameWidth: number,
-    adjustDocIcon: boolean,
+    // adjustDocIcon: boolean, // v1.4.0+弃用
     // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
     immediatelyUpdate: boolean,
     noneAreaHide: boolean,
@@ -85,7 +85,7 @@ let defaultSetting: any = {
     maxHeightLimit: 10,
     hideIndicator: false,
     sameWidth: 0,
-    adjustDocIcon: false,
+    // adjustDocIcon: false, // v1.4.0+弃用
     // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
     // immediatelyUpdate: false, // 数据库更新后立即执行，重构后无法实现，已弃用
     noneAreaHide: false,
@@ -195,7 +195,6 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "sameWidthColumnMobile", "type": "NUMBER", min: 0, max: 15}),
             new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
             new ConfigProperty({"key": "areaBorder", "type": "SWITCH"}),
-            new ConfigProperty({"key": "adjustDocIcon", "type": "SWITCH"}),
             new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),
             new ConfigProperty({"key": "parentBoxCSS", "type": "TEXTAREA"}),
             new ConfigProperty({"key": "siblingBoxCSS", "type": "TEXTAREA"}),
@@ -298,7 +297,6 @@ export async function loadSettings() {
 function checkOutdatedSettings(loadSetting) {
     const CHECK_SETTING_KEYS = ["previousAndNextFollowDailynote",
         "doNotAddToTitle",
-        "adjustDocIcon",
     ];
     let result = [];
     for (let key of CHECK_SETTING_KEYS) {

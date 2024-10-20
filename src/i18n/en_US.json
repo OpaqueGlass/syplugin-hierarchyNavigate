@@ -60,8 +60,6 @@
     "setting_sameWidthColumnMobile_desp": "",
     "setting_hideIndicator_name": "Hide hint words",
     "setting_hideIndicator_desp": "Do not display 'Parent: ', 'Children: ' etc. To modify hint words, please go to the i18n/en_US.json file located in the plugin directory.",
-    "setting_adjustDocIcon_name": "❌Adjust the position of document icon",
-    "setting_adjustDocIcon_desp": "Inserting the navigation pane may cause the document icon on the left side of the title to be misaligned. Enable this option to fix this issue. If it conflicts with your custom settings or theme, please disable it here.",
     "setting_noneAreaHide_name": "Hide \"N/A\" when there is no document",
     "setting_noneAreaHide_desp": "When there is no corresponding document, hide the section and do not display \"N/A\". It is not recommended to enable it at the same time as \"Hide hint words\".",
     "setting_showDocInfo_name": "Show the information of current document",
