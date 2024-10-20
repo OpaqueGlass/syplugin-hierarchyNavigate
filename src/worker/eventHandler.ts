@@ -108,7 +108,7 @@ export default class EventHandler {
             }
             const protyleEnvInfo:IProtyleEnvInfo = getProtyleInfo(protyle);
             logPush("protyleInfo", protyleEnvInfo);
-            if (protyleEnvInfo.notTraditional && !protyleEnvInfo.flashCard && !protyleEnvInfo.mobile && !getReadOnlyGSettings().enableForOtherCircumstance) {
+            if (protyleEnvInfo.notTraditional && !protyleEnvInfo.flashCard && !protyleEnvInfo.mobile) { // 其他情况也显示层级导航：（弃用） && getReadOnlyGSettings().enableForOtherCircumstance == false
                 debugPush("非常规情况，且设置不允许，跳过");
                 return true;
             }

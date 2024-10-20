@@ -52,7 +52,7 @@ interface IPluginSettings {
     openDocContentGroup: string[],
     mobileContentGroup: string[],
     flashcardContentGroup: string[],
-    enableForOtherCircumstance: boolean,
+    enableForOtherCircumstance: boolean, // 在其他情况也显示导航 v1.4.0+弃用
     sameWidthColumn: number, // 等宽列
     sameWidthColumnMobile: number,
     previousAndNextFollowDailynote: boolean,
@@ -102,10 +102,10 @@ let defaultSetting: any = {
     openDocContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
     mobileContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
     flashcardContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.BLOCK_BREADCRUMB],
-    enableForOtherCircumstance: false,
+    // enableForOtherCircumstance: false, // 在其他情况也显示导航 v1.4.0+弃用
     childOrder: "FOLLOW_DOC_TREE", // 子文档部分排序方式
     showHiddenDoc: false,
-    previousAndNextHiddenDoc: true,
+    // previousAndNextHiddenDoc: true, // 同级文档显示隐藏文档 v1.4.0+弃用
     hideBlockBreadcrumbInDesktop: true,
     sameWidthColumn: 6,
     sameWidthColumnMobile: 3,
@@ -211,9 +211,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "openDocClickListenerCompatibilityMode", "type": "SWITCH"}), 
             ],
             "stop": [
-                new ConfigProperty({"key": "enableForOtherCircumstance", "type": "SWITCH"}),
                 new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
-                new ConfigProperty({"key": "previousAndNextHiddenDoc", "type": "SWITCH"}),
                 new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
             ]},
         }),
@@ -301,8 +299,6 @@ function checkOutdatedSettings(loadSetting) {
     const CHECK_SETTING_KEYS = ["previousAndNextFollowDailynote",
         "doNotAddToTitle",
         "adjustDocIcon",
-        "enableForOtherCircumstance",
-        "previousAndNextHiddenDoc"
     ];
     let result = [];
     for (let key of CHECK_SETTING_KEYS) {

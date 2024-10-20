@@ -795,7 +795,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
 class NeighborContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const siblingDocs = await getUserDemandSiblingDocuments(basicInfo.docBasicInfo.path, basicInfo.docBasicInfo.box, undefined, g_setting.previousAndNextHiddenDoc);//basicInfo.allSiblingDocInfoList;
+        const siblingDocs = await getUserDemandSiblingDocuments(basicInfo.docBasicInfo.path, basicInfo.docBasicInfo.box, undefined, true);//basicInfo.allSiblingDocInfoList;
         const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"), lang("neighbor_area"));
         let iCurrentDoc = -1;
         let previousElem = null, nextElem = null;

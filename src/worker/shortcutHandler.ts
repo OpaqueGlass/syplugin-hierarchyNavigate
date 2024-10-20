@@ -225,7 +225,7 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
     }
     const g_setting = getReadOnlyGSettings();
     // const parentSqlResult = await getParentDocument(sqlResult[0]);
-    siblingDocs = await getUserDemandSiblingDocuments(sqlResult[0].path, sqlResult[0].box, undefined, g_setting.previousAndNextHiddenDoc);
+    siblingDocs = await getUserDemandSiblingDocuments(sqlResult[0].path, sqlResult[0].box, undefined, true);
     
     // 处理sibling docs
     if (!sqlResult[0].ial?.includes("custom-dailynote") && (siblingDocs == null || siblingDocs.length == 1)) {
