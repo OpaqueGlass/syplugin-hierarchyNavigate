@@ -2,7 +2,7 @@
   "name": "syplugin-hierarchyNavigate",
   "author": "OpaqueGlass",
   "url": "https://github.com/OpaqueGlass/syplugin-hierarchyNavigate",
-  "version": "1.3.1",
+  "version": "1.4.0-rc1",
   "displayName": {
     "default": "HierarchyNavigate",
     "zh_CN": "文档层级导航",

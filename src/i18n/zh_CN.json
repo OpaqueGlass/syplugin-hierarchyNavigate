@@ -79,7 +79,7 @@
     "setting_previousAndNextHiddenDoc_name": "❌🧪获取相邻文档时包括文档树隐藏文档",
     "setting_previousAndNextHiddenDoc_desp": "（移除后，此选项将默认启用）为保证“上一篇、下一篇”内容区和快捷键切换的功能可用性，建议启用；若禁用，将无法切换到隐藏文档，如果当前文档被隐藏，也无法显示上一篇下一篇信息；",
     "setting_previousAndNextFollowDailynote_name": "❌🧪获取相邻文档时考虑最近日期的日记（dailynote）",
-    "setting_previousAndNextFollowDailynote_desp": "（移除后，此选项将默认启用）目前相邻文档只获取相同上级文档的，而不考虑可能存在的上一篇日记。启用此项，将试图获取上、下一篇日记；请注意，当工作空间笔记数量大于3000时，在低性能设备上将导致层级导航区显示延迟；且此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本（大于v2.11.1），并使用今日笔记等插件为过去的日记批量添加该属性）",
+    "setting_previousAndNextFollowDailynote_desp": "（移除后，此选项将默认启用）请注意，当工作空间笔记数量大于3000时，在低性能设备上将导致层级导航区显示延迟；且此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性）",
     "setting_mobileBackReplace_name": "移动端返回键触发更新",
     "setting_mobileBackReplace_desp": "启用后，插件将尝试替换思源的移动端返回逻辑，以确保在安卓端（ios未测试）返回时触发导航区更新；此项可能与其他插件不兼容或在版本更新中遇到其他问题",
     "setting_mobileRemoveAllArea_name": "移动端更新时移除全部内容区",
@@ -98,6 +98,8 @@
     "setting_pinRegStrListForLinks_desp": "一行一个正则表达式；匹配时使用选项gm",
     "setting_sortForBackLink_name": "🧪反向链接排序方式",
     "setting_sortForBackLink_desp": "目前正向连接也使用此排序方式；请注意，对正向链接或反向链接模式为“仅文档”时，文档名自然排序由插件实现；",
+    "setting_openDocClickListenerCompatibilityMode_name": "🧪打开文档点击事件兼容模式",
+    "setting_openDocClickListenerCompatibilityMode_desp": "启用后，将使用兼容模式，尝试解决部分情况下点击文档链接无法打开文档的问题；有效性、副作用未知；",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",
