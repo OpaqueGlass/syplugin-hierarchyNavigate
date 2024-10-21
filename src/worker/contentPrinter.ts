@@ -806,7 +806,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
             }
         }
         // 我们应该根据情况获取，如果是按照月构建的dailynote，同一笔记上可能有多个标签
-        let minCurrentDate = "99999999"; // 向上跳转用
+        let minCurrentDate = Number.MAX_SAFE_INTEGER.toString(); // 向上跳转用
         let maxCurrentDate = "0";
         const protyle = protyleEnvInfo.originProtyle as IProtyle
         const ialObject = protyle.background?.ial;
@@ -831,7 +831,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
                 previousElem = this.docLinkGenerator(docInfo);
                 flag = true;
-            } else if (isValidStr(minCurrentDate) && minCurrentDate != "99999999" && g_setting.previousAndNextFollowDailynote) {
+            } else if (isValidStr(minCurrentDate) && minCurrentDate != Number.MAX_SAFE_INTEGER.toString() && g_setting.previousAndNextFollowDailynote) {
                 const response = await queryAPI(`
                 SELECT b.content as name, b.id
                 FROM attributes AS a

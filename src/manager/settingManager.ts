@@ -207,7 +207,6 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
                 new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
                 new ConfigProperty({"key": "sortForBackLink", "type": "SELECT", "options": Object.values(LINK_SORT_TYPES)}),
-                new ConfigProperty({"key": "openDocClickListenerCompatibilityMode", "type": "SWITCH"}), 
             ],
             "stop": [
                 new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
@@ -258,8 +257,7 @@ export async function loadSettings() {
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
         loadResult["@version"] = currentVersion;
-        // loadResult["doNotAddToTitle"] = true;
-        // loadResult["adjustDocIcon"] = false;
+        loadResult["doNotAddToTitle"] = true;
         // 检查数组中指定设置和defaultSetting是否一致
         showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
     }
@@ -295,8 +293,7 @@ export async function loadSettings() {
 }
 
 function checkOutdatedSettings(loadSetting) {
-    const CHECK_SETTING_KEYS = ["previousAndNextFollowDailynote",
-        "doNotAddToTitle",
+    const CHECK_SETTING_KEYS = [
     ];
     let result = [];
     for (let key of CHECK_SETTING_KEYS) {

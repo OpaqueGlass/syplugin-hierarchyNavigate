@@ -247,7 +247,7 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
             return siblingDocs[iCurrentDoc + 1];
         }
         if (sqlResult[0].ial?.includes("custom-dailynote")) {
-            let minCurrentDate = "99999999"; // 向上跳转用
+            let minCurrentDate = Number.MAX_SAFE_INTEGER.toString(); // 向上跳转用
             let maxCurrentDate = "0";
             const ialObject = await getblockAttr(sqlResult[0].id);
             for (const key in ialObject) {
@@ -260,7 +260,7 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
                     }
                 }
             }
-            if ((isNext && maxCurrentDate == "0") && (!isNext && minCurrentDate == "99999999")) {
+            if ((isNext && maxCurrentDate == "0") && (!isNext && minCurrentDate == Number.MAX_SAFE_INTEGER.toString())) {
                 return null;
             }
             // 在这里我们假定id前截取到的8位数是dailynote的创建时间
