@@ -290,11 +290,19 @@ class BasicContentPrinter {
         }
     }
 
-    //TODO: 请注意，Constants.icon_none相关将被修改为语义化结果（例如"none"值）需要setting那边转换，也需要修改CONSTANTS
     static getEmojiHtmlStr(iconString:string, hasChild:boolean, g_setting:any) {
         if (g_setting.icon == CONSTANTS.ICON_NONE) return g_setting.linkDivider;
         // 无emoji的处理
-        if ((!isValidStr(iconString)) && g_setting.icon == CONSTANTS.ICON_ALL) return hasChild ? "📑" : "📄";//无icon默认值
+        if ((!isValidStr(iconString)) && g_setting.icon == CONSTANTS.ICON_ALL) {
+            if (window.siyuan.storage["local-images"]) {
+                if (hasChild) {
+                    return BasicContentPrinter.getEmojiHtmlStr(window.siyuan.storage["local-images"].folder, hasChild, g_setting);
+                } else {
+                    return BasicContentPrinter.getEmojiHtmlStr(window.siyuan.storage["local-images"].file, hasChild, g_setting);
+                }
+            }
+            return hasChild ? "📑" : "📄";//无icon默认值
+        }
         if (!isValidStr(iconString)) return g_setting.linkDivider;
         let result = iconString;
         // emoji地址判断逻辑为出现.，但请注意之后的补全
@@ -309,7 +317,6 @@ class BasicContentPrinter {
             try {
                 let result = "";
                 iconString.split("-").forEach(element => {
-                    //TODO: 确定是否正常
                     debugPush("element", element);
                     result += String.fromCodePoint(Number("0x" + element));
                 });
@@ -612,7 +619,16 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         const g_setting = getReadOnlyGSettings();
         if (g_setting.icon == CONSTANTS.ICON_NONE) return ``;
         // 无emoji的处理
-        if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_ALL) return hasChild ? `<span class="og-hn-menu-emojitext">📑</span>` : `<span class="og-hn-menu-emojitext">📄</span>`;//无icon默认值
+        if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_ALL) {
+            if (window.siyuan.storage["local-images"]) {
+                if (hasChild) {
+                    return BreadcrumbContentPrinter.getEmojiHtmlStrE2(window.siyuan.storage["local-images"].folder, hasChild);
+                } else {
+                    return BreadcrumbContentPrinter.getEmojiHtmlStrE2(window.siyuan.storage["local-images"].file, hasChild);
+                }
+            }
+            return hasChild ? `<span class="og-hn-menu-emojitext">📑</span>` : `<span class="og-hn-menu-emojitext">📄</span>`;//无icon默认值
+        }
         if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_CUSTOM_ONLY) return `<span class="og-hn-menu-emojitext"></span>`;
         let result = iconString;
         // emoji地址判断逻辑为出现.，但请注意之后的补全
