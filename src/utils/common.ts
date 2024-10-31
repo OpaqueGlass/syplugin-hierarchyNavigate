@@ -66,7 +66,10 @@ export function openRefLink(event: MouseEvent, paramId = "", keyParam = undefine
         id = paramId;
     }
     // 处理笔记本等无法跳转的情况
-    if (!isValidStr(id)) {return;}
+    if (!isValidStr(id)) {
+        debugPush("错误的id", id)
+        return;
+    }
     event?.preventDefault();
     event?.stopPropagation();
     debugPush("openRefLinkEvent", event);
@@ -103,8 +106,21 @@ export function openRefLink(event: MouseEvent, paramId = "", keyParam = undefine
         altKey: event?.altKey ?? keyParam?.altKey,
         bubbles: true
     });
+    // 存在选区时，ref相关点击是不执行的，这里暂存、清除，并稍后恢复
+    const tempSaveRanges = [];
+    const selection = window.getSelection();
+    for (let i = 0; i < selection.rangeCount; i++) {
+        tempSaveRanges.push(selection.getRangeAt(i));
+    }
+    window.getSelection()?.removeAllRanges();
+
     simulateLink.dispatchEvent(clickEvent);
     simulateLink.remove();
+
+    // // 恢复选区，不确定恢复选区是否会导致其他问题
+    // if (selection.isCollapsed) {
+    //     tempSaveRanges.forEach(range => selection.addRange(range)); // 恢复选区
+    // }
 }
 
 
