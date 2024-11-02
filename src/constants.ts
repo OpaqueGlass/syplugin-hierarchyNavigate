@@ -37,6 +37,9 @@ export class CONSTANTS {
     public static readonly BACKLINK_NONE: string = "disable";
     public static readonly BACKLINK_NORMAL: string = "show_all_as_doc";
     public static readonly BACKLINK_DOC_ONLY: string = "doc_only";
+    public static readonly REMOVE_CURRENT_TAB_DEFAULT: string = "default"; // 2
+    public static readonly REMOVE_CURRENT_TAB_TRUE: string = "true"; // 2
+    public static readonly REMOVE_CURRENT_TAB_FALSE: string = "false"; // 2
 }
 
 export class LINK_SORT_TYPES {

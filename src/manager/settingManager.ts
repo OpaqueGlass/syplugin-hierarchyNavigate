@@ -67,6 +67,8 @@ interface IPluginSettings {
     pinRegStrListForLinks: string,
     orderByForBackLink: string,
     openDocClickListenerCompatibilityMode: boolean,
+    autoRemoveOldTabJudgeMiliseconds: number,
+    openDocRemoveCurrentTab: string,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -122,6 +124,8 @@ let defaultSetting: any = {
     sortForBackLink: LINK_SORT_TYPES.NAME_NATURAL_ASC,
     sortForForwardLink: LINK_SORT_TYPES.NAME_NATURAL_ASC,
     openDocClickListenerCompatibilityMode: false,
+    autoRemoveOldTabJudgeMiliseconds: 0,
+    openDocRemoveCurrentTab: CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT,
 }
 
 
@@ -203,10 +207,8 @@ export function initSettingProperty() {
         ]}),
         new TabProperty({"key": "lab", "iconKey": "iconHelp", props: {
             "ing": [
-                
-                new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
-                new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
-                new ConfigProperty({"key": "sortForBackLink", "type": "SELECT", "options": Object.values(LINK_SORT_TYPES)}),
+                new ConfigProperty({"key": "openDocRemoveCurrentTab", "type": "SELECT", options: [CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT, CONSTANTS.REMOVE_CURRENT_TAB_TRUE, CONSTANTS.REMOVE_CURRENT_TAB_FALSE]}),
+                new ConfigProperty({"key": "autoRemoveOldTabJudgeMiliseconds", "type": "NUMBER", min: 0, max: 5000}),
             ],
             "stop": [
                 new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为

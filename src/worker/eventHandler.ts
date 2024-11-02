@@ -102,7 +102,7 @@ export default class EventHandler {
             // 疯了的话可能加入判断使用什么内容顺序（预设模板）
             if (protyle.element.classList.contains("fn__none")) {
                 if (isDebugMode()) {
-                    showMessage(`当前文档不可见, ${protyle.id}, ${docId}, ${protyle.element.children.length}——[syplugin-hierarchyNavigate]`);
+                    showMessage(`触发更新的文档不可见, ${protyle.id}, ${docId}, ${protyle.element.children.length}——[syplugin-hierarchyNavigate]`);
                 }
                 debugPush(`当前文档不可见, ${protyle.id}, ${docId}, ${protyle.element.children.length}`);
             }

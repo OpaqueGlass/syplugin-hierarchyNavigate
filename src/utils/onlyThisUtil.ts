@@ -1,7 +1,9 @@
 import { debugPush, errorPush } from "@/logger";
-import { isMobile } from "@/syapi";
+import { getCurrentDocIdF, isMobile } from "@/syapi";
 import { IProtyle } from "siyuan";
+import * as siyuanAPIs from "siyuan";
 import { isValidStr } from "./commonCheck";
+import { openRefLinkByAPI } from "./common";
 
 export function getProtyleInfo(protyle: IProtyle):IProtyleEnvInfo {
     let result:IProtyleEnvInfo = {
@@ -72,6 +74,13 @@ export function getListItemEmojiHtmlStr(iconString:string, hasChild:boolean) {
 
 export function emojiIconHandler(iconString:string, hasChild = false) {
     if (!isValidStr(iconString)) {
+        if (window.siyuan.storage["local-images"]) {
+            if (hasChild) {
+                return emojiIconHandler(window.siyuan.storage["local-images"].folder, hasChild);
+            } else {
+                return emojiIconHandler(window.siyuan.storage["local-images"].file, hasChild);
+            }
+        }
         return hasChild ? "📑" : "📄";
     }
     //确定是emojiIcon 再调用，printer自己加判断
@@ -85,4 +94,62 @@ export function emojiIconHandler(iconString:string, hasChild = false) {
         errorPush("emoji处理时发生错误", iconString, err);
         return hasChild ? "📑" : "📄";
     }
+}
+
+/**
+ * 使用设置中的参数处理文档
+ * @param param0 
+ */
+export function openRefLinkByAPIWithConfig({mouseEvent, paramDocId = "", keyParam = undefined, openInFocus = undefined, g_setting}: {mouseEvent?: MouseEvent, paramDocId?: string, keyParam?: any, openInFocus?: boolean, g_setting: any}) {
+    let removeCurrentTab = undefined;
+    let autoRemoveJudgeMiliseconds = 0;
+    if (g_setting.openDocRemoveCurrentTab == "true") {
+        removeCurrentTab = true;
+    }
+    if (g_setting.openDocRemoveCurrentTab == "false") {
+        removeCurrentTab = false;
+    }
+    if (g_setting.autoRemoveOldTabJudgeMiliseconds != 0 && Number.isInteger(g_setting.autoRemoveOldTabJudgeMiliseconds)) {
+        autoRemoveJudgeMiliseconds = g_setting.autoRemoveOldTabJudgeMiliseconds;
+    }
+    openRefLinkByAPI({mouseEvent, paramDocId, keyParam, openInFocus, removeCurrentTab, autoRemoveJudgeMiliseconds});
+}
+
+export function removeCurrentTabF(docId?:string) {
+    // 获取tabId
+    if (!isValidStr(docId)) {
+        docId = getCurrentDocIdF(true);
+    }
+    if (!isValidStr(docId)) {
+        debugPush("错误的id或多个匹配id");
+        return;
+    }
+    // v3.1.11或以上
+    if (siyuanAPIs?.getAllEditor) {
+        const editor = siyuanAPIs.getAllEditor();
+        let protyle = null;
+        for (let i = 0; i < editor.length; i++) {
+            if (editor[i].protyle.block.rootID === docId) {
+                protyle = editor[i].protyle;
+                break;
+            }
+        }
+        if (protyle) {
+            if (protyle.model.headElement) {
+                if (protyle.model.headElement.classList.contains("item--pin")) {
+                    debugPush("Pin页面，不关闭存在页签");
+                    return;
+                }
+            }
+            //id: string, closeAll = false, animate = true, isSaveLayout = true
+            debugPush("关闭存在页签", protyle?.model?.parent?.parent, protyle.model?.parent?.id);
+            protyle?.model?.parent?.parent?.removeTab(protyle.model?.parent?.id, false, false);
+        } else {
+            debugPush("没有找到对应的protyle，不关闭存在的页签");
+            return;
+        }
+    } else { // v3.1.10或以下
+        return;
+    }
+
 }

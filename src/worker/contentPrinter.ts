@@ -2,13 +2,12 @@ import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
 import { getBackLink2T, getBlockBreadcrumb, getDocInfo, getNotebookInfoLocallyF, isMobile, queryAPI } from "@/syapi"
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
-import { getGSettings, getReadOnlyGSettings } from "@/manager/settingManager";
+import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
 import { debugPush, errorPush, logPush, warnPush } from "@/logger";
-import { openRefLink } from "@/utils/common";
 import { IProtyle, Menu } from "siyuan";
 import { getUserDemandSiblingDocuments } from "./commonProvider";
-import { htmlTransferParser } from "@/utils/onlyThisUtil";
+import { htmlTransferParser, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
 
@@ -306,8 +305,10 @@ class BasicContentPrinter {
         if (!isValidStr(iconString)) return g_setting.linkDivider;
         let result = iconString;
         // emoji地址判断逻辑为出现.，但请注意之后的补全
-        if (iconString.indexOf(".") != -1) {
+        if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
             result = `<img class="iconpic" style="width: ${g_setting.fontSize}px" src="/emojis/${iconString}"/>`;
+        } else if (iconString.match(new RegExp("http(s)?:\\/\\/"))) {
+            result = `<img class="iconpic" style="width: ${g_setting.fontSize}px" src="${iconString}"/>`;
         } else {
             result = `<span class="emojitext">${emojiIconHandler(iconString, hasChild)}</span>`;
         }
@@ -593,18 +594,15 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
                 accelerator: nextId == currSibling.id ? "<-" : undefined,
                 iconHTML: BreadcrumbContentPrinter.getEmojiHtmlStrE2(currSibling.icon, currSibling.subFileCount != 0),
                 label: `<span class="${CONSTANTS.MENU_ITEM_CLASS_NAME}" 
-                    data-doc-id="${currSibling.id}"
+                    og-data-doc-id="${currSibling.id}"
                     ${nextId == currSibling.id ? `style="font-weight: bold;"` : ""}
                     title="${currSibling.name}">
                     ${trimedName}
                 </span>`,
-                click: (event)=>{
+                click: (element, event)=>{
                     debugPush("menu clickEvent", event);
-                    let docId = event.querySelector("[data-doc-id]")?.getAttribute("data-doc-id")
-                    openRefLink(undefined, docId, {
-                        ctrlKey: event?.ctrlKey,
-                        shiftKey: event?.shiftKey,
-                        altKey: event?.altKey});
+                    let docId = element.querySelector("[og-data-doc-id]")?.getAttribute("og-data-doc-id");
+                    openRefLinkByAPIWithConfig({mouseEvent: event, paramDocId: docId, g_setting: getReadOnlyGSettings()});
                 }
             }
             if (currSibling.icon != "" && currSibling.icon.indexOf(".") == -1) {
@@ -632,8 +630,10 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_CUSTOM_ONLY) return `<span class="og-hn-menu-emojitext"></span>`;
         let result = iconString;
         // emoji地址判断逻辑为出现.，但请注意之后的补全
-        if (iconString.indexOf(".") != -1) {
+        if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
             result = `<img class="og-hn-menu-emojipic" src="/emojis/${iconString}"/>`;
+        } else if (iconString.match(new RegExp("http(s)?:\\/\\/"))) {
+            result = `<img class="og-hn-menu-emojipic" src="${iconString}"/>`;
         } else {
             result = `<span class="og-hn-menu-emojitext">${BreadcrumbContentPrinter.emojiIconHandler(iconString, hasChild)}</span>`;
         }

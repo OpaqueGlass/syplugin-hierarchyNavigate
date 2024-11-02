@@ -1,6 +1,9 @@
-import { IProtyle } from "siyuan";
+import { IProtyle, openMobileFileById, openTab } from "siyuan";
 import { isValidStr } from "./commonCheck";
 import { debugPush, logPush, warnPush } from "@/logger";
+import { getPluginInstance } from "./getInstance";
+import { getCurrentDocIdF, isMobile } from "@/syapi";
+import { removeCurrentTabF } from "./onlyThisUtil";
 
 export function getToken(): string {
     return "";
@@ -10,6 +13,7 @@ export function getToken(): string {
  * 在protyle所在的分屏中打开
  * @param event 
  * @param protyleElem 
+ * @deprecated
  */
 export function openRefLinkInProtyleWnd(protyleElem: IProtyle, openInFocus: boolean, event: MouseEvent) {
     logPush("debug", event, protyleElem);
@@ -54,6 +58,7 @@ export function getFocusedBlock() {
  * @param {any} keyParam event的Key，主要是ctrlKey shiftKey等，此项仅在event无效时使用
  * @param {IProtyle} protyleElem 如果不为空打开文档点击事件将在该Elem上发起
  * @param {boolean} openInFocus 在当前聚焦的窗口中打开，给定此项为true，则优于protyle选项生效
+ * @deprecated 请使用openRefLinkByAPI
  */
 export function openRefLink(event: MouseEvent, paramId = "", keyParam = undefined, protyleElem = undefined, openInFocus = false){
     let syMainWndDocument= window.parent.document
@@ -122,6 +127,81 @@ export function openRefLink(event: MouseEvent, paramId = "", keyParam = undefine
     //     tempSaveRanges.forEach(range => selection.addRange(range)); // 恢复选区
     // }
 }
+
+let lastClickTime_openRefLinkByAPI = 0;
+/**
+ * 基于API的打开思源块/文档
+ * @param mouseEvent 鼠标点击事件，如果存在，优先使用
+ * @param paramDocId 如果没有指定 event，使用此参数作为文档id
+ * @param keyParam 如果没有event，使用此次数指定ctrlKey后台打开、shiftKey下方打开、altKey右侧打开
+ * @param openInFocus 是否以聚焦块的方式打开（此参数有变动）
+ * @param removeCurrentTab 是否移除当前Tab
+ * @param autoRemoveJudgeMiliseconds 自动判断是否移除当前Tab的时间间隔（0则 不自动判断）
+ * @returns 
+ */
+export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, openInFocus = undefined, removeCurrentTab = undefined, autoRemoveJudgeMiliseconds = 0}: {mouseEvent?: MouseEvent, paramDocId?: string, keyParam?: any, openInFocus?: boolean, removeCurrentTab?: boolean, autoRemoveJudgeMiliseconds?: number}) {
+    let docId: string;
+    if (mouseEvent && (mouseEvent.currentTarget as HTMLElement)?.getAttribute("data-node-id")) {
+        docId = (mouseEvent.currentTarget as HTMLElement)?.getAttribute("data-node-id");
+    } else if ((mouseEvent?.currentTarget as HTMLElement)?.getAttribute("data-id")) {
+        docId = (mouseEvent.currentTarget as HTMLElement)?.getAttribute("data-id");
+    } else {
+        docId = paramDocId;
+    }
+    // 处理笔记本等无法跳转的情况
+    if (!isValidStr(docId)) {
+        debugPush("错误的id", docId)
+        return;
+    }
+    // 需要冒泡，否则不能在所在页签打开
+    // event?.preventDefault();
+    // event?.stopPropagation();
+    if (isMobile()) {
+        openMobileFileById(getPluginInstance().app, docId);
+        return;
+    }
+    debugPush("openRefLinkEventAPIF", mouseEvent);
+    if (mouseEvent) {
+        keyParam = {};
+        keyParam["ctrlKey"] = mouseEvent.ctrlKey;
+        keyParam["shiftKey"] = mouseEvent.shiftKey;
+        keyParam["altKey"] = mouseEvent.altKey;
+    }
+    let positionKey = undefined;
+    if (keyParam["altKey"]) {
+        positionKey = "right";
+    } else if (keyParam["shiftKey"]) {
+        positionKey = "bottom";
+    }
+    if (autoRemoveJudgeMiliseconds > 0) {
+        if (Date.now() - lastClickTime_openRefLinkByAPI < autoRemoveJudgeMiliseconds) {
+            removeCurrentTab = true;
+        }
+        lastClickTime_openRefLinkByAPI = Date.now();
+    }
+    // 手动关闭
+    const needToCloseDocId = getCurrentDocIdF(true);
+    
+    const finalParam = {
+        app: getPluginInstance().app,
+        doc: {
+            id: docId,
+            zoomIn: openInFocus
+        },
+        position: positionKey,
+        keepCursor: keyParam["ctrlKey"] ? true : undefined,
+        removeCurrentTab: removeCurrentTab, // 目前这个选项的行为是：true，则当前页签打开；false，则根据思源设置：新页签打开
+    };
+    debugPush("打开文档执行参数", finalParam);
+    openTab(finalParam);
+    // 后台打开页签不可移除
+    if (removeCurrentTab && !keyParam["ctrlKey"]) {
+        debugPush("插件自行移除页签");
+        removeCurrentTabF(needToCloseDocId);
+        removeCurrentTab = false;
+    }
+}
+
 
 
 export function parseDateString(dateString: string): Date | null {

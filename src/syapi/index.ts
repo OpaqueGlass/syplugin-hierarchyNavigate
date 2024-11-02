@@ -293,12 +293,15 @@ export async function pushMsgAPI(msgText, timeout){
 /**
  * 获取当前文档id（伪api）
  * 优先使用jquery查询
+ * @param {boolean} mustSure 是否必须确认，若为true，找到多个打开中的文档时返回null
  */
-export async function getCurrentDocIdF() {
+export function getCurrentDocIdF(mustSure: boolean = false) {
     let thisDocId:string = null;
+    // 桌面端
     thisDocId = window.top.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background")?.getAttribute("data-node-id");
-    debugPush("thisDocId by first id", thisDocId);
+    debugPush("尝试获取当前具有焦点的id", thisDocId);
     let temp:string = null;
+    // 移动端
     if (!thisDocId && isMobile()) {
         // UNSTABLE: 面包屑样式变动将导致此方案错误！
         try {
@@ -318,9 +321,14 @@ export async function getCurrentDocIdF() {
             temp = null;
         }
     }
+    // 无聚焦窗口
     if (!thisDocId) {
         thisDocId = window.top.document.querySelector(".protyle.fn__flex-1:not(.fn__none) .protyle-background")?.getAttribute("data-node-id");
-        debugPush("thisDocId by background must match,  id", thisDocId);
+        debugPush("获取具有焦点id失败，获取首个打开中的文档", thisDocId);
+        if (mustSure && window.top.document.querySelectorAll(".protyle.fn__flex-1:not(.fn__none) .protyle-background").length > 1) {
+            debugPush("要求必须唯一确认，但是找到多个打开中的文档");
+            return null;
+        }
     }
     return thisDocId;
 }

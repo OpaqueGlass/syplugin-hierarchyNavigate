@@ -1,15 +1,16 @@
 import { debugPush, logPush } from "@/logger";
 import { getblockAttr, getCurrentDocIdF, isMobile, queryAPI } from "@/syapi";
-import { generateUUID, getFocusedBlockId, openRefLink } from "@/utils/common";
+import { generateUUID, getFocusedBlockId } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { lang } from "@/utils/lang";
-import { openTab, showMessage, Plugin } from "siyuan";
-import { getAllChildDocuments, getAllSiblingDocuments, getParentDocument, getUserDemandSiblingDocuments } from "./commonProvider";
+import { showMessage, Plugin } from "siyuan";
+import { getAllChildDocuments, getUserDemandSiblingDocuments } from "./commonProvider";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { createApp } from "vue";
 import switchPanel from "@/components/dialog/switchPanel.vue";
 import * as siyuan from "siyuan";
 import { useShowSwitchPanel } from "./pluginHelper";
+import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 
 export function bindCommand(pluginInstance: Plugin) {
     pluginInstance.addCommand({
@@ -86,7 +87,7 @@ export function bindCommand(pluginInstance: Plugin) {
 
 
 async function showSwitchPanel() {
-    const docId = await getCurrentDocIdF();
+    const docId = getCurrentDocIdF();
     if (!isValidStr(docId)) {
         debugPush("未能获取到当前文档id");
         showMessage(lang("open_doc_first"));
@@ -121,7 +122,8 @@ async function showSwitchPanel() {
 
 
 async function goUpShortcutHandler() {
-    const docId = await getCurrentDocIdF();
+    const docId = getCurrentDocIdF();
+    const g_setting = getReadOnlyGSettings();
     if (!isValidStr(docId)) {
         logPush("未能读取到打开文档的id");
         showMessage(lang("open_doc_first"));
@@ -141,10 +143,10 @@ async function goUpShortcutHandler() {
     if (isValidStr(paths[paths.length - 2])) {
         let docId = paths[paths.length - 2];
         docId = docId.replace(".sy", "");
-        openRefLink(undefined, docId, {
+        openRefLinkByAPIWithConfig({paramDocId: docId, keyParam: {
             ctrlKey: false,
             shiftKey: false,
-            altKey: false});
+            altKey: false}, g_setting});
     } else {
         showMessage(lang("is_top_document"), 2000)
     }
@@ -152,17 +154,18 @@ async function goUpShortcutHandler() {
 
 
 async function goDownShortcutHandler() {
-    const docId = await getCurrentDocIdF();
+    const docId = getCurrentDocIdF();
+    const g_setting = getReadOnlyGSettings();
     let sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
     if (sqlResult && sqlResult.length >= 1) {
         // TODO: 如果可以忽略超过范围的提示，再将这里的限制修改为3以下
         const childDocsList = await getAllChildDocuments(sqlResult[0].path, sqlResult[0].box);
         if (childDocsList && childDocsList.length >= 1) {
             const childDoc = childDocsList[0];
-            openRefLink(undefined, childDoc.id, {
+            openRefLinkByAPIWithConfig({paramDocId: childDoc.id, keyParam: {
                 ctrlKey: false,
                 shiftKey: false,
-                altKey: false});
+                altKey: false}, g_setting});
         } else {
             showMessage(lang("no_child_document"), 2000);
         }
@@ -173,10 +176,11 @@ async function goDownShortcutHandler() {
 
 async function goToPreviousDocShortcutHandler() {
     const previousDoc = await getSiblingDocsForNeighborShortcut(false);
+    const g_setting = getReadOnlyGSettings();
     debugPush("previousDoc", previousDoc);
     if (previousDoc) {
         // 打开
-        openRefLink(undefined, previousDoc.id);
+        openRefLinkByAPIWithConfig({paramDocId: previousDoc.id, g_setting});
         // openTab({
         //     app: getPluginInstance().app.appId,
         //     doc: {
@@ -191,9 +195,10 @@ async function goToPreviousDocShortcutHandler() {
 
 async function goToNextDocShortcutHandler() {
     const nextDoc = await getSiblingDocsForNeighborShortcut(true);
+    const g_setting = getReadOnlyGSettings();
     debugPush("nextDoc", nextDoc);
     if (nextDoc) {
-        openRefLink(undefined, nextDoc.id);
+        openRefLinkByAPIWithConfig({paramDocId: nextDoc.id, g_setting});
         // openTab({
         //     app: getPluginInstance().app.appId,
         //     doc: {
@@ -210,7 +215,7 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
     let siblingDocs = null;
     let docId;
 
-    docId = await getCurrentDocIdF();
+    docId = getCurrentDocIdF();
     if (!isValidStr(docId)) {
         showMessage(lang("open_doc_first"));
         return ;
@@ -286,7 +291,7 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
 }
 
 async function addWidgetShortcutHandler(protyle:any) {
-    const docId = await getCurrentDocIdF();
+    const docId = getCurrentDocIdF();
     if (docId == null) {
         logPush("未能读取到打开文档的id");
         showMessage(lang("open_doc_first"));

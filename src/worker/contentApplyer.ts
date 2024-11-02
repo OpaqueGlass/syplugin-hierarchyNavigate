@@ -2,17 +2,23 @@ import { CONSTANTS } from "@/constants";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
-import { isPluginExist, openRefLinkInProtyleWnd } from "@/utils/common";
+import { isPluginExist, openRefLinkByAPI } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
+import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 
 export default class ContentApplyer {
     private basicInfo: IBasicInfo;
     private protyleEnvInfo: IProtyleEnvInfo;
     private protyleElement: HTMLElement;
+    private clickEventHandler: (event)=>void;
     constructor(basicInfo, protyleEnvInfo, protyleElement: HTMLElement) {
         this.basicInfo = basicInfo;
         this.protyleEnvInfo = protyleEnvInfo;
         this.protyleElement = protyleElement;
+        const g_setting = getReadOnlyGSettings();
+        this.clickEventHandler = (event)=>{
+            openRefLinkByAPIWithConfig({mouseEvent: event, g_setting: g_setting});
+        };
     }
 
     async apply(printerAllResults: IAllPrinterResult) {
@@ -290,9 +296,9 @@ export default class ContentApplyer {
         const g_settings = getReadOnlyGSettings();
         // 理论上需要包含openRefLink的绑定（统一）其他的交给Printer管
         element.querySelectorAll(".og-hn-heading-docs-container span.refLinks").forEach((elem) => {
-            // TODO: 这里设置为 openInFocus Flase，不在聚焦位置打开
-            elem.removeEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false), g_settings.openDocClickListenerCompatibilityMode);
-            elem.addEventListener("click", openRefLinkInProtyleWnd.bind(null, this.protyleElement, false), g_settings.openDocClickListenerCompatibilityMode);
+            // .bind结果应当暂存，否则无法remove先前的
+            elem.removeEventListener("click", this.clickEventHandler, g_settings.openDocClickListenerCompatibilityMode);
+            elem.addEventListener("click", this.clickEventHandler, g_settings.openDocClickListenerCompatibilityMode);
         });
     }
 }
