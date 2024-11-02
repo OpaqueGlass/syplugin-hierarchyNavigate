@@ -250,7 +250,7 @@
     "error_initFailed": "HierarchyNavigation Plugin initialization failed, please report this issue to developer at your convenience",
     "create_at": "Created at",
     "update_at": "Modified at",
-    "child_count": "Number of child-docs %NUM%",
+    "child_count": "Number of child-docs %NUM%%TOTAL%",
     "child_word_count": "Child-doc character count ",
     "previous_doc": "<PREV·",
     "next_doc": ">NEXT·",

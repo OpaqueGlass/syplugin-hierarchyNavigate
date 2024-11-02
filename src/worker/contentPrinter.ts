@@ -369,6 +369,14 @@ class DocInfoContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         // 请求总字数
         const totalWords = await getChildDocumentsWordCount(basicInfo.currentDocId);
+        let totalChildDocs: any, totalChildDocsNum:Number = 0;
+        try {
+            totalChildDocs = await queryAPI(`SELECT count(*) as total_count FROM blocks WHERE path like "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%" AND type = "d"`);
+            totalChildDocsNum = totalChildDocs[0]["total_count"];
+        } catch(err) {
+            errorPush(err);
+        }
+        
         let thisDocInfos = null;
         // 检索兄弟文档
         for (const sibling of basicInfo.allSiblingDocInfoList) {
@@ -391,7 +399,7 @@ class DocInfoContentPrinter extends BasicContentPrinter {
             <span class="og-hn-create-at-content">${thisDocInfos["hMtime"]}</span>
         </span>
         <span class="og-hn-child-doc-count-wrapper">
-        ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${basicInfo.childDocInfoList.length}</span>`)} 
+        ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${basicInfo.childDocInfoList.length}</span>`).replace("%TOTAL%", `<span class="og-hn-total-child-doc-count-content">(${totalChildDocsNum})</span>`)} 
         </span>
         ${basicInfo.childDocInfoList.length == 0 ? "" : 
         `<span class="og-hn-child-word-count-wrapper">
