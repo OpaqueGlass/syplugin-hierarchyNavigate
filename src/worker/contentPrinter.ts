@@ -419,7 +419,7 @@ class DocInfoContentPrinter extends BasicContentPrinter {
 class ParentContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const result = super.getBasicElement(CONSTANTS.PARENT_CONTAINER_ID, null, lang("parent_nodes"), lang("parent_area"));
-        if (basicInfo.docBasicInfo == null) {
+        if (basicInfo.docBasicInfo == null || basicInfo.parentDocBasicInfo == null) {
             const g_setting = getReadOnlyGSettings();
             // 历史兼容选项，当没有父文档时，将显示兄弟文档
             if (g_setting.sibling) {
