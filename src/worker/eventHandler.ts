@@ -73,17 +73,17 @@ export default class EventHandler {
         // 下面主要是避免两个事件同时触发造成的反复更新
         const originBlockId = event?.detail?.protyle?.block?.id ?? "undefined";
         if (this.docIdMutex[originBlockId] > 0) {
-            getHPathById(event.detail.protyle.block.id).then((path) => {
-                logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, path);
-            }).catch((err)=>{
-                logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, "未能显示hpath");
-            });
+            const path = await getHPathById(event.detail.protyle.block.id);
+            logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, path);
             return true;
+        } else if (!this.docIdMutex[originBlockId]) {
+            this.docIdMutex[originBlockId] = 0;
         }
+        debugPush("mutex", originBlockId, this.docIdMutex[originBlockId]);
         this.docIdMutex[originBlockId]++;
         let doNotRetryFlag = true;
         if (isDebugMode()) {
-            console.time(CONSTANTS.PLUGIN_NAME);
+            console.time(CONSTANTS.PLUGIN_NAME + " " + originBlockId);
         }
         try {
             await this.loadAndSwitchMutex.lock();
@@ -144,7 +144,7 @@ export default class EventHandler {
         } finally {
             logPush("\x1b[1;36m%s\x1b[0m", "<<<<<<<< mutex 任务结束");
             if (isDebugMode()) {
-                console.timeEnd(CONSTANTS.PLUGIN_NAME);
+                console.timeEnd(CONSTANTS.PLUGIN_NAME + " " + originBlockId);
             }
             this.loadAndSwitchMutex.unlock();
             this.docIdMutex[originBlockId]--;
