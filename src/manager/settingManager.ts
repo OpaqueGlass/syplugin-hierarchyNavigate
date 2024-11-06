@@ -69,6 +69,7 @@ interface IPluginSettings {
     openDocClickListenerCompatibilityMode: boolean,
     autoRemoveOldTabJudgeMiliseconds: number,
     openDocRemoveCurrentTab: string,
+    requestAllDocIcon: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -111,7 +112,7 @@ let defaultSetting: any = {
     hideBlockBreadcrumbInDesktop: true,
     sameWidthColumn: 6,
     sameWidthColumnMobile: 3,
-    previousAndNextFollowDailynote: true,
+    previousAndNextFollowDailynote: false,
     mobileBackReplace: false,
     mobileRemoveAllArea: false,
     doNotAddToTitle: true,
@@ -126,6 +127,7 @@ let defaultSetting: any = {
     openDocClickListenerCompatibilityMode: false,
     autoRemoveOldTabJudgeMiliseconds: 0,
     openDocRemoveCurrentTab: CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT,
+    requestAllDocIcon: true,
 }
 
 
@@ -210,6 +212,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "openDocRemoveCurrentTab", "type": "SELECT", options: [CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT, CONSTANTS.REMOVE_CURRENT_TAB_TRUE, CONSTANTS.REMOVE_CURRENT_TAB_FALSE]}),
                 new ConfigProperty({"key": "autoRemoveOldTabJudgeMiliseconds", "type": "NUMBER", min: 0, max: 5000}),
                 new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
+                new ConfigProperty({"key": "requestAllDocIcon", "type": "SWITCH"}),
             ],
             "stop": [
                 new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
@@ -255,11 +258,11 @@ export async function loadSettings() {
             loadResult = defaultSetting;
         }
     }
-    const currentVersion = 20240818;
+    const currentVersion = 20241106;
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
         loadResult["@version"] = currentVersion;
-        loadResult["doNotAddToTitle"] = true;
+        loadResult["previousAndNextFollowDailynote"] = false;
         // 检查数组中指定设置和defaultSetting是否一致
         showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
     }

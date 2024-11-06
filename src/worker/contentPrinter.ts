@@ -291,6 +291,8 @@ class BasicContentPrinter {
 
     static getEmojiHtmlStr(iconString:string, hasChild:boolean, g_setting:any) {
         if (g_setting.icon == CONSTANTS.ICON_NONE) return g_setting.linkDivider;
+        // 处理sqlResult等无图标的情况
+        if (iconString == null) return g_setting.linkDivider;
         // 无emoji的处理
         if ((!isValidStr(iconString)) && g_setting.icon == CONSTANTS.ICON_ALL) {
             if (window.siyuan.storage["local-images"]) {
@@ -868,6 +870,11 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 if (thisDocInfo) {
                     thisDocInfo["ogSimpleName"] = lang("previous_doc") + htmlTransferParser(thisDocInfo.name);
                     thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    if (g_setting.requestAllDocIcon && !isMobile()) {
+                        const fullDocInfo = await getDocInfo(thisDocInfo.id);
+                        thisDocInfo["icon"] = fullDocInfo.icon;
+                        thisDocInfo["subFileCount"] = fullDocInfo.subFileCount;
+                    }
                     const oneLinkElem = super.docLinkGenerator(thisDocInfo);
                     previousElem = oneLinkElem;
                     flag = true;
@@ -893,6 +900,11 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 if (thisDocInfo) {
                     thisDocInfo["ogSimpleName"] = lang("next_doc") + htmlTransferParser(thisDocInfo.name);
                     thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    if (g_setting.requestAllDocIcon && !isMobile()) {
+                        const fullDocInfo = await getDocInfo(thisDocInfo.id);
+                        thisDocInfo["icon"] = fullDocInfo.icon;
+                        thisDocInfo["subFileCount"] = fullDocInfo.subFileCount;
+                    }
                     const oneLinkElem = super.docLinkGenerator(thisDocInfo);
                     nextElem = oneLinkElem;
                     flag = true;
