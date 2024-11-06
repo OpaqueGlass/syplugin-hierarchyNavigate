@@ -154,10 +154,16 @@ export function removeCurrentTabF(docId?:string) {
 
 }
 
-
-export async function getNeighborDailyNoteDoc({sqlResult=null, docId=null, getNewer=true}: {sqlResult?: any, docId?: string, getNewer?: boolean}) {
-    if (sqlResult == null) {
+/**
+ * 获取临近的日记
+ * @param param0 sqlResult^: 查询结果，docId&: 文档id，boxId&: 笔记本id，getNewer: 是否获取更新的日记，ialObject*: ial对象
+ * @returns 
+ */
+export async function getNeighborDailyNoteDoc({sqlResult=null, docId=null, boxId=null, getNewer=true, ialObject=null}: {sqlResult?: any, docId?: string, getNewer?: boolean, ialObject?:any, boxId?: string}) {
+    if (sqlResult == null && boxId == null) {
         sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = '${docId}'`);
+    } else if (sqlResult == null && isValidStr(boxId) && isValidStr(docId)) {
+        sqlResult = [{"id": docId, "box": boxId, "ial": JSON.stringify(ialObject)}];
     }
     if (sqlResult == null || sqlResult.length == 0) {
         debugPush("未找到对应的block");
@@ -166,9 +172,12 @@ export async function getNeighborDailyNoteDoc({sqlResult=null, docId=null, getNe
     if (!sqlResult[0].ial?.includes("custom-dailynote")) {
         return null;
     }
+    // 我们应该根据情况获取，如果是按照月构建的dailynote，同一笔记上可能有多个标签
     let minCurrentDate = Number.MAX_SAFE_INTEGER.toString(); // 向上跳转用
     let maxCurrentDate = "0";
-    const ialObject = await getblockAttr(sqlResult[0].id);
+    if (ialObject == null) {
+        ialObject = await getblockAttr(sqlResult[0].id);
+    }
     for (const key in ialObject) {
         if (key.startsWith("custom-dailynote-")) {
             if (parseInt(ialObject[key]) > parseInt(maxCurrentDate)) {
