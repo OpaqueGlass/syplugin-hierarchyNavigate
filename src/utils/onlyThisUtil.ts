@@ -1,5 +1,5 @@
 import { debugPush, errorPush } from "@/logger";
-import { getCurrentDocIdF, isMobile } from "@/syapi";
+import { DOC_SORT_TYPES, getblockAttr, getCurrentDocIdF, isMobile, queryAPI } from "@/syapi";
 import { IProtyle } from "siyuan";
 import * as siyuanAPIs from "siyuan";
 import { isValidStr } from "./commonCheck";
@@ -152,4 +152,79 @@ export function removeCurrentTabF(docId?:string) {
         return;
     }
 
+}
+
+
+export async function getNeighborDailyNoteDoc({sqlResult=null, docId=null, getNewer=true}: {sqlResult?: any, docId?: string, getNewer?: boolean}) {
+    if (sqlResult == null) {
+        sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = '${docId}'`);
+    }
+    if (sqlResult == null || sqlResult.length == 0) {
+        debugPush("未找到对应的block");
+        throw new Error("未找到对应的block" + docId);
+    }
+    if (!sqlResult[0].ial?.includes("custom-dailynote")) {
+        return null;
+    }
+    let minCurrentDate = Number.MAX_SAFE_INTEGER.toString(); // 向上跳转用
+    let maxCurrentDate = "0";
+    const ialObject = await getblockAttr(sqlResult[0].id);
+    for (const key in ialObject) {
+        if (key.startsWith("custom-dailynote-")) {
+            if (parseInt(ialObject[key]) > parseInt(maxCurrentDate)) {
+                maxCurrentDate = ialObject[key];
+            } 
+            if (parseInt(ialObject[key]) < parseInt(minCurrentDate)) {
+                minCurrentDate = ialObject[key];
+            }
+        }
+    }
+    if ((getNewer && maxCurrentDate == "0") && (!getNewer && minCurrentDate == Number.MAX_SAFE_INTEGER.toString())) {
+        return null;
+    }
+    // 在这里我们假定id前截取到的8位数是dailynote的创建时间
+    const response = await queryAPI(`
+    SELECT b.content as name, b.id
+    FROM attributes AS a
+    JOIN blocks AS b ON a.root_id = b.id
+    WHERE a.name LIKE 'custom-dailynote%' AND a.block_id = a.root_id
+    AND b.box = '${sqlResult[0].box}' 
+    AND a.value ${getNewer ? ">" : "<"} '${getNewer ? maxCurrentDate : minCurrentDate}'
+    ORDER BY
+    a.value ${getNewer ? "ASC" : "DESC"}
+    LIMIT 1`);
+    debugPush("dailyNote结果", response);
+    if (response && response.length > 0) {
+        return response[0];
+    } else {
+        debugPush("日记未定位到结果");
+        return null;
+    }
+}
+
+// export function getNotebookSortMode(boxId: string) {
+//     let sortType: string|number = window.document.querySelector(`.file-tree.sy__file ul[data-url='${boxId}']`)?.getAttribute("data-sortmode");
+//     if (!isValidStr(sortType)) {
+//         sortType = window.siyuan.notebooks.filter((item) => item.id == boxId)[0]?.sortMode;
+//     }
+//     if (typeof sortType === "string") {
+//         sortType = parseInt(sortType, 10);
+//     }
+//     if (sortType == DOC_SORT_TYPES.FOLLOW_DOC_TREE_ORI) {
+//         sortType = window.siyuan.config?.fileTree?.sort;
+//     }
+//     return sortType;
+// }
+
+export function isSortAsc(sortMode: number) {
+    return [DOC_SORT_TYPES.FILE_NAME_ASC, DOC_SORT_TYPES.NAME_NAT_ASC, DOC_SORT_TYPES.CREATED_TIME_ASC, 
+        DOC_SORT_TYPES.MODIFIED_TIME_ASC, DOC_SORT_TYPES.REF_COUNT_ASC, DOC_SORT_TYPES.DOC_SIZE_ASC,
+        DOC_SORT_TYPES.SUB_DOC_COUNT_ASC
+    ].includes(sortMode);
+}
+
+export function isSortByNameOrCreateTime(sortMode: number) {
+    return [DOC_SORT_TYPES.FILE_NAME_ASC, DOC_SORT_TYPES.FILE_NAME_DESC, DOC_SORT_TYPES.NAME_NAT_ASC,
+        DOC_SORT_TYPES.NAME_NAT_DESC, DOC_SORT_TYPES.CREATED_TIME_ASC, DOC_SORT_TYPES.CREATED_TIME_DESC
+    ].includes(sortMode);
 }

@@ -444,7 +444,10 @@ export function getNotebookSortModeF(notebookId = undefined) {
     try {
         let fileTreeSort = window.top.siyuan.config.fileTree.sort;
         if (!notebookId) return fileTreeSort;
-        let notebookSortMode = getNotebookInfoLocallyF(notebookId).sortMode;
+        let notebookSortMode = window.document.querySelector(`.file-tree.sy__file ul[data-url='${notebookId}']`)?.getAttribute("data-sortmode") ?? getNotebookInfoLocallyF(notebookId).sortMode;
+        if (typeof notebookSortMode === "string") {
+            notebookSortMode = parseInt(notebookSortMode, 10);
+        }
         if (notebookSortMode == DOC_SORT_TYPES.UNASSIGNED || notebookSortMode == DOC_SORT_TYPES.FOLLOW_DOC_TREE) {
             return fileTreeSort;
         }
@@ -813,6 +816,7 @@ export const DOC_SORT_TYPES = {
     SUB_DOC_COUNT_ASC: 13,
     SUB_DOC_COUNT_DESC: 14,
     CUSTOM_SORT: 6,
-    FOLLOW_DOC_TREE: 255, 
+    FOLLOW_DOC_TREE: 255, // 插件内部定义的”跟随文档树“
+    FOLLOW_DOC_TREE_ORI: 15, // 官方对于”跟随文档树“的定义
     UNASSIGNED: 256,
 };  

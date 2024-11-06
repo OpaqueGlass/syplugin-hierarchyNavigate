@@ -209,10 +209,10 @@ export function initSettingProperty() {
             "ing": [
                 new ConfigProperty({"key": "openDocRemoveCurrentTab", "type": "SELECT", options: [CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT, CONSTANTS.REMOVE_CURRENT_TAB_TRUE, CONSTANTS.REMOVE_CURRENT_TAB_FALSE]}),
                 new ConfigProperty({"key": "autoRemoveOldTabJudgeMiliseconds", "type": "NUMBER", min: 0, max: 5000}),
+                new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
             ],
             "stop": [
                 new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
-                new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
             ]},
         }),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [

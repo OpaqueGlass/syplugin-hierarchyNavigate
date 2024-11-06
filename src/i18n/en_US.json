@@ -264,7 +264,7 @@
     "go_to_next_doc": "Open next doc",
     "is_first_document": "Already on the first document",
     "is_last_document": "Already on the last document",
-    "jump_by_dailynote": "The current navigation is based on the diary (daily note) order and has entered a new 'folder'.",
+    "jump_by_dailynote": "The current navigation is based on the diary (daily note) order.",
     "is_hidden_doc": "(The current document is a hidden document, and adjacent document information cannot be displayed)",
     "more_or_less": "---More/Less---",
     "more": "🔽 More",

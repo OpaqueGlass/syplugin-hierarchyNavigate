@@ -1,5 +1,5 @@
 import { debugPush, isDebugMode, logPush } from "@/logger";
-import { getblockAttr, getCurrentDocIdF, isMobile, queryAPI } from "@/syapi";
+import { getblockAttr, getCurrentDocIdF, getNotebookSortModeF, isMobile, queryAPI } from "@/syapi";
 import { generateUUID, getFocusedBlockId } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { lang } from "@/utils/lang";
@@ -10,7 +10,7 @@ import { createApp } from "vue";
 import switchPanel from "@/components/dialog/switchPanel.vue";
 import * as siyuan from "siyuan";
 import { useShowSwitchPanel } from "./pluginHelper";
-import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
+import { getNeighborDailyNoteDoc, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 
 export function bindCommand(pluginInstance: Plugin) {
     pluginInstance.addCommand({
@@ -216,7 +216,6 @@ async function goToNextDocShortcutHandler() {
 async function getSiblingDocsForNeighborShortcut(isNext) {
     let siblingDocs = null;
     let docId;
-
     docId = getCurrentDocIdF();
     if (!isValidStr(docId)) {
         showMessage(lang("open_doc_first"));
@@ -247,46 +246,31 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
         }
     }
     if (iCurrentDoc >= 0) {
+        // #78 启用日记独立排序时，日记先行
+        if (sqlResult[0].ial?.includes("custom-dailynote") && g_setting.previousAndNextFollowDailynote) {
+            return await getNeighborDailyNoteDoc({sqlResult: sqlResult, getNewer: isNext});
+        }
         if (iCurrentDoc > 0 && isNext == false) {
             return siblingDocs[iCurrentDoc - 1];
         }
         if (iCurrentDoc + 1 < siblingDocs.length && isNext == true) {
             return siblingDocs[iCurrentDoc + 1];
         }
+        // #78 默认情况 文档排序方式 升降序补充缺失的上一篇或下一篇；文件名、自然排序、创建时间排序以外的排序方式，不补充；
         if (sqlResult[0].ial?.includes("custom-dailynote")) {
-            let minCurrentDate = Number.MAX_SAFE_INTEGER.toString(); // 向上跳转用
-            let maxCurrentDate = "0";
-            const ialObject = await getblockAttr(sqlResult[0].id);
-            for (const key in ialObject) {
-                if (key.startsWith("custom-dailynote-")) {
-                    if (parseInt(ialObject[key]) > parseInt(maxCurrentDate)) {
-                        maxCurrentDate = ialObject[key];
-                    } 
-                    if (parseInt(ialObject[key]) < parseInt(minCurrentDate)) {
-                        minCurrentDate = ialObject[key];
-                    }
+            const sortMode = getNotebookSortModeF(sqlResult[0].box);
+            if (isSortByNameOrCreateTime(sortMode)) {
+                if (isSortAsc(sortMode)) {
+                    return await getNeighborDailyNoteDoc({sqlResult: sqlResult, getNewer: isNext});
+                } else {
+                    // 若为降序，下一篇isNext为获取更早的日记，这里取反
+                    return await getNeighborDailyNoteDoc({sqlResult: sqlResult, getNewer: !isNext});
                 }
-            }
-            if ((isNext && maxCurrentDate == "0") && (!isNext && minCurrentDate == Number.MAX_SAFE_INTEGER.toString())) {
+            } else {
                 return null;
             }
-            // 在这里我们假定id前截取到的8位数是dailynote的创建时间
-            const response = await queryAPI(`
-            SELECT b.content as name, b.id
-            FROM attributes AS a
-            JOIN blocks AS b ON a.root_id = b.id
-            WHERE a.name LIKE 'custom-dailynote%' AND a.block_id = a.root_id
-            AND b.box = '${sqlResult[0].box}' 
-            AND a.value ${isNext ? ">" : "<"} '${isNext ? maxCurrentDate : minCurrentDate}'
-            ORDER BY
-            a.value ${isNext ? "ASC" : "DESC"}
-            LIMIT 1`);
-            debugPush("dailyNote结果", response);
-            if (response && response.length > 0) {
-                showMessage(lang("jump_by_dailynote"), 2000);
-                return response[0];
-            }
         }
+        
         return null;
     }
     return null;
