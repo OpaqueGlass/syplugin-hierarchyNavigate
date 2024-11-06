@@ -762,8 +762,18 @@ export async function getTreeStat(id:string) {
     return getResponseData(postRequest(data, url));
 }
 
+let isMobileRecentResult = null;
 export function isMobile() {
-    return window.top.document.getElementById("sidebar") ? true : false;
+    if (isMobileRecentResult != null) {
+        return isMobileRecentResult;
+    }
+    if (window.top.document.getElementById("sidebar")) {
+        isMobileRecentResult = true;
+        return true;
+    } else {
+        isMobileRecentResult = false;
+        return false;
+    }
 };
 
 export function getBlockBreadcrumb(blockId: string, excludeTypes: string[] = []) {
