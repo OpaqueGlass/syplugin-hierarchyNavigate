@@ -1,0 +1,61 @@
+name: Bug Report
+description: File a report to help us improve
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping us improve by reporting this bug. Please provide as much detail as possible.
+        
+  - type: textarea
+    id: describe-bug
+    attributes:
+      label: Describe the Bug
+      description: Provide a detailed description of the bug's behavior.
+      placeholder: Describe the bug here...
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        If the issue cannot be reproduced consistently, please go to the plugin settings, select "About," enable "Show detailed logs and Join alpha test". Check for any relevant messages in the `Console` of the developer tools (`Ctrl+Shift+I`) when bug occured.
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Describe the steps or settings needed to reproduce the issue. If it cannot be consistently reproduced, indicate the frequency of occurrence and upload relavent logs in the developer tools (if available).
+      placeholder: 1. Step one\n2. Step two\n3. Step three
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: Describe the expected behavior here...
+
+  - type: textarea
+    id: screenshots-or-recordings
+    attributes:
+      label: Screenshots or Recordings
+      description: If possible, upload screenshots or recordings to demonstrate the bug.
+      placeholder: Upload to screenshot or recording here...
+
+  - type: input
+    id: operating-system
+    attributes:
+      label: Device and Version Information
+      description: Specify your OS, plugin version, SiYuan version, and other relevant details.
+      placeholder: "e.g., Operating System: iOS; Plugin Version: latest; SiYuan Version: v3.1.11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: Additional Information
+      description: Add any other relevant information here.
+      placeholder: Additional context here...

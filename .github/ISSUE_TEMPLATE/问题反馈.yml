@@ -1,0 +1,62 @@
+name: 问题反馈
+description: 提交非预期行为、错误或缺陷报告
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢提交问题反馈！请尽可能详细地填写以下内容，以帮助我们理解和解决问题。
+        
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: 问题现象
+      description: 尽可能详细地描述问题的表现。
+      placeholder: 在此描述问题...
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        如果问题不能稳定重现，请打开插件设置-关于-显示详细日志并加入测试计划，在错误发生时关注`Ctrl+Shift+I`开发者工具中的`Console`/`控制台`中的有关提示信息。
+
+  
+  - type: textarea
+    id: reproduce-steps
+    attributes:
+      label: 复现操作
+      description: 描述重现问题所需要的步骤或设置项。如果不能稳定重现，请说明问题的发生频率，并上传错误提示信息。
+      placeholder: 1. 步骤一\n2. 步骤二\n3. 步骤三
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 预期行为
+      description: 描述预期发生的情况。
+      placeholder: 在此描述预期行为...
+
+  - type: textarea
+    id: screenshots-or-recordings
+    attributes:
+      label: 截图或录屏说明
+      description: 如果可能，请上传截图或录屏来演示问题。
+      placeholder: 在此提供截图或录屏...
+
+  - type: input
+    id: device-info
+    attributes:
+      label: 设备与版本信息
+      description: 请提供操作系统、插件和思源版本等信息。
+      placeholder: 例：操作系统：iOS；插件版本：最新；思源版本：v3.1.11
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: 其他补充信息
+      description: 如有其他相关信息，请在此提供。
+      placeholder: 在此提供补充信息...
