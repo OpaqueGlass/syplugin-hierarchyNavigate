@@ -79,7 +79,7 @@
     "setting_previousAndNextHiddenDoc_name": "❌🧪获取相邻文档时包括文档树隐藏文档",
     "setting_previousAndNextHiddenDoc_desp": "（移除后，此选项将默认启用）为保证“上一篇、下一篇”内容区和快捷键切换的功能可用性，建议启用；若禁用，将无法切换到隐藏文档，如果当前文档被隐藏，也无法显示上一篇下一篇信息；",
     "setting_previousAndNextFollowDailynote_name": "🔄🧪相邻文档对于日记（dailynote）按日记对应日期升序获取",
-    "setting_previousAndNextFollowDailynote_desp": "(1)请注意，当工作空间笔记数量大于3000时，在低性能设备上将导致层级导航区显示延迟；且此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性）(2)开启后，在dailynote笔记上，将按照日记时间升序跳转/显示上一篇下一篇，不跟随文档树排序；(3)关闭（默认）时，仅在缺失上一篇或下一篇时，按照升降序补充上一篇或下一篇；文件名、自然排序、创建时间排序以外的排序方式，不补充；",
+    "setting_previousAndNextFollowDailynote_desp": "关闭时，相邻文档以文档树顺序为主，如果是文件夹中第一篇或最后一篇日记，才按照文档升降序补充缺失的相邻日记；文件名、自然排序、创建时间排序以外的排序方式，不补充；(2)请注意，当工作空间笔记数量大于3000时，在低性能设备上将导致层级导航区显示延迟；且仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性）。",
     "setting_mobileBackReplace_name": "移动端返回键触发更新",
     "setting_mobileBackReplace_desp": "启用后，插件将尝试替换思源的移动端返回逻辑，以确保在安卓端（ios未测试）返回时触发导航区更新；此项可能与其他插件不兼容或在版本更新中遇到其他问题",
     "setting_mobileRemoveAllArea_name": "移动端更新时移除全部内容区",
@@ -107,9 +107,8 @@
     "setting_openDocRemoveCurrentTab_option_false": "强制禁用",
     "setting_requestAllDocIcon_name": "尽可能地显示文档图标",
     "setting_requestAllDocIcon_desp": "启用后，对于小部分情况（如相邻文档），插件将额外请求图标，一般获取一个图标将导致50ms左右的延迟；",
-
     "setting_autoRemoveOldTabJudgeMiliseconds_name": "🧪连续打开则关闭上一个文档（后台打开文档除外）",
-    "setting_autoRemoveOldTabJudgeMiliseconds_desp": "（仅思源3.1.11或以上版本，其他版本请保持禁用）设置为0则禁用；单位：毫秒；请注意：启用此选项，无论上一个文档是否经过修改，都将尝试关闭。",
+    "setting_autoRemoveOldTabJudgeMiliseconds_desp": "（仅思源3.1.11或以上版本，其他版本请保持禁用）设置为0则禁用；这里设置判断为连续打开的最长时间间隔，单位：毫秒；请注意：启用此选项，无论上一个文档是否经过修改，都将尝试关闭。",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",

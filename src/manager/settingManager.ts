@@ -127,7 +127,7 @@ let defaultSetting: any = {
     openDocClickListenerCompatibilityMode: false,
     autoRemoveOldTabJudgeMiliseconds: 0,
     openDocRemoveCurrentTab: CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT,
-    requestAllDocIcon: true,
+    requestAllDocIcon: false,
 }
 
 
