@@ -49,8 +49,10 @@ export function getListItemEmojiHtmlStr(iconString:string, hasChild:boolean) {
     }
     let result = iconString;
     // emoji地址判断逻辑为出现.，但请注意之后的补全
-    if (iconString.indexOf(".") != -1) {
-        result = `<img class="b3-list-item__graphic" src="/emojis/${iconString}"}" />`;
+    if (iconString.startsWith("api/icon/getDynamicIcon")) {
+        result = `<img class="b3-list-item__graphic" src="/${iconString}" />`;
+    } else if (iconString.indexOf(".") != -1) {
+        result = `<img class="b3-list-item__graphic" src="/emojis/${iconString}" />`;
     } else {
         result = `<span class="b3-list-item__graphic">${emojiIconHandler(iconString, hasChild)}</span>`;
     }

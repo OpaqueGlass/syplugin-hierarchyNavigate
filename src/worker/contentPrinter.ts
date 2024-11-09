@@ -307,7 +307,9 @@ class BasicContentPrinter {
         if (!isValidStr(iconString)) return g_setting.linkDivider;
         let result = iconString;
         // emoji地址判断逻辑为出现.，但请注意之后的补全
-        if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
+        if (iconString.startsWith("api/icon/getDynamicIcon")) {
+            result = `<img class="iconpic" style="width: ${g_setting.fontSize}px" src="/${iconString}"/>`;
+        } else if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
             result = `<img class="iconpic" style="width: ${g_setting.fontSize}px" src="/emojis/${iconString}"/>`;
         } else if (iconString.match(new RegExp("http(s)?:\\/\\/"))) {
             result = `<img class="iconpic" style="width: ${g_setting.fontSize}px" src="${iconString}"/>`;
@@ -615,9 +617,9 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
                     openRefLinkByAPIWithConfig({mouseEvent: event, paramDocId: docId, g_setting: getReadOnlyGSettings()});
                 }
             }
-            if (currSibling.icon != "" && currSibling.icon.indexOf(".") == -1) {
-                tempMenuItemObj["icon"] = `icon-${currSibling.icon}`;
-            }
+            // if (currSibling.icon != "" && currSibling.icon.indexOf(".") == -1) {
+            //     tempMenuItemObj["icon"] = `icon-${currSibling.icon}`;
+            // }
             tempMenu.addItem(tempMenuItemObj);
         }
     
@@ -640,7 +642,9 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_CUSTOM_ONLY) return `<span class="og-hn-menu-emojitext"></span>`;
         let result = iconString;
         // emoji地址判断逻辑为出现.，但请注意之后的补全
-        if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
+        if (iconString.startsWith("api/icon/getDynamicIcon")) {
+            result = `<img class="og-hn-menu-emojipic" src="/${iconString}"/>`;
+        } else if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
             result = `<img class="og-hn-menu-emojipic" src="/emojis/${iconString}"/>`;
         } else if (iconString.match(new RegExp("http(s)?:\\/\\/"))) {
             result = `<img class="og-hn-menu-emojipic" src="${iconString}"/>`;
