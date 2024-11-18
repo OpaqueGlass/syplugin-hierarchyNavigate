@@ -23,3 +23,30 @@ export function isBlankStr(s: any): boolean {
 	}
 	return false;
 }
+
+let cacheIsMacOs = undefined;
+export function isMacOs() {
+	let platform = window.top.siyuan.config.system.os ?? navigator.platform ?? "ERROR";
+    platform = platform.toUpperCase();
+    let isMacOSFlag = cacheIsMacOs;
+    if (cacheIsMacOs == undefined) {
+        for (let platformName of ["DARWIN", "MAC", "IPAD", "IPHONE", "IOS"]) {
+            if (platform.includes(platformName)) {
+                isMacOSFlag = true;
+                break;
+            }
+        }
+        cacheIsMacOs = isMacOSFlag;
+    }
+	if (isMacOSFlag == undefined) {
+		isMacOSFlag = false;
+	}
+	return isMacOSFlag;
+}
+
+export function isEventCtrlKey(event) {
+    if (isMacOs()) {
+        return event.metaKey;
+    }
+    return event.ctrlKey;
+}

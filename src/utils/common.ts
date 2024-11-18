@@ -1,5 +1,5 @@
 import { IProtyle, openMobileFileById, openTab } from "siyuan";
-import { isValidStr } from "./commonCheck";
+import { isEventCtrlKey, isValidStr } from "./commonCheck";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getPluginInstance } from "./getInstance";
 import { getCurrentDocIdF, isMobile } from "@/syapi";
@@ -109,6 +109,7 @@ export function openRefLink(event: MouseEvent, paramId = "", keyParam = undefine
         ctrlKey: event?.ctrlKey ?? keyParam?.ctrlKey,
         shiftKey: event?.shiftKey ?? keyParam?.shiftKey,
         altKey: event?.altKey ?? keyParam?.altKey,
+        metaKey: event?.metaKey ?? keyParam?.metaKey,
         bubbles: true
     });
     // 存在选区时，ref相关点击是不执行的，这里暂存、清除，并稍后恢复
@@ -166,6 +167,7 @@ export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, op
         keyParam["ctrlKey"] = mouseEvent.ctrlKey;
         keyParam["shiftKey"] = mouseEvent.shiftKey;
         keyParam["altKey"] = mouseEvent.altKey;
+        keyParam["metaKey"] = mouseEvent.metaKey;
     }
     let positionKey = undefined;
     if (keyParam["altKey"]) {
@@ -189,13 +191,13 @@ export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, op
             zoomIn: openInFocus
         },
         position: positionKey,
-        keepCursor: keyParam["ctrlKey"] ? true : undefined,
+        keepCursor: isEventCtrlKey(keyParam) ? true : undefined,
         removeCurrentTab: removeCurrentTab, // 目前这个选项的行为是：true，则当前页签打开；false，则根据思源设置：新页签打开
     };
     debugPush("打开文档执行参数", finalParam);
     openTab(finalParam);
     // 后台打开页签不可移除
-    if (removeCurrentTab && !keyParam["ctrlKey"]) {
+    if (removeCurrentTab && !isEventCtrlKey(keyParam)) {
         debugPush("插件自行移除页签");
         removeCurrentTabF(needToCloseDocId);
         removeCurrentTab = false;
