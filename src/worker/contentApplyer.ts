@@ -5,6 +5,7 @@ import { isMobile } from "@/syapi";
 import { isPluginExist, openRefLinkByAPI } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
+import { removeToTheTop } from "./shortcutHandler";
 
 export default class ContentApplyer {
     private basicInfo: IBasicInfo;
@@ -18,6 +19,7 @@ export default class ContentApplyer {
         const g_setting = getReadOnlyGSettings();
         this.clickEventHandler = (event)=>{
             openRefLinkByAPIWithConfig({mouseEvent: event, g_setting: g_setting});
+            removeToTheTop();
         };
     }
 

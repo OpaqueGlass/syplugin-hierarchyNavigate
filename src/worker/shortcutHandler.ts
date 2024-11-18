@@ -11,6 +11,7 @@ import switchPanel from "@/components/dialog/switchPanel.vue";
 import * as siyuan from "siyuan";
 import { useShowSwitchPanel } from "./pluginHelper";
 import { getNeighborDailyNoteDoc, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
+import { CONSTANTS } from "@/constants";
 
 export function bindCommand(pluginInstance: Plugin) {
     pluginInstance.addCommand({
@@ -85,6 +86,13 @@ export function bindCommand(pluginInstance: Plugin) {
         //         this.openStatisticTab();
         //     }
         // });
+    pluginInstance.addCommand({
+        langKey: "make_navigation_top",
+        hotkey: "",
+        callback: () => {
+            turnNavigationToTop();
+        },
+    });
 }
 
 
@@ -290,4 +298,36 @@ async function addWidgetShortcutHandler(protyle:any) {
     const WIDGET_HTML = `<iframe src="/widgets/listChildDocs" data-src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 1500px; height: 350px;"></iframe>`;
     debugPush("shortCut,PROTYLE", protyle);
     protyle.getInstance()?.insert(WIDGET_HTML, true)
+}
+
+async function turnNavigationToTop() {
+    if (removeToTheTop()) {
+        return;
+    }
+    // 找到当前有效的，指定之
+    const navigationArea = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container") as HTMLElement;
+    if (!navigationArea) {
+        return;
+    }
+    navigationArea.classList.add(CONSTANTS.TO_THE_TOP_CLASS_NAME);
+    const breadcrumbEle = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container");
+    const rect = breadcrumbEle.getBoundingClientRect();
+    const left = rect.left;
+    const top = rect.bottom;
+    navigationArea.style.left = `${left}px`;
+    navigationArea.style.top = `${top}px`;
+    // 添加监听，有点击事件则清除之
+    // window.document.addEventListener("click", removeToTheTop);
+}
+
+export function removeToTheTop() {
+    // window.document.removeEventListener("click", removeToTheTop);
+    const navigationArea = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container.${CONSTANTS.TO_THE_TOP_CLASS_NAME}`);
+    if (navigationArea) {
+        navigationArea.classList.remove(CONSTANTS.TO_THE_TOP_CLASS_NAME);
+        navigationArea.style.left = '';
+        navigationArea.style.top = '';
+        return true;
+    }
+    return false;
 }

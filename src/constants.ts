@@ -31,6 +31,7 @@ export class CONSTANTS {
     public static readonly NEXT_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-next-doc-container";
     public static readonly BACKLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-backlink-doc-container";
     public static readonly FOWARDLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-forwardlink-doc-container";
+    public static readonly TO_THE_TOP_CLASS_NAME: string = "og-hn-container-to-top";
     public static readonly POP_NONE: string = "disable"; // 0
     public static readonly POP_LIMIT: string = "icon_only"; // 1
     public static readonly POP_ALL: string = "all"; // 2

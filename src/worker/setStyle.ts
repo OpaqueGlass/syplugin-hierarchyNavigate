@@ -61,6 +61,17 @@ export function setStyle() {
     
     `;
 
+    let toTheTop = `
+.${CONSTANTS.TO_THE_TOP_CLASS_NAME} {
+    z-index: 21;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: var(--b3-toolbar-background);
+    border: 1px solid var(--b3-toolbar-blur-background);
+}
+    `;
+
     let calColumnCount = g_setting.sameWidthColumn;
     if (isMobile()) {
         calColumnCount = g_setting.sameWidthColumnMobile;
@@ -185,6 +196,8 @@ export function setStyle() {
     ${linkColumnStyle}
 
     ${borderDisplayStyle}
+
+    ${toTheTop}
 
     /* 限制相邻文档区域 链接宽度*/
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
