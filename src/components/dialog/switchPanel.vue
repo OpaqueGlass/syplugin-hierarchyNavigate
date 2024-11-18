@@ -101,7 +101,10 @@ const __init__ = async () => {
         return item;
     });
     // 在categories.value[1] 中追加所有子孙文档
-    categories.value[1].items.push(...descendants.map((item) => {
+    // 排除重复项
+    const existingIds = new Set(categories.value[1].items.map(item => item.id));
+    const uniqueDescendants = descendants.filter(item => !existingIds.has(item.id));
+    categories.value[1].items.push(...uniqueDescendants.map((item) => {
         item["ogSimpleName"] = htmlTransferParser(item.content.substring(0, item.content.length));
         return item;
     }));
