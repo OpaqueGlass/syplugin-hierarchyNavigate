@@ -1,10 +1,10 @@
 ## Hierarchy Navigate
 
-[请点这里阅读中文说明](README_zh_CN.md)
+[中文](README_zh_CN.md)
 
 > Most of this document was translated by Google Translate.
 
-Add parent and children documents links under the document title.
+> A [Siyuan-note](https://github.com/siyuan-note/siyuan) plugin that adds parent and children document links under the document title.
 
 ### Quick Start
 

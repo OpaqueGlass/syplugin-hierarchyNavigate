@@ -167,7 +167,7 @@
     "setting_openDocContentGroup_option_previousAndNext": "Previous and Next",
     "setting_openDocContentGroup_option_previousAndNext_desp": "Get the previous/next document based on the document tree display order; (Neighbor Docs)",
     "setting_openDocContentGroup_option_info": "Document Information Row",
-    "setting_openDocContentGroup_option_info_desp": "Document information includes: creation time, modification time, number of child documents, total character count of child documents (estimated value, including spaces, OCR results, code blocks); even if closed, you can still know the number of documents by hovering the mouse over the prompt word.<br/>By using developer tools and CSS code snippets, it is possible to hide unwanted content. For more details, please consult GPT.",
+    "setting_openDocContentGroup_option_info_desp": "Document information includes: creation time, modification time, number of child documents, total character count of child documents (estimated value, including spaces, OCR results, code blocks); even if closed, you can still know the number of documents by hovering the mouse over the prompt word.<br/>By using developer tools and CSS code snippets, it is possible to hide unwanted content. For more details, please consult GPT or other AI assistance.",
     "setting_openDocContentGroup_option_onThisDay": "On This Day in Previous Years",
     "setting_openDocContentGroup_option_onThisDay_desp": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) Displays links to daily-note entries from the same month and day; this feature only works with the new version of diaries (requires the `custom-dailynote-yyyyMMdd` attribute; if not available, please upgrade to a newer version of Siyuan and use plugins like siyuan-dailynote-today to bulk-add past diaries attribute); currently, it actually displays other daily-note entries from the same month and day within the same notebook.",
     "setting_openDocContentGroup_option_forwardlinks": "🧪Forward Links (Doc title only)",
@@ -242,7 +242,7 @@
 
 
     "setting_aboutAuthor_name": "About this plugin",
-    "setting_aboutAuthor_desp": "Translator: GPT3.5 & OpaqueGlass;<br>Developer: <a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>Feedback & sponsor: <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate'>github</a>;<br/>Released under <a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a> license.",
+    "setting_aboutAuthor_desp": "Translator: GPT 4o-mini & OpaqueGlass;<br>Developer: <a target='_blank' href='https://github.com/OpaqueGlass'>OpaqueGlass</a>；<br/>Feedback & sponsor: <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate'>github</a>;<br/>Released under <a target='_blank' href='https://www.gnu.org/licenses/agpl-3.0.html'>AGPLv3</a> license.",
     "setting_settingIconTips_name": "The meanings of the icons used in the settings page",
     "setting_settingIconTips_desp": "🔄 indicates that the meaning or effect of the setting has changed in the latest version. Please read the <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/blob/ts-main/CHANGELOG.md'>changelog(written in Chinese)</a> to understand the changes and any necessary adjustments you may need to make.<br/>🆕 indicates a newly added setting in the latest version. Please read the <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/blob/ts-main/CHANGELOG.md'>changelog(written in Chinese)</a> to learn about the new feature.<br/>🧪 or 🚧 indicates an experimental feature. The developer will make efforts to maintain it, but it may be removed if there are unresolvable issues.<br/>🚅 indicates a feature in public beta testing. When a feature has passed a small-scale test, it will be marked as such (although there may not have been many testers, so its reliability is unknown).<br/>⛔ indicates a legacy compatibility option that will be removed soon.",
     "setting_debugMode_name": "Show detailed logs and Join alpha test",
@@ -274,6 +274,7 @@
     "more": "🔽 More",
     "less": "🔼 Less",
     "show_switch_panel": "show_switch_panel",
+    "make_navigation_top": "Temporary top navigation area (experimental feature)",
 
     "settingpage_content_name": "Content Order",
     "settingpage_showType_name": "Content Setting",
