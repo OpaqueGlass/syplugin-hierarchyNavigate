@@ -15,7 +15,7 @@ export async function postRequest(data: any, url:string){
         body: JSON.stringify(data),
         method: 'POST',
         headers: {
-            "Authorization": "Token "+ getToken(),
+            // "Authorization": "Token "+ getToken(),
             "Content-Type": "application/json"
         }
     }).then((response) => {
@@ -331,6 +331,18 @@ export function getCurrentDocIdF(mustSure: boolean = false) {
         }
     }
     return thisDocId;
+}
+
+export function getAllShowingDocId(): string[] {
+    if (isMobile()) {
+        return [getCurrentDocIdF()];
+    } else {
+        const elemList = window.document.querySelectorAll("[data-type=wnd] .protyle.fn__flex-1:not(.fn__none) .protyle-background");
+        const result = [].map.call(elemList, function(elem: Element) {
+            return elem.getAttribute("data-node-id");
+        });
+        return result
+    }
 }
 
 /**

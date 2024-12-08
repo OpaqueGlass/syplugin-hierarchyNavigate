@@ -1,5 +1,5 @@
 import { debugPush, errorPush, infoPush, isDebugMode, logPush, warnPush } from "@/logger";
-import {type IProtyle, type IEventBusMap, showMessage} from "siyuan";
+import {type IProtyle, type IEventBusMap, showMessage, getAllEditor} from "siyuan";
 import { getPluginInstance } from "@/utils/getInstance";
 import { getBasicInfo } from "@/worker/commonProvider";
 import ContentPrinter from "@/worker/contentPrinter";
@@ -9,17 +9,19 @@ import Mutex from "@/utils/mutex";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { sleep } from "@/utils/common";
 import { CONSTANTS } from "@/constants";
-import { getHPathById, isMobile } from "@/syapi";
+import { getAllShowingDocId, getCurrentDocIdF, getHPathById, isMobile } from "@/syapi";
+import { isValidStr } from "@/utils/commonCheck";
 export default class EventHandler {
     private handlerBindList: Record<string, (arg1: CustomEvent)=>void> = {
         "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性
         "switch-protyle": this.loadedProtyleRetryEntry.bind(this),
+        "ws-main": this.wsMainHandler.bind(this),
     };
     // 关联的设置项，如果设置项对应为true，则才执行绑定
     private relateGsettingKeyStr: Record<string, string> = {
         "loaded-protyle-static": null, // mutex需要访问EventHandler的属性
         "switch-protyle": null,
-        // "ws-main": "immediatelyUpdate",
+        "ws-main": "immediatelyUpdate",
     };
 
     private loadAndSwitchMutex: Mutex;
@@ -34,9 +36,9 @@ export default class EventHandler {
         const g_setting = getReadOnlyGSettings();
         // const g_setting = getReadOnlyGSettings();
         for (let key in this.handlerBindList) {
-            // if (this.relateGsettingKeyStr[key] == null || g_setting[this.relateGsettingKeyStr[key]]) {
+            if (this.relateGsettingKeyStr[key] == null || g_setting[this.relateGsettingKeyStr[key]]) {
                 plugin.eventBus.on(key, this.handlerBindList[key]);
-            // }
+            }
         }
         // 移动端高危操作，试图替换原有的goback，以使得插件响应此动作
         if (isMobile() && g_setting.mobileBackReplace) {
@@ -64,6 +66,30 @@ export default class EventHandler {
         const plugin = getPluginInstance();
         for (let key in this.handlerBindList) {
             plugin.eventBus.off(key, this.handlerBindList[key]);
+        }
+    }
+
+    async wsMainHandler(detail: CustomEvent<IEventBusMap["ws-main"]>){
+        const cmdType = ["moveDoc", "rename", "removeDoc"];
+        if (cmdType.indexOf(detail.detail.cmd) != -1) {
+            try {
+                debugPush("检查刷新中（由重命名、删除或移动触发）");
+                const allEditor = getAllEditor();
+                const ids = getAllShowingDocId();
+                if (ids != null && ids.length > 0) {
+                    for (let editor of allEditor) {
+                        if (ids.includes(editor.protyle.block.rootID)) {
+                            debugPush("由重命名、删除或移动触发");
+                            const hello = new CustomEvent("loaded-protyle-static", {
+                                detail: { protyle: editor.protyle }
+                            });
+                            this.loadedProtyleHandler(hello).catch(error=>{errorPush("Error in movedoc handler", error)});
+                        }
+                    }
+                }
+            }catch(err) {
+                errorPush(err);
+            }
         }
     }
 

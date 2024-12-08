@@ -70,6 +70,7 @@ interface IPluginSettings {
     autoRemoveOldTabJudgeMiliseconds: number,
     openDocRemoveCurrentTab: string,
     requestAllDocIcon: boolean,
+    asapRefresh: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -90,7 +91,7 @@ let defaultSetting: any = {
     sameWidth: 0,
     // adjustDocIcon: false, // v1.4.0+弃用
     // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
-    // immediatelyUpdate: false, // 数据库更新后立即执行，重构后无法实现，已弃用
+    immediatelyUpdate: false, // 文档移动、删除、重命名等变更后立即执行
     noneAreaHide: false,
     // showDocInfo: false, // 弃用，换为排序方式
     // replaceWithBreadcrumb: true, // 弃用，换为排序方式
@@ -213,6 +214,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "autoRemoveOldTabJudgeMiliseconds", "type": "NUMBER", min: 0, max: 5000}),
                 new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
                 new ConfigProperty({"key": "requestAllDocIcon", "type": "SWITCH"}),
+                new ConfigProperty({"key": "immediatelyUpdate", "type": "SWITCH"}),
             ],
             "stop": [
                 new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为

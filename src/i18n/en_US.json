@@ -228,6 +228,9 @@
     "setting_hideBlockBreadcrumbInDesktop_name": "The block breadcrumb content area is not displayed on the desktop version",
     "setting_hideBlockBreadcrumbInDesktop_desp": "",
 
+    "setting_immediatelyUpdate_option_forwardlinks": "🧪 Immediate Update",
+    "setting_immediatelyUpdate_option_forwardlinks_desp": "Refresh the content area immediately after document movement, renaming, or deletion. Note: This modification requires a restart of SiYuan to take effect. Please be aware that since related events are also associated with basic actions like document input, this may cause performance issues such as lag during extensive editing. If such situations occur, please disable this feature.",
+
 
     "setting_enableForOtherCircumstance_name": "❌🧪Display Hierarchical Navigation in Other Situations",
     "setting_enableForOtherCircumstance_desp": "May conflict with other plugins and/or other document preview areas (or editing areas), please use with caution",
