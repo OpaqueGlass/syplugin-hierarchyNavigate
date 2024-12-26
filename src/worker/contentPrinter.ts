@@ -239,6 +239,7 @@ class BasicContentPrinter {
         emojiHoverElem.dataset["type"] = "block-ref";
         emojiHoverElem.dataset["subtype"] = "d";
         emojiHoverElem.dataset["id"] = doc.id;
+        emojiHoverElem.classList.add(CONSTANTS.REF_LINK_FOR_POP_OUT_CLASS_NAME);
         emojiHoverElem.innerHTML = emojiStr;
 
         // 格式化后的文件名Elem
@@ -254,15 +255,19 @@ class BasicContentPrinter {
             case CONSTANTS.POP_ALL: {
                 if (!unclickable) {
                     result.dataset["type"] = "block-ref";
+                    result.classList.add(CONSTANTS.REF_LINK_FOR_POP_OUT_CLASS_NAME);
                 }
                 emojiAndName.innerHTML = emojiStr;
                 break;
             }
             case CONSTANTS.POP_LIMIT: {
                 if (unclickable) {
+                    emojiAndName.innerHTML = emojiStr;
                     break;
                 }
-                emojiAndName.appendChild(emojiHoverElem);
+                if (isValidStr(emojiStr)) {
+                    emojiAndName.appendChild(emojiHoverElem);
+                }
                 break;
             }
             case CONSTANTS.POP_NONE: {
