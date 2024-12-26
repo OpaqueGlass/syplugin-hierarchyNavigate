@@ -1,5 +1,6 @@
 import { debugPush, errorPush, infoPush, isDebugMode, logPush, warnPush } from "@/logger";
-import {type IProtyle, type IEventBusMap, showMessage, getAllEditor} from "siyuan";
+import {type IProtyle, type IEventBusMap, showMessage} from "siyuan";
+import * as siyuanAPIs from "siyuan";
 import { getPluginInstance } from "@/utils/getInstance";
 import { getBasicInfo } from "@/worker/commonProvider";
 import ContentPrinter from "@/worker/contentPrinter";
@@ -9,8 +10,7 @@ import Mutex from "@/utils/mutex";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { sleep } from "@/utils/common";
 import { CONSTANTS } from "@/constants";
-import { getAllShowingDocId, getCurrentDocIdF, getHPathById, isMobile } from "@/syapi";
-import { isValidStr } from "@/utils/commonCheck";
+import { getAllShowingDocId, getHPathById, isMobile } from "@/syapi";
 export default class EventHandler {
     private handlerBindList: Record<string, (arg1: CustomEvent)=>void> = {
         "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性
@@ -74,7 +74,11 @@ export default class EventHandler {
         if (cmdType.indexOf(detail.detail.cmd) != -1) {
             try {
                 debugPush("检查刷新中（由重命名、删除或移动触发）");
-                const allEditor = getAllEditor();
+                if (siyuanAPIs.getAllEditor == null) {
+                    warnPush("不支持的思源版本，请关闭 及时更新 设置项! This version of SiYuan is not supported, please disable the 'immediatelyUpdate' setting!");
+                    return;
+                }
+                const allEditor = siyuanAPIs.getAllEditor();
                 const ids = getAllShowingDocId();
                 if (ids != null && ids.length > 0) {
                     for (let editor of allEditor) {

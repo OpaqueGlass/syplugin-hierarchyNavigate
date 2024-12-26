@@ -91,7 +91,7 @@ let defaultSetting: any = {
     sameWidth: 0,
     // adjustDocIcon: false, // v1.4.0+弃用
     // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
-    immediatelyUpdate: false, // 文档移动、删除、重命名等变更后立即执行
+    immediatelyUpdate: true, // 文档移动、删除、重命名等变更后立即执行
     noneAreaHide: false,
     // showDocInfo: false, // 弃用，换为排序方式
     // replaceWithBreadcrumb: true, // 弃用，换为排序方式
@@ -260,11 +260,13 @@ export async function loadSettings() {
             loadResult = defaultSetting;
         }
     }
-    const currentVersion = 20241106;
+    const currentVersion = 20241219;
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
         loadResult["@version"] = currentVersion;
-        loadResult["previousAndNextFollowDailynote"] = false;
+        if (siyuan.getAllEditor == null) {
+            loadResult["immediatelyUpdate"] = false;
+        }
         // 检查数组中指定设置和defaultSetting是否一致
         showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
     }

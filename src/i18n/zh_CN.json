@@ -109,6 +109,8 @@
     "setting_requestAllDocIcon_desp": "启用后，对于小部分情况（如相邻文档），插件将额外请求图标，一般获取一个图标将导致50ms左右的延迟；",
     "setting_autoRemoveOldTabJudgeMiliseconds_name": "🧪连续打开则关闭上一个文档（后台打开文档除外）",
     "setting_autoRemoveOldTabJudgeMiliseconds_desp": "（仅思源3.1.11或以上版本，其他版本请保持禁用）设置为0则禁用；这里设置判断为连续打开的最长时间间隔，单位：毫秒；请注意：启用此选项，无论上一个文档是否经过修改，都将尝试关闭。",
+    "setting_immediatelyUpdate_name": " 🧪及时更新",
+    "setting_immediatelyUpdate_desp": "（仅思源v3.1.11以上版本可用，其他版本请关闭此功能）在文档移动、重命名或删除后及时刷新内容区。此项修改后需要重启思源后方可生效。请注意：由于相关事件也关联文档输入等基本动作，在大量编辑时可能导致卡顿等性能问题，如果出现此类情况，请关闭此功能。",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",
@@ -170,8 +172,6 @@
     "setting_openDocContentGroup_option_onThisDay_desp": "（测试中功能，如有问题请反馈）显示同月同日的日记链接；此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本，并使用今日笔记等插件为过去的日记批量添加）；在目前的实现中，实际上是显示同一个笔记本内同月同日的其他日记",
     "setting_openDocContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",
     "setting_openDocContentGroup_option_forwardlinks_desp": "显示当前文档引用的文档（不识别<code class='fn__code'>siyuan://</code>URL）",
-    "setting_immediatelyUpdate_option_forwardlinks": "🧪及时更新",
-    "setting_immediatelyUpdate_option_forwardlinks_desp": "在文档移动、重命名或删除后及时刷新内容区。此项修改后需要重启思源后方可生效。请注意：由于相关事件也关联文档输入等基本动作，在大量编辑时可能导致卡顿等性能问题，如果出现此类情况，请关闭此功能。",
 
 
 
