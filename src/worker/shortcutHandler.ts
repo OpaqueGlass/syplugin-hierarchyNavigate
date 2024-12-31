@@ -1,6 +1,6 @@
 import { debugPush, isDebugMode, logPush } from "@/logger";
 import { getblockAttr, getCurrentDocIdF, getNotebookSortModeF, isMobile, queryAPI } from "@/syapi";
-import { generateUUID, getFocusedBlockId } from "@/utils/common";
+import { generateUUID, getFocusedBlockId, replaceShortcutString } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { lang } from "@/utils/lang";
 import { showMessage, Plugin } from "siyuan";
@@ -309,11 +309,22 @@ async function turnNavigationToTop() {
     if (!navigationArea) {
         return;
     }
+    // 创建占位元素
+    const navigationAreaElemRect = navigationArea.getBoundingClientRect();
+    const placeholder = document.createElement('div');
+    placeholder.classList.add(CONSTANTS.PLACEHOLDER_FOR_POP_OUT_CLASS_NAME);
+    placeholder.style.width = `${navigationAreaElemRect.width}px`;
+    placeholder.style.height = `${navigationAreaElemRect.height}px`;
+    placeholder.innerHTML = lang("make_top_placeholder").replace("##", replaceShortcutString(window.siyuan.config.keymap.plugin["syplugin-hierarchyNavigate"]["make_navigation_top"].custom));
+    // placeholder.style.display = 'block';
+    // 添加和替换
     navigationArea.classList.add(CONSTANTS.TO_THE_TOP_CLASS_NAME);
-    const breadcrumbEle = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container");
-    const rect = breadcrumbEle.getBoundingClientRect();
+    navigationArea.parentNode.insertBefore(placeholder, navigationArea);
+    // 调整位置
+    const protyleContentEle = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-content");
+    const rect = protyleContentEle.getBoundingClientRect();
     const left = rect.left;
-    const top = rect.bottom;
+    const top = rect.top;
     navigationArea.style.left = `${left}px`;
     navigationArea.style.top = `${top}px`;
     // 添加监听，有点击事件则清除之
@@ -324,6 +335,7 @@ export function removeToTheTop() {
     // window.document.removeEventListener("click", removeToTheTop);
     const navigationArea = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container.${CONSTANTS.TO_THE_TOP_CLASS_NAME}`);
     if (navigationArea) {
+        window.document.querySelectorAll(`.${CONSTANTS.PLACEHOLDER_FOR_POP_OUT_CLASS_NAME}`).forEach(elem=>elem.remove());
         navigationArea.classList.remove(CONSTANTS.TO_THE_TOP_CLASS_NAME);
         navigationArea.style.left = '';
         navigationArea.style.top = '';

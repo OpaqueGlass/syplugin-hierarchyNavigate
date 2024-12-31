@@ -1,4 +1,4 @@
-import { IProtyle, openMobileFileById, openTab } from "siyuan";
+import { getBackend, IProtyle, openMobileFileById, openTab } from "siyuan";
 import { isEventCtrlKey, isValidStr } from "./commonCheck";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getPluginInstance } from "./getInstance";
@@ -258,4 +258,19 @@ export function isPluginExist(pluginName: string) {
 
 export function isAnyPluginExist(pluginNames: string[]) {
     return pluginNames.some(isPluginExist);
+}
+
+export function replaceShortcutString(shortcut:string) {
+    const backend = getBackend();
+    
+    if (backend !== "darwin") {
+        return shortcut
+            .replace(/⌥/g, 'Alt ')  // 替换 Option 键
+            .replace(/⌘/g, 'Ctrl ') // 替换 Command 键
+            .replace(/⇧/g, 'Shift ') // 替换 Shift 键
+            .replace(/⇪/g, 'CapsLock ') // 替换 Caps Lock 键
+            .replace(/⌃/g, 'Ctrl '); // 替换 Control 键
+    }
+    
+    return shortcut;
 }

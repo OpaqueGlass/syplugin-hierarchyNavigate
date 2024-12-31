@@ -22,6 +22,7 @@ export class CONSTANTS {
     public static readonly IS_FOLDING_CLASS_NAME: string = "og-hn-is-folding";
     public static readonly HIDE_COULD_FOLD_STYLE_ID: string = "og-hn-hide-could-fold";
     public static readonly REF_LINK_FOR_POP_OUT_CLASS_NAME: string = "og-hn-ref-link-simulate";
+    public static readonly PLACEHOLDER_FOR_POP_OUT_CLASS_NAME: string = "og-hn-nav-top-placeholder";
 
 
     public static readonly AREA_NOT_FOLD_CLASS_NAME: string = "og-hn-not-fold";

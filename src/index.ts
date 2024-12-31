@@ -29,15 +29,9 @@
 import {
     Plugin,
     showMessage,
-    confirm,
-    Dialog,
-    Menu,
     openTab,
-    adaptHotkey,
     getFrontend,
-    getBackend,
     IModel,
-    Setting
 } from "siyuan";
 import * as siyuan from "siyuan";
 import "@/index.scss";

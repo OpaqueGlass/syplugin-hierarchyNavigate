@@ -63,7 +63,7 @@ export function setStyle() {
 
     let toTheTop = `
 .${CONSTANTS.TO_THE_TOP_CLASS_NAME} {
-    z-index: 21;
+    z-index: 9;
     position: fixed;
     top: 10px;
     left: 10px;
@@ -113,16 +113,13 @@ export function setStyle() {
         color: var(--b3-theme-on-background);
     }
 
-    .og-hn-heading-docs-container .${CONSTANTS.IS_FOLDING_CLASS_NAME} {
-        display: none !important;
-    }
 
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {
         margin: 0 auto; /*居中显示*/
         text-overflow: ellipsis;
         overflow-x: hidden; /* 修复文字下侧被截断的问题 */
     }
-    
+
     /* 语义调整 refLinks 的可点击，其他仅样式 https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/issues/61 */
     .og-hierachy-navigate-sibling-doc-container  span.docLinksWrapper, 
     .og-hierachy-navigate-children-doc-container span.docLinksWrapper,
@@ -293,6 +290,17 @@ export function setStyle() {
     .${CONSTANTS.SIBLING_CONTAINER_ID} {${styleEscape(g_setting.siblingBoxCSS)}}
 
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper {${styleEscape(g_setting.docLinkCSS)}}
+
+    /* 置顶后占位 */
+    .${CONSTANTS.PLACEHOLDER_FOR_POP_OUT_CLASS_NAME} {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    /* 折叠隐藏 */
+    .og-hn-heading-docs-container .${CONSTANTS.IS_FOLDING_CLASS_NAME} {
+        display: none !important;
+    }
     `;
     head.appendChild(style);
 }
