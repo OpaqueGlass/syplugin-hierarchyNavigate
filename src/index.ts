@@ -24,7 +24,7 @@
 /**
  * syplugin-hierarchy-navigate
  * Copyright (C) 2024 OpaqueGlass
- * @license AGPLv3
+ * @license AGPL-3.0
  */
 import {
     Plugin,
