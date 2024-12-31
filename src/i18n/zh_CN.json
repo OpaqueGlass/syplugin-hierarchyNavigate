@@ -20,6 +20,7 @@
     "button_cancel": "取消",
     "setting_panel_title": "文档层级导航插件设置",
     "dialog_panel_plugin_name": "文档层级导航插件",
+    "make_top_placeholder": "再次按下快捷键<code class='fn__code'>##</code>以取消层级导航区域的临时置顶",
 
 
     "setting_fontSize_name": "字号",

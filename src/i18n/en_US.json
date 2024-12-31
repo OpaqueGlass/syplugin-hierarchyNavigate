@@ -22,6 +22,8 @@
     "button_cancel": "Cancel",
     "setting_panel_title": "Plugin Settings: ",
     "dialog_panel_plugin_name": "plugin-hierarchyNavigate",
+    "make_top_placeholder": "Press the shortcut key <code class='fn__code'>##</code> again to cancel the temporary pinning of the hierarchical navigation area.",
+
     "setting_fontSize_name": "Font Size",
     "setting_fontSize_desp": "Unit: px",
     "setting_nameMaxLength_name": "Maximum length of the document name",

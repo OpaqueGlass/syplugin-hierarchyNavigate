@@ -1,10 +1,10 @@
-## hierarchyNavigate 文档层级导航（）
+## hierarchyNavigate 文档层级导航
 
 [English](README.md)
 
 > 在文档标题下添加上下层文档导航的[思源笔记](https://github.com/siyuan-note/siyuan)插件。
 
-> 当前版本：v1.4.3 改进：兼容思源v3.1.12文档动态图标；修复：尝试修复MacOS下快捷键的问题；
+> 当前版本：v1.5.0 改进：“及时更新”设置项，在文档重命名等操作后及时刷新导航区；新增：（快捷键）临时置顶层级导航区域；
 > 
 > 其他详见 [更新日志](CHANGELOG.md)。
 
@@ -29,7 +29,7 @@
 | 跳转到下一篇文档（同层级） | `⌥⌘↓` 或 `Ctrl + Alt + ↓`  |  | |
 | 当前块下方插入listChildDocs挂件 | 无 | `⌥⇧L` 或 `Shift + Alt + L` | 需事先下载挂件 |
 | 显示与当前文档相关文档导航 | `⌥⌘E` 或 `Ctrl + Alt + E` | | |
-
+| 置顶当前文档的层级导航区域 | 无 | `⌥⌘Q` 或 `Ctrl + Alt + Q` | 再次按下快捷键取消临时置顶 |
 
 点击打开文档的同时按下快捷键：
 
@@ -41,25 +41,18 @@
 
 - 对于刚创建的文档，由于数据库更新延迟，可能不会显示导航区，切换页签之后将正常显示；
 
-- 插入导航部分后，标题左侧的文档图标将有一些错位，可（1）插件设置打开“调整文档图标位置”，或（2）通过“设置--外观--代码片段--添加css”解决：
-
-```css
-.protyle-title__icon {
-    top: 34px;
-}
-```
-
+- 如果启用插件后，在输入大量文字时卡顿，请检查`及时更新`设置项；出现显示延迟，请检查`尽可能地显示文档图标`、“反向链接文档名匹配正则表达式”等设置项；
 
 
 ### 反馈bug
 
-（推荐）请前往[github仓库](https://github.com/OpaqueGlass/syplugin-my-plugin-collection)反馈问题。
+（推荐）请前往[github仓库](https://github.com/OpaqueGlass/syplugin-hierarchyNavigate)反馈问题。
 
 如果您无法访问github，请[在此反馈](https://wj.qq.com/s2/12395364/b69f/)。
 
 ### 参考&感谢
 
-代码贡献者（开发者）详见[贡献者列表](https://github.com/OpaqueGlass/syplugin-my-plugin-collection/graphs/contributors)。
+代码贡献者（开发者）详见[贡献者列表](https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/graphs/contributors)。
 
 依赖项详见[package.json](./package.json)。
 

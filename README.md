@@ -29,13 +29,7 @@
 
 - Maybe available in siyuan Android App (in testing);
 
-- After inserting the navigation part, the document icon on the left side of the title will have some misalignment, which can be solved by (1) Enable "Adjust the position of document icon" in this plugin settings or (2) "Settings - Appearance - Code Snippet - Add css"
-
-  ```css
-  .protyle-title__icon {
-      top: 40px;
-  }
-  ```
+- If there is lag when inputting large amounts of text after enabling the plugin, please check the `Immediate Update` setting item; if there is a display delay, please check setting items such as `Display Document Icons Whenever Possible` and "Backlinks: Pin document names that match the regular expression".
 
   
 
