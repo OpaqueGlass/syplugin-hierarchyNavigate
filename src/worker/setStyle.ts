@@ -37,7 +37,6 @@ export function setStyle() {
         display: none;
     }
     ` : "";
-    let indicatorWidth = g_setting.hideIndicator ? "0em" : "2em";
     // 第二行后对齐链接文本，（向内缩进： #21）
     let alignStyle = `
     .og-hn-container-multiline {
@@ -82,7 +81,7 @@ export function setStyle() {
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-onthisday-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-backlink-doc-container span.docLinksWrapper {
-        width: calc( (100% - ${indicatorWidth} - ${calColumnCount - 1} * ${calColumnCount == 1 ? "0px" : "10px"}) / ${calColumnCount});
+        width: calc( (100% - ${calColumnCount} * ${calColumnCount == 1 ? "0px" : "10px"}) / ${calColumnCount});
         ${calColumnCount == 1 ? "margin-right: 0px;" : ""}/*仅一列时忽略margin-right*/
     }
     `: ``;
