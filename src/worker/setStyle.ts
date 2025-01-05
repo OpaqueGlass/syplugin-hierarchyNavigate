@@ -126,6 +126,16 @@ export function setStyle() {
     .og-hierachy-navigate-backlink-doc-container span.docLinksWrapper {
         margin-right: 10px;
     }
+    /* 这里，由于提示词单独占位，导致提示词-链接之间gap一样也有10px，或许可以考虑全都加入gap就不显得突兀了 */
+    .og-hierachy-navigate-sibling-doc-container, 
+    .og-hierachy-navigate-children-doc-container,
+    .og-hierachy-navigate-next-doc-container,
+    .og-hierachy-navigate-backlink-doc-container {
+        /*display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: flex-start;*/
+    }
     `;
 
     style.innerHTML = `
@@ -202,7 +212,7 @@ export function setStyle() {
 
     .og-hierachy-navigate-doc-container {
         max-height: ${g_setting.maxHeightLimit}em;
-        overflow-y: auto;
+        overflow-y: scroll;
     }
 
     .og-hierachy-navigate-doc-container.og-hn-not-fold {
