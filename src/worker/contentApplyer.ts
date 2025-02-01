@@ -7,6 +7,12 @@ import { isValidStr } from "@/utils/commonCheck";
 import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import { removeToTheTop } from "./shortcutHandler";
 
+// ContentApplyer是每次初始化的，remove的每次都不一样
+const clickEventHandler = (event)=>{
+    const g_setting = getReadOnlyGSettings();
+    openRefLinkByAPIWithConfig({mouseEvent: event, g_setting: g_setting});
+    removeToTheTop();
+};
 export default class ContentApplyer {
     private basicInfo: IBasicInfo;
     private protyleEnvInfo: IProtyleEnvInfo;
@@ -16,11 +22,7 @@ export default class ContentApplyer {
         this.basicInfo = basicInfo;
         this.protyleEnvInfo = protyleEnvInfo;
         this.protyleElement = protyleElement;
-        const g_setting = getReadOnlyGSettings();
-        this.clickEventHandler = (event)=>{
-            openRefLinkByAPIWithConfig({mouseEvent: event, g_setting: g_setting});
-            removeToTheTop();
-        };
+        this.clickEventHandler = clickEventHandler;
     }
 
     async apply(printerAllResults: IAllPrinterResult) {
