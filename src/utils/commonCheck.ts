@@ -50,3 +50,50 @@ export function isEventCtrlKey(event) {
     }
     return event.ctrlKey;
 }
+
+/**
+ * 是否小于输入的版本号
+ * @param version 输入的版本号，形如"3.1.23"
+ * @returns boolean 表示是否小于，等于也false
+ */
+export function isCurrentVersionLessThan(version:string) {
+    const parsedInputVersion = parseVersion(version);
+    const parsedCurrentVersion = parseVersion(window.siyuan.config.system.kernelVersion);
+
+    // 比较每个部分
+    for (let i = 0; i < 3; i++) {
+        if ((parsedCurrentVersion[i] || 0) < (parsedInputVersion[i] || 0)) {
+            return true;
+        } else if ((parsedCurrentVersion[i] || 0) > (parsedInputVersion[i] || 0)) {
+            return false;
+        }
+    }
+    // 版本号相同
+    return false;
+}
+
+/**
+ * 是否大于输入的版本号
+ * @param version 输入的版本号，形如"3.1.23"
+ * @returns boolean 表示是否大于，等于也false
+ */
+export function isCurrentVersionGreaterThan(version:string) {
+    const currentVersion = window.siyuan.config.system.kernelVersion;
+
+    const parsedInputVersion = parseVersion(version);
+    const parsedCurrentVersion = parseVersion(currentVersion);
+
+    for (let i = 0; i < 3; i++) {
+        if ((parsedCurrentVersion[i] || 0) > (parsedInputVersion[i] || 0)) {
+            return true;
+        } else if ((parsedCurrentVersion[i] || 0) < (parsedInputVersion[i] || 0)) {
+            return false;
+        }
+    }
+    return false;
+}
+
+// 移除除了.数字的部分，分组
+const parseVersion = (version: string) => {
+    return version.replace(/[^0-9.]/g, '').split('.').map(Number);
+};

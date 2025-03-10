@@ -11,6 +11,7 @@ import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { sleep } from "@/utils/common";
 import { CONSTANTS } from "@/constants";
 import { getAllShowingDocId, getHPathById, isMobile } from "@/syapi";
+import { isCurrentVersionLessThan } from "@/utils/commonCheck";
 export default class EventHandler {
     private handlerBindList: Record<string, (arg1: CustomEvent)=>void> = {
         "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性
@@ -41,7 +42,7 @@ export default class EventHandler {
             }
         }
         // 移动端高危操作，试图替换原有的goback，以使得插件响应此动作
-        if (isMobile() && g_setting.mobileBackReplace) {
+        if (isMobile() && g_setting.mobileBackReplace && isCurrentVersionLessThan("3.1.25")) {
             const originGoBack = window.goBack;
             window["ogGoBackOri"] = originGoBack;
             if (originGoBack) {
@@ -59,6 +60,9 @@ export default class EventHandler {
                     }
                 }
             }
+        }
+        if (g_setting.mobileBackReplace && isCurrentVersionLessThan("3.1.25") && isDebugMode()) {
+            warnPush("插件替换移动端返回功能仍在生效，如果思源版本大于3.1.25，这不应该发生！");
         }
     }
 

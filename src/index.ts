@@ -31,7 +31,6 @@ import {
     showMessage,
     openTab,
     getFrontend,
-    IModel,
 } from "siyuan";
 import * as siyuan from "siyuan";
 import "@/index.scss";
@@ -59,7 +58,6 @@ const DOCK_TYPE = "dock_tab";
 
 export default class OGPluginTemplate extends Plugin {
 
-    private customTab: () => IModel;
     private isMobile: boolean;
     private settingPanel;
     private myEventHandler: EventHandler;
@@ -76,30 +74,6 @@ export default class OGPluginTemplate extends Plugin {
         
         const frontEnd = getFrontend();
         this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";
-        
-        
-        
-        
-        this.customTab = this.addTab({
-            type: TAB_TYPE,
-            init() {
-                // FIXME: 不能把这个拖出，否则在此渲染时会报错：Cannot read properties of null (reading 'nextSibling')
-                let tabDiv = document.createElement("div");
-                // 移除这部分，改为插入<ifrome>元素，尽量避免引入组件导致的干扰思源本体行为
-                tabDiv.innerHTML = "HELLO WORLD";
-                this.element.appendChild(tabDiv);
-                console.log(this.element);
-            },
-            beforeDestroy() {
-                console.log("before destroy tab:", TAB_TYPE);
-            },
-            destroy() {
-                console.log("destroy tab:", TAB_TYPE);
-                
-            }
-        });
-
-
         const textareaElement = document.createElement("textarea");
         setCouldHideStyle();
 

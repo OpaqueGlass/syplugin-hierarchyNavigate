@@ -188,7 +188,6 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "areaHideFrom", "type": "NUMBER", min: 0, max: 15}),
                 
                 // new ConfigProperty({"key": "mainRetry", "type": "NUMBER", "max": 3}),
-                new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
                 new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
             ],
             // "extend": [
@@ -218,6 +217,7 @@ export function initSettingProperty() {
             ],
             "stop": [
                 new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
+                new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
             ]},
         }),
         new TabProperty({"key": "about", "iconKey": "iconInfo", props: [
