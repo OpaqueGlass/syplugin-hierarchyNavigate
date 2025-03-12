@@ -14,8 +14,9 @@ export async function getBasicInfo(docId:string, docPath: string, notebookId: st
         childDocInfoList: [],
         currentDocId: docId,
         currentDocAttrs: {},
+        subDocLimited: false,
+        siblingDocLimited: false,
     };
-    // FIXME: 之后换成getDocInfo，看看能不能快一些
     result.docBasicInfo = await getSimpleDocInfo(docId, docPath, notebookId);
     const parentDocId = getParentDocIdFromPath(docPath);
     if (isValidStr(parentDocId)) {
@@ -26,8 +27,10 @@ export async function getBasicInfo(docId:string, docPath: string, notebookId: st
     //     result["success"] = false;
     //     return result;
     // }
-    [result.allSiblingDocInfoList, result.childDocInfoList, result.userDemandSiblingDocInfoList] = await getDocumentRelations(result.docBasicInfo);
+    [result.allSiblingDocInfoList, result.childDocInfoList, result.userDemandSiblingDocInfoList, result.subDocLimited, result.siblingDocLimited] = await getDocumentRelations(result.docBasicInfo);
     result.currentDocAttrs = result.docBasicInfo.ial;
+    result.subDocLimited = !result.subDocLimited;
+    result.siblingDocLimited = !result.siblingDocLimited;
     // 是否包括数据库
     // 文档中块数判断（用于控制lcd）
     logPush("BasicProviderFinalR", result);
@@ -63,22 +66,52 @@ async function getSimpleDocInfo(docId:string, docPath?:string, notebookId?: stri
 
 /**
  * 获取文档相关信息：父文档、同级文档、子文档(按此顺序返回)
- * @returns [parentDoc, siblingDocs, childDocs]
+ * @returns [parentDoc, siblingDocs, childDocs, getSubFlag, getSiblingFlag]
  */
 async function getDocumentRelations(docBasicInfo:ISimpleDocInfoResult) {
     const g_setting = getReadOnlyGSettings();
+    // TODO: 获取上层文档的文档数量
+    
     // 获取子文档
-    let reorderdChildDocs = getAllChildDocuments(docBasicInfo.path, docBasicInfo.box, DOC_SORT_TYPES[g_setting.childOrder], g_setting.showHiddenDoc);
+    let reorderdChildDocs: Promise<IFile[]> = Promise.resolve([]);
+    let getSubFlag = !isTooMuchSubDoc(docBasicInfo.subFileCount);
+    if (getSubFlag) {
+        reorderdChildDocs = getAllChildDocuments(docBasicInfo.path, docBasicInfo.box, DOC_SORT_TYPES[g_setting.childOrder], g_setting.showHiddenDoc);
+    }
+    let parentDocId = getParentDocIdFromPath(docBasicInfo.path);
+    let getSiblingFlag = true;
+    if (parentDocId) {
+        let parentDocInfo = await getDocInfo(parentDocId);
+        getSiblingFlag = !isTooMuchSubDoc(parentDocInfo.subFileCount);
+    }
     // 获取同级文档
-    let siblingDocs = getAllSiblingDocuments(docBasicInfo.path, docBasicInfo.box);
+    let siblingDocs = getSiblingFlag ? getAllSiblingDocuments(docBasicInfo.path, docBasicInfo.box) : Promise.resolve([]);
     // 获取显示用同级文档
-    let userDemandSiblingDocs = getUserDemandSiblingDocuments(docBasicInfo.path, docBasicInfo.box, DOC_SORT_TYPES[g_setting.childOrder], g_setting.showHiddenDoc);
+    let userDemandSiblingDocs = getSiblingFlag ? getUserDemandSiblingDocuments(docBasicInfo.path, docBasicInfo.box, DOC_SORT_TYPES[g_setting.childOrder], g_setting.showHiddenDoc) : Promise.resolve([]);
     
     logPush("siblings", siblingDocs);
     const waitResult = await Promise.all([siblingDocs, reorderdChildDocs, userDemandSiblingDocs]);
     logPush("waitResult", waitResult);
     // 返回结果
-    return [ waitResult[0], waitResult[1], waitResult[2] ];
+    return [ waitResult[0], waitResult[1], waitResult[2], getSubFlag, getSiblingFlag];
+}
+
+export function isTooMuchSubDoc(count: number) {
+    const g_setting = getReadOnlyGSettings();
+    if (count == null) {
+        logPush("[性能]没有输入文档个数", count);
+        return true;
+    }
+    if (g_setting.performanceMode && count > 512) {
+        logPush("[性能]性能模式限制", count);
+        return true;
+    }
+    const LIMIT = window["OG_FILE_PERFORM_LIMIT"] ?? 2048;
+    if (count > LIMIT) {
+        logPush("[性能]文档数量过多", count);
+        return true;
+    }
+    return false;
 }
 
 

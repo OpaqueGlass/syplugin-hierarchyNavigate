@@ -71,6 +71,7 @@ interface IPluginSettings {
     openDocRemoveCurrentTab: string,
     requestAllDocIcon: boolean,
     asapRefresh: boolean,
+    performanceMode: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -129,6 +130,7 @@ let defaultSetting: any = {
     autoRemoveOldTabJudgeMiliseconds: 0,
     openDocRemoveCurrentTab: CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT,
     requestAllDocIcon: false,
+    performanceMode: true,
 }
 
 
@@ -214,6 +216,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "previousAndNextFollowDailynote", "type": "SWITCH"}),
                 new ConfigProperty({"key": "requestAllDocIcon", "type": "SWITCH"}),
                 new ConfigProperty({"key": "immediatelyUpdate", "type": "SWITCH"}),
+                new ConfigProperty({"key": "performanceMode", "type": "SWITCH"}),
             ],
             "stop": [
                 new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为

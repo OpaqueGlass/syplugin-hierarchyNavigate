@@ -114,6 +114,8 @@
 
     "setting_autoRemoveOldTabJudgeMiliseconds_name": "🧪Close previous document if open multiple times in a short time",
     "setting_autoRemoveOldTabJudgeMiliseconds_desp": "(Only for Siyuan 3.1.11 or above, please keep it disabled for other versions) Set to 0 to disable; unit: milliseconds; Please note: When this option is enabled, an attempt will be made to close the previous document regardless of whether it has been modified.",
+    "setting_performanceMode_name": "🧪 Performance Mode",
+    "setting_performanceMode_desp": "When enabled, if the number of sub-documents or sibling documents is greater than 512, parts of the content area will not be displayed. The affected scope includes: previous and next documents, sibling documents, sub-documents. Even if this option is disabled, content will also not be displayed when the number of documents exceeds 2048.",
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
     "setting_childOrder_option_FILE_NAME_DESC": "File Name Descending",

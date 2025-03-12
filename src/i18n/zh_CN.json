@@ -28,7 +28,7 @@
     "setting_nameMaxLength_name": "文档名最大显示长度",
     "setting_nameMaxLength_desp": "限制子文档菜单中文档名的长度，设置为0则不限制。（单位：字符）",
     "setting_docMaxNum_name": "文档最大数量",
-    "setting_docMaxNum_desp": "当子文档或同级文档超过该值时，后续文档将不再显示。设置为0则不限制。",
+    "setting_docMaxNum_desp": "当子文档或同级文档超过该值时，后续文档将不再显示。设置为0则不限制。文档较多时，“性能模式”会阻止部分内容区的显示。",
     "setting_icon_name": "文档图标",
     "setting_icon_desp": "控制文档图标显示与否",
     "setting_sibling_name": "文档上级为笔记本时，父文档区域显示同级文档",
@@ -112,6 +112,8 @@
     "setting_autoRemoveOldTabJudgeMiliseconds_desp": "（仅思源3.1.11或以上版本，其他版本请保持禁用）设置为0则禁用；这里设置判断为连续打开的最长时间间隔，单位：毫秒；请注意：启用此选项，无论上一个文档是否经过修改，都将尝试关闭。",
     "setting_immediatelyUpdate_name": " 🧪及时更新",
     "setting_immediatelyUpdate_desp": "（仅思源v3.1.11以上版本可用，其他版本请关闭此功能）在文档移动、重命名或删除后及时刷新内容区。此项修改后需要重启思源后方可生效。请注意：由于相关事件也关联文档输入等基本动作，在大量编辑时可能导致卡顿等性能问题，如果出现此类情况，请关闭此功能。",
+    "setting_performanceMode_name": " 🧪性能模式",
+    "setting_performanceMode_desp": "启用后，如果子文档或同级文档的数量大于512，将不显示部分内容区。受影响范围包括：上一篇下一篇、同级文档、子文档。即使关闭此项，也会在文档数量大于2048时不显示。",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",

@@ -10,6 +10,7 @@ import { getUserDemandSiblingDocuments } from "./commonProvider";
 import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
+import { formatDateStringLikeFileTree, parseDateString } from "@/utils/common";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -379,9 +380,18 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         // 请求总字数
         const totalWords = await getChildDocumentsWordCount(basicInfo.currentDocId);
         let totalChildDocs: any, totalChildDocsNum:Number = 0;
+        let directChildDocs: any, directChildDocsNum:Number = 0;
+        // 获得所有子文档个数统计
         try {
             totalChildDocs = await queryAPI(`SELECT count(*) as total_count FROM blocks WHERE path like "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%" AND type = "d"`);
             totalChildDocsNum = totalChildDocs[0]["total_count"];
+        } catch(err) {
+            errorPush(err);
+        }
+        // 获得直接子文档统计
+        try {
+            directChildDocs = await queryAPI(`SELECT count(*) as total_count FROM blocks WHERE path like "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%" AND path NOT LIKE "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%/%" AND type = "d"`);
+            directChildDocsNum = directChildDocs[0]["total_count"];
         } catch(err) {
             errorPush(err);
         }
@@ -392,6 +402,18 @@ class DocInfoContentPrinter extends BasicContentPrinter {
             if (sibling.id == basicInfo.currentDocId) {
                 thisDocInfos = sibling;
                 break;
+            }
+        }
+        if (thisDocInfos == null) {
+            // 地区不同
+            thisDocInfos = {
+                "hCtime": parseDateString(basicInfo.docBasicInfo.id.substring(0, 14)).toLocaleString(),
+                "hMtime": parseDateString(basicInfo.docBasicInfo.ial["updated"]).toLocaleString()
+            }
+            // 类似文档树的格式
+            thisDocInfos = {
+                "hCtime": formatDateStringLikeFileTree(basicInfo.docBasicInfo.id.substring(0, 14)),
+                "hMtime": formatDateStringLikeFileTree(basicInfo.docBasicInfo.ial["updated"])
             }
         }
         let result = document.createElement("div");
@@ -408,7 +430,7 @@ class DocInfoContentPrinter extends BasicContentPrinter {
             <span class="og-hn-create-at-content">${thisDocInfos["hMtime"]}</span>
         </span>
         <span class="og-hn-child-doc-count-wrapper">
-        ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${basicInfo.childDocInfoList.length}</span>`).replace("%TOTAL%", `<span class="og-hn-total-child-doc-count-content">(${totalChildDocsNum})</span>`)} 
+        ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${directChildDocsNum}</span>`).replace("%TOTAL%", `<span class="og-hn-total-child-doc-count-content">(${totalChildDocsNum})</span>`)} 
         </span>
         ${basicInfo.childDocInfoList.length == 0 ? "" : 
         `<span class="og-hn-child-word-count-wrapper">
@@ -453,6 +475,10 @@ class SiblingContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         const result = super.getBasicElement(CONSTANTS.SIBLING_CONTAINER_ID, null, lang("sibling_nodes"), lang("sibling_area"));
+        if (basicInfo.siblingDocLimited) {
+            logPush("出于性能考虑，本文档的同级文档将不再显示");
+            return null;
+        }
         if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
             result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.userDemandSiblingDocInfoList.length));
         }
@@ -485,6 +511,11 @@ class ChildContentPrinter extends BasicContentPrinter {
         const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"), lang("child_area"));
         if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
             logPush("文档中含有数据库，不显示子文档区域");
+            return null;
+        }
+
+        if (basicInfo.subDocLimited) {
+            logPush("文档数量过多，停止显示");
             return null;
         }
 
@@ -830,6 +861,10 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
 class NeighborContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
+        if (basicInfo.siblingDocLimited) {
+            logPush("出于性能考虑，上一篇下一篇（相邻文档）在本文档不显示");
+            return null;
+        }
         const siblingDocs = await getUserDemandSiblingDocuments(basicInfo.docBasicInfo.path, basicInfo.docBasicInfo.box, undefined, true);//basicInfo.allSiblingDocInfoList;
         const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"), lang("neighbor_area"));
         let iCurrentDoc = -1;

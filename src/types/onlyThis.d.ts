@@ -10,6 +10,8 @@ interface IBasicInfo {
     userDemandSiblingDocInfoList: IFile[],
     currentDocId: string,
     currentDocAttrs: any,
+    siblingDocLimited: boolean,
+    subDocLimited: boolean,
 }
 
 interface ISimpleDocInfoResult {

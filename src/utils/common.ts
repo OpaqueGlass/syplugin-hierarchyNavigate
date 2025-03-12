@@ -229,6 +229,22 @@ export function parseDateString(dateString: string): Date | null {
     return date;
 }
 
+export function formatDateStringLikeFileTree(dateString: string): string {
+    if (dateString.length !== 14) {
+        warnPush("Invalid date string length. Expected format: 'YYYYMMDDHHmmss'");
+        return "";
+    }
+
+    const year = dateString.substring(0, 4);
+    const month = dateString.substring(4, 6);
+    const day = dateString.substring(6, 8);
+    const hour = dateString.substring(8, 10);
+    const minute = dateString.substring(10, 12);
+    const second = dateString.substring(12, 14);
+
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}
+
 export function generateUUID() {
     let uuid = '';
     let i = 0;
