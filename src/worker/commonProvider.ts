@@ -9,9 +9,9 @@ export async function getBasicInfo(docId:string, docPath: string, notebookId: st
         success: true,
         docBasicInfo: null,
         parentDocBasicInfo: null,
-        allSiblingDocInfoList: [],
-        userDemandSiblingDocInfoList: [],
-        childDocInfoList: [],
+        allSiblingDocInfoList: [], // 性能
+        userDemandSiblingDocInfoList: [], // 性能
+        childDocInfoList: [], // x性能
         currentDocId: docId,
         currentDocAttrs: {},
         subDocLimited: false,
