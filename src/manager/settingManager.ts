@@ -130,7 +130,7 @@ let defaultSetting: any = {
     autoRemoveOldTabJudgeMiliseconds: 0,
     openDocRemoveCurrentTab: CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT,
     requestAllDocIcon: false,
-    performanceMode: true,
+    performanceMode: false,
 }
 
 

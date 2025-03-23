@@ -6,7 +6,7 @@ import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
 import { debugPush, errorPush, logPush, warnPush } from "@/logger";
 import { IProtyle, Menu } from "siyuan";
-import { getUserDemandSiblingDocuments } from "./commonProvider";
+import { fillOneDocRelationOfBasicInfo, getUserDemandSiblingDocuments } from "./commonProvider";
 import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
@@ -380,7 +380,10 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         // 请求总字数
         const totalWords = await getChildDocumentsWordCount(basicInfo.currentDocId);
         let totalChildDocs: any, totalChildDocsNum:Number = 0;
-        let directChildDocs: any, directChildDocsNum:Number = 0;
+        let directChildDocsNum:Number = basicInfo.docBasicInfo.subFileCount;
+        if (!basicInfo.siblingDocLimited) {
+            await fillOneDocRelationOfBasicInfo(basicInfo, "allSiblingDocInfoList");
+        }
         // 获得所有子文档个数统计
         try {
             totalChildDocs = await queryAPI(`SELECT count(*) as total_count FROM blocks WHERE path like "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%" AND type = "d"`);
@@ -388,17 +391,10 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         } catch(err) {
             errorPush(err);
         }
-        // 获得直接子文档统计
-        try {
-            directChildDocs = await queryAPI(`SELECT count(*) as total_count FROM blocks WHERE path like "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%" AND path NOT LIKE "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%/%" AND type = "d"`);
-            directChildDocsNum = directChildDocs[0]["total_count"];
-        } catch(err) {
-            errorPush(err);
-        }
         
         let thisDocInfos = null;
         // 检索兄弟文档
-        for (const sibling of basicInfo.allSiblingDocInfoList) {
+        for (const sibling of basicInfo.allSiblingDocInfoList ?? []) {
             if (sibling.id == basicInfo.currentDocId) {
                 thisDocInfos = sibling;
                 break;
@@ -432,7 +428,7 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         <span class="og-hn-child-doc-count-wrapper">
         ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${directChildDocsNum}</span>`).replace("%TOTAL%", `<span class="og-hn-total-child-doc-count-content">(${totalChildDocsNum})</span>`)} 
         </span>
-        ${basicInfo.childDocInfoList.length == 0 ? "" : 
+        ${directChildDocsNum == 0 ? "" : 
         `<span class="og-hn-child-word-count-wrapper">
             <span class="og-hn-child-word-count-indicator">${lang("child_word_count")}</span> 
             <span class="og-hn-child-word-count-content">${totalWords}</span>
@@ -479,6 +475,7 @@ class SiblingContentPrinter extends BasicContentPrinter {
             logPush("出于性能考虑，本文档的同级文档将不再显示");
             return null;
         }
+        await fillOneDocRelationOfBasicInfo(basicInfo, "userDemandSiblingDocInfoList");
         if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
             result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.userDemandSiblingDocInfoList.length));
         }
@@ -518,6 +515,7 @@ class ChildContentPrinter extends BasicContentPrinter {
             logPush("文档数量过多，停止显示");
             return null;
         }
+        await fillOneDocRelationOfBasicInfo(basicInfo, "childDocInfoList");
 
         if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
             result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.childDocInfoList.length));
@@ -865,7 +863,8 @@ class NeighborContentPrinter extends BasicContentPrinter {
             logPush("出于性能考虑，上一篇下一篇（相邻文档）在本文档不显示");
             return null;
         }
-        const siblingDocs = await getUserDemandSiblingDocuments(basicInfo.docBasicInfo.path, basicInfo.docBasicInfo.box, undefined, true);//basicInfo.allSiblingDocInfoList;
+        await fillOneDocRelationOfBasicInfo(basicInfo, "allSiblingDocInfoList");
+        const siblingDocs = basicInfo.allSiblingDocInfoList;
         const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"), lang("neighbor_area"));
         let iCurrentDoc = -1;
         let previousElem = null, nextElem = null;

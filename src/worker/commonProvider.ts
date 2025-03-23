@@ -9,9 +9,9 @@ export async function getBasicInfo(docId:string, docPath: string, notebookId: st
         success: true,
         docBasicInfo: null,
         parentDocBasicInfo: null,
-        allSiblingDocInfoList: [], // 性能
-        userDemandSiblingDocInfoList: [], // 性能
-        childDocInfoList: [], // x性能
+        allSiblingDocInfoList: null, // 性能
+        userDemandSiblingDocInfoList: null, // 性能
+        childDocInfoList: null, // x性能
         currentDocId: docId,
         currentDocAttrs: {},
         subDocLimited: false,
@@ -27,10 +27,8 @@ export async function getBasicInfo(docId:string, docPath: string, notebookId: st
     //     result["success"] = false;
     //     return result;
     // }
-    [result.allSiblingDocInfoList, result.childDocInfoList, result.userDemandSiblingDocInfoList, result.subDocLimited, result.siblingDocLimited] = await getDocumentRelations(result.docBasicInfo);
+    [result.subDocLimited, result.siblingDocLimited] = getLimitation(result.docBasicInfo, result.parentDocBasicInfo);
     result.currentDocAttrs = result.docBasicInfo.ial;
-    result.subDocLimited = !result.subDocLimited;
-    result.siblingDocLimited = !result.siblingDocLimited;
     // 是否包括数据库
     // 文档中块数判断（用于控制lcd）
     logPush("BasicProviderFinalR", result);
@@ -96,6 +94,43 @@ async function getDocumentRelations(docBasicInfo:ISimpleDocInfoResult) {
     return [ waitResult[0], waitResult[1], waitResult[2], getSubFlag, getSiblingFlag];
 }
 
+/**
+ * 填充一个字段
+ * @param basicInfo 基础信息
+ * @param field 字段名称
+ */
+export async function fillOneDocRelationOfBasicInfo(basicInfo:IBasicInfo, field: "allSiblingDocInfoList"| "userDemandSiblingDocInfoList" | "childDocInfoList") {
+    if (basicInfo[field] === null) {
+        const g_setting = getReadOnlyGSettings();
+        let result = null;
+        const docBasicInfo = basicInfo.docBasicInfo;
+        switch (field) {
+            case "allSiblingDocInfoList": {
+                result = await getAllSiblingDocuments(docBasicInfo.path, docBasicInfo.box)
+                break;
+            }
+            case "userDemandSiblingDocInfoList": {
+                result = await getUserDemandSiblingDocuments(docBasicInfo.path, docBasicInfo.box, DOC_SORT_TYPES[g_setting.childOrder], g_setting.showHiddenDoc);
+                break;
+            }
+            case "childDocInfoList": {
+                result = await getAllChildDocuments(docBasicInfo.path, docBasicInfo.box, DOC_SORT_TYPES[g_setting.childOrder], g_setting.showHiddenDoc);
+                break;
+            }
+            default: {
+                throw new Error("不支持的字段类型");
+            }
+        }
+        basicInfo[field] = result;
+    }
+}
+
+function getLimitation(docBasicInfo, parentDocInfo) {
+    let getSubFlag = isTooMuchSubDoc(docBasicInfo.subFileCount);
+    let getSiblingFlag = isTooMuchSubDoc(parentDocInfo.subFileCount);
+    return [getSubFlag, getSiblingFlag]
+}
+
 export function isTooMuchSubDoc(count: number) {
     const g_setting = getReadOnlyGSettings();
     if (count == null) {
@@ -106,11 +141,11 @@ export function isTooMuchSubDoc(count: number) {
         logPush("[性能]性能模式限制", count);
         return true;
     }
-    const LIMIT = window["OG_FILE_PERFORM_LIMIT"] ?? 2048;
-    if (count > LIMIT) {
-        logPush("[性能]文档数量过多", count);
-        return true;
-    }
+    // const LIMIT = window["OG_FILE_PERFORM_LIMIT"] ?? 4096;
+    // if (count > LIMIT) {
+    //     logPush("[性能]文档数量过多", count);
+    //     return true;
+    // }
     return false;
 }
 

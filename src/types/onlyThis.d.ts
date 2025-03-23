@@ -14,6 +14,12 @@ interface IBasicInfo {
     subDocLimited: boolean,
 }
 
+interface IFileTreeListNeeded {
+    userDemandSiblingDocInfoList: boolean,
+    allSiblingDocInfoList: boolean,
+    childDocInfoList: boolean,
+}
+
 interface ISimpleDocInfoResult {
     id: string,
     path: string,
