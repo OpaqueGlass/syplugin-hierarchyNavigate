@@ -126,17 +126,17 @@ export async function fillOneDocRelationOfBasicInfo(basicInfo:IBasicInfo, field:
 }
 
 function getLimitation(docBasicInfo, parentDocInfo) {
-    let getSubFlag = isTooMuchSubDoc(docBasicInfo.subFileCount);
-    let getSiblingFlag = isTooMuchSubDoc(parentDocInfo.subFileCount);
-    return [getSubFlag, getSiblingFlag]
+    let limitSubFlag = isTooMuchSubDoc(docBasicInfo?.subFileCount);
+    let limitSiblingFlag = isTooMuchSubDoc(parentDocInfo?.subFileCount);
+    return [limitSubFlag, limitSiblingFlag];
 }
 
 export function isTooMuchSubDoc(count: number) {
-    const g_setting = getReadOnlyGSettings();
     if (count == null) {
         logPush("[性能]没有输入文档个数", count);
         return true;
     }
+    const g_setting = getReadOnlyGSettings();
     if (g_setting.performanceMode && count > 512) {
         logPush("[性能]性能模式限制", count);
         return true;
