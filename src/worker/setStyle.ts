@@ -75,6 +75,7 @@ export function setStyle() {
     if (isMobile()) {
         calColumnCount = g_setting.sameWidthColumnMobile;
     }
+    let docNameCenteringCSS = g_setting.docNameCentering ? "margin: 0 auto; /*居中显示*/": "";
     const linkColumnStyle = calColumnCount > 0 ? 
     `
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-children-doc-container span.docLinksWrapper,
@@ -114,7 +115,7 @@ export function setStyle() {
 
 
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.og-hn-emoji-and-name {
-        margin: 0 auto; /*居中显示*/
+        ${docNameCenteringCSS} /*居中显示*/
         text-overflow: ellipsis;
         overflow-x: hidden; /* 修复文字下侧被截断的问题 */
     }

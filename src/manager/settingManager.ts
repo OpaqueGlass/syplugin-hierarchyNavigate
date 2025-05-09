@@ -72,6 +72,7 @@ interface IPluginSettings {
     requestAllDocIcon: boolean,
     asapRefresh: boolean,
     performanceMode: boolean,
+    docNameCentering: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -131,6 +132,7 @@ let defaultSetting: any = {
     openDocRemoveCurrentTab: CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT,
     requestAllDocIcon: false,
     performanceMode: false,
+    docNameCentering: true,
 }
 
 
@@ -203,6 +205,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "sameWidthColumnMobile", "type": "NUMBER", min: 0, max: 15}),
             new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
             new ConfigProperty({"key": "areaBorder", "type": "SWITCH"}),
+            new ConfigProperty({"key": "docNameCentering", "type": "SWITCH"}),
             new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),
             new ConfigProperty({"key": "parentBoxCSS", "type": "TEXTAREA"}),
             new ConfigProperty({"key": "siblingBoxCSS", "type": "TEXTAREA"}),

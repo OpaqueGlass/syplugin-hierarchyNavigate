@@ -1,6 +1,6 @@
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
-import { queryAPI, listDocsByPathT, getblockAttr as getblockAttr, DOC_SORT_TYPES, getDocInfo} from "@/syapi"
+import { queryAPI, listDocsByPathT, DOC_SORT_TYPES, getDocInfo} from "@/syapi"
 import { parseDateString } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 export async function getBasicInfo(docId:string, docPath: string, notebookId: string): Promise<IBasicInfo> {
