@@ -84,7 +84,7 @@ let defaultSetting: any = {
     icon: CONSTANTS.ICON_ALL, // 0禁用 1只显示设置图标的 2显示所有
     sibling: false, // 为true则在父文档不存在时清除
     nameMaxLength: 20,// 文档名称最大长度 0不限制
-    docMaxNum: 512, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
+    docMaxNum: 128, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
     // limitPopUpScope: false,// 限制浮窗触发范围
     linkDivider: "● ", // 前缀
     popupWindow: CONSTANTS.POP_LIMIT,
