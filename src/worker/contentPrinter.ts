@@ -35,8 +35,7 @@ export default class ContentPrinter {
         this.protyleBasicInfo = protyleBasicInfo;
     }
     // 考虑到部分Printer还是需要自己判断状态，这里async
-    async print():Promise<IAllPrinterResult> {
-        
+    async print(inTheEndFlag: boolean):Promise<IAllPrinterResult> {
         // const result = document.createElement("div");
         // result.classList.add("og-hn-heading-docs-container");
         let result: IAllPrinterResult = {
@@ -62,6 +61,12 @@ export default class ContentPrinter {
         }
         if (this.protyleBasicInfo.flashCard) {
             docContentKeyGroup = g_setting.flashcardContentGroup;
+        }
+        if (inTheEndFlag) {
+            docContentKeyGroup = g_setting.normalEndContentGroup;
+        }
+        if (inTheEndFlag && this.protyleBasicInfo.mobile) {
+            return null;
         }
         debugPush("docContentKeyGroup", docContentKeyGroup);
         debugPush("g_setting", g_setting);

@@ -31,6 +31,7 @@ export default class ContentApplyer {
         // 这个是新的Element，如果要在旧的基础上替换，需要重新设置dataset
         const finalElement = document.createElement("div");
         finalElement.classList.add("og-hn-heading-docs-container");
+        finalElement.classList.add(CONSTANTS.HEADING_CLASS_NAME);
         finalElement.dataset["existContentPart"] = JSON.stringify(printerAllResults.relateContentKeys);
         // 要不这边先构成最终finalElement，再交给各个类型的apply函数写入，其余函数只插入一个元素
         // TODO: 似乎有一些情况会导致多个内容区, selectorAll然后remove掉靠后的吧
@@ -38,17 +39,17 @@ export default class ContentApplyer {
         if (isMobile()) {
             // showMessage(`单独处理测试，旧区域个数：${document.querySelectorAll(".og-hn-heading-docs-container")?.length}，backend ${getBackend()}，此编辑区旧区域个数 ${this.protyleElement.querySelectorAll(".og-hn-heading-docs-container")?.length}`);
             if (g_setting.mobileRemoveAllArea) {
-                document.querySelectorAll(".og-hn-heading-docs-container").forEach((elem) => {
+                document.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.HEADING_CLASS_NAME}`).forEach((elem) => {
                     elem.remove();
                 });
             } else {
-                this.protyleElement.querySelectorAll(".og-hn-heading-docs-container").forEach((elem) => {
+                this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.HEADING_CLASS_NAME}`).forEach((elem) => {
                     elem.remove();
                 });
             }
             
         }
-        const allExistMainPart = this.protyleElement.querySelectorAll(".og-hn-heading-docs-container");
+        const allExistMainPart = this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.HEADING_CLASS_NAME}`);
         const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
 
         if (!existContentMainPart) {
@@ -94,6 +95,7 @@ export default class ContentApplyer {
                 } else {
                     this.defaultApply(finalElement);
                 }
+                this.headingElement = finalElement;
             }
         } else {
             // 已经存在，进入替换模式
@@ -159,8 +161,146 @@ export default class ContentApplyer {
         // 重新挂载事件
         if (existContentMainPart) {
             this.bindBasicClickEvent(existContentMainPart);
+            return null;
         } else {
             this.bindBasicClickEvent(finalElement);
+            return finalElement;
+        }
+    }
+
+    async applyToEnd(printerAllResults: IAllPrinterResult) {
+        const g_setting = getReadOnlyGSettings();
+        // 判断是否存在，提供存在参数（解析类）
+        // 这个是新的Element，如果要在旧的基础上替换，需要重新设置dataset
+        const finalElement = document.createElement("div");
+        finalElement.classList.add("og-hn-heading-docs-container");
+        finalElement.classList.add(CONSTANTS.FOOTER_CLASS_NAME);
+        finalElement.dataset["existContentPart"] = JSON.stringify(printerAllResults.relateContentKeys);
+        // 要不这边先构成最终finalElement，再交给各个类型的apply函数写入，其余函数只插入一个元素
+        // 后插入的不能执行删除
+        if (isMobile()) {
+            // showMessage(`单独处理测试，旧区域个数：${document.querySelectorAll(".og-hn-heading-docs-container")?.length}，backend ${getBackend()}，此编辑区旧区域个数 ${this.protyleElement.querySelectorAll(".og-hn-heading-docs-container")?.length}`);
+            if (g_setting.mobileRemoveAllArea) {
+                document.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.FOOTER_CLASS_NAME}`).forEach((elem) => {
+                    elem.remove();
+                });
+            } else {
+                this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.FOOTER_CLASS_NAME}`).forEach((elem) => {
+                    elem.remove();
+                });
+            }
+            
+        }
+        const allExistMainPart = this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.FOOTER_CLASS_NAME}`);
+        const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
+
+        if (!existContentMainPart) {
+            debugPush("未找到已经存在的，插入新的区域");
+            for (const elem of printerAllResults.elements) {
+                finalElement.appendChild(elem);
+            }
+            // 判断当前类型，交给不同的apply
+            if (this.protyleEnvInfo.flashCard) {
+                this.flashcardApply(finalElement);
+            } else if (this.protyleEnvInfo.mobile) {
+                this.mobileApply(finalElement);
+            } else {
+                // 响应点击折叠
+                finalElement.addEventListener("pointerdown", (e) => {
+                    if (e.button != 2) {
+                        return;
+                    }
+                    const targetElem = e.target as HTMLElement;
+                    let actualTarget = targetElem;
+                    let maxLoop = 10;
+                    while (!actualTarget.classList.contains(CONSTANTS.CONTAINER_CLASS_NAME) && maxLoop > 0 && actualTarget) {
+                        actualTarget = actualTarget.parentElement;
+                        maxLoop--;
+                    }
+                    if (actualTarget && actualTarget.classList.contains(CONSTANTS.CONTAINER_CLASS_NAME)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        if (actualTarget.classList.contains(CONSTANTS.AREA_NOT_FOLD_CLASS_NAME)) {
+                            actualTarget.classList.remove(CONSTANTS.AREA_NOT_FOLD_CLASS_NAME);
+                        } else {
+                            actualTarget.classList.add(CONSTANTS.AREA_NOT_FOLD_CLASS_NAME);
+                        }
+                    } else {
+                        debugPush("右键折叠无效，源Ele未找到", e);
+                    }
+                });
+                // 响应右键折叠结束
+                this.endApply(finalElement);
+            }
+        } else {
+            // 已经存在，进入替换模式
+            debugPush("已经存在，进入替换模式");
+            // 获取已经存在的列表
+            const oldKeyList = JSON.parse(existContentMainPart.getAttribute("data-exist-content-part") ?? "[]");
+            // 移除不存在的项目
+            oldKeyList.forEach((key) => {
+                if (!printerAllResults.relateContentKeys.includes(key)) {
+                    existContentMainPart.querySelector(`[data-og-content-type=${key}]`)?.remove();
+                    debugPush("移除新设置中不存在的项目", key);
+                }
+            });
+            // 遍历新列表，替换已经存在的项目
+            for (let index = 0; index < printerAllResults.elements.length; index++) {
+                const elem = printerAllResults.elements[index];
+                const key = elem.dataset["ogContentType"];
+                const oldElem = existContentMainPart.querySelector(`[data-og-content-type=${key}]`);
+                let reinsertNeeded = false;
+                // if (oldElem && !printerAllResults.onlyOnce[index]) {
+                //     debugPush("项目", key, "已经存在，进行直接替换");
+                //     // 已经存在的也需要检查位置
+                //     // 1已经存在，且需要更新：直接替换
+                //     oldElem.replaceWith(elem);
+                // } else 
+                if (oldElem) {
+                    // 3已经存在，且不需要更新
+                    // 检查位置是否和key一样，不一样的也需要重写
+                    const oldIndex = this.findChildElementIndexByOGType(existContentMainPart, key);
+                    debugPush("项目", key, "检查位置", oldIndex, "正确位置", index);
+                    if (oldIndex != index) {
+                        oldElem.remove();
+                        reinsertNeeded = true;
+                    } else if (!printerAllResults.onlyOnce[index]) {
+                        debugPush("项目", key, "已经存在，在原定位置，需要更新");
+                        oldElem.replaceWith(elem);
+                    }
+                }
+
+                if (!oldElem || reinsertNeeded) {
+                    // 2没有原始element，且需要更新；这个需要选定插入位置
+                    // 4没有原始element，且不需要更新
+                    // 根据Key找上一个项目，插在他后面，如果没有上一个项目，插在最前面
+                    debugPush("项目", key, "不存在或需要重新插入");
+                    if (index == 0) {
+                        debugPush("项目", key, "为首个，直接插入");
+                        existContentMainPart.insertAdjacentElement("afterbegin", elem);
+                    } else {
+                        debugPush("项目", key, "确定位置，插入到上一个项目后面");
+                        const prevKey = printerAllResults.relateContentKeys[index - 1];
+                        const prevIndex = this.findChildElementIndexByOGType(existContentMainPart, prevKey);
+                        if (prevIndex >= 0) {
+                            existContentMainPart.children[prevIndex].insertAdjacentElement("afterend", elem);
+                        } else {
+                            warnPush("似乎不该存在这个情况，在非第一个时，上一个元素应当是存在的");
+                            existContentMainPart.insertAdjacentElement("afterbegin", elem);
+                        }
+                    }
+                }
+            }
+            existContentMainPart.setAttribute("data-exist-content-part", JSON.stringify(printerAllResults.relateContentKeys));
+        }
+        // 重新挂载事件
+        if (existContentMainPart) {
+            this.bindBasicClickEvent(existContentMainPart);
+            return null;
+        } else {
+            this.bindBasicClickEvent(finalElement);
+            return finalElement;
         }
     }
 
@@ -179,7 +319,7 @@ export default class ContentApplyer {
         return -1;
     }
     async betaApply(finalElement: HTMLElement) {
-        this.protyleElement.querySelector(".og-hn-heading-docs-container")?.remove();
+        this.protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top")?.remove();
         const titleTarget = this.protyleElement.querySelector(`.protyle-title`); //  .protyle-title__input
         if (titleTarget) {
             const marginRight = window.getComputedStyle(titleTarget).getPropertyValue("margin-right");
@@ -189,12 +329,23 @@ export default class ContentApplyer {
             finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
             titleTarget.insertAdjacentElement("afterend", finalElement);
         }
+    }
+
+    weSetObserver(finalElement: HTMLElement) {
+        if (finalElement instanceof Promise || finalElement == null) {
+            warnPush("不太懂，但这个不对", finalElement);
+            return;
+        }
         // 响应自适应宽度
         // #65 自适应宽度关闭后，仍然存在宽度调整，因此需要启用observer
         if (window.siyuan?.config?.editor?.fullWidth !== true) {
             debugPush("自适应宽度未开启");
         }
         let targetNode = this.protyleElement.querySelector('.protyle-title');
+        if (!targetNode) {
+            warnPush("无法找到 .protyle-title 元素，observer 未设置");
+            return;
+        }
         const protyleElement = this.protyleElement;
         debugPush("observer 挂载", targetNode, this.protyleEnvInfo.originProtyle?.id);
         let that = this;
@@ -203,6 +354,7 @@ export default class ContentApplyer {
             debugPush("observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 let targetNode = protyleElement.querySelector('.protyle-title') as HTMLElement;
+                debugPush("observer", targetNode, targetNode.style, finalElement, finalElement?.style);
                 // 获取更改后的样式
                 const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container");
                 if (insertedElement) {
@@ -226,9 +378,9 @@ export default class ContentApplyer {
                         debugPush("[兼容模式]observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
                         let targetNode = protyleElement.querySelector('.protyle-title') as HTMLElement;
                         // 获取更改后的样式
-                        const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container");
+                        const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top");
                         const computedStyle = window.getComputedStyle(targetNode);
-                        if (insertedElement) {
+                        if (insertedElement && computedStyle) {
                             finalElement.style.marginRight = computedStyle.marginRight;
                             finalElement.style.marginLeft = computedStyle.marginLeft;
                         }
@@ -267,12 +419,33 @@ export default class ContentApplyer {
         // 应用内容
         // 本组目前只支持PC端插入
         // 移除旧的
-        this.protyleElement.querySelector(".og-hn-heading-docs-container")?.remove();
+        this.protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top")?.remove();
         // 插入新的
         const titleTarget = this.protyleElement.querySelector(`.protyle-title .protyle-title__input`);
         if (titleTarget) {
             titleTarget.insertAdjacentElement("afterend", finalElement);
         }
+    }
+
+    async endApply(finalElement: HTMLElement) {
+        // 考虑到其他插件的插入，目前给出其他判定
+        // 番茄工具箱 [bkmaker_add]
+        this.protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-end")?.remove();
+        // 插入新的
+        const contentTarget = this.protyleElement.querySelector(`.protyle-content`);
+        // 初始宽度设定
+        const titleTarget = this.protyleElement.querySelector(`.protyle-title`); //  .protyle-title__input
+        if (titleTarget) {
+            const marginRight = window.getComputedStyle(titleTarget).getPropertyValue("margin-right");
+            const marginLeft = window.getComputedStyle(titleTarget).getPropertyValue("margin-left");
+            finalElement.style.marginRight = marginRight;
+            finalElement.style.marginLeft = marginLeft;
+            finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
+        }
+        if (contentTarget) {
+            contentTarget.insertAdjacentElement("beforeend", finalElement);
+        }
+        
     }
 
     async mobileApply(finalElement: HTMLElement) {

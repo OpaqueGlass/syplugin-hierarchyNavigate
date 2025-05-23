@@ -52,6 +52,7 @@ interface IPluginSettings {
     openDocContentGroup: string[],
     mobileContentGroup: string[],
     flashcardContentGroup: string[],
+    normalEndContentGroup: string[],
     enableForOtherCircumstance: boolean, // 在其他情况也显示导航 v1.4.0+弃用
     sameWidthColumn: number, // 等宽列
     sameWidthColumnMobile: number,
@@ -108,6 +109,7 @@ let defaultSetting: any = {
     openDocContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
     mobileContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
     flashcardContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.BLOCK_BREADCRUMB],
+    normalEndContentGroup: [],
     // enableForOtherCircumstance: false, // 在其他情况也显示导航 v1.4.0+弃用
     childOrder: "FOLLOW_DOC_TREE", // 子文档部分排序方式
     showHiddenDoc: false,
@@ -135,7 +137,6 @@ let defaultSetting: any = {
     docNameCentering: true,
 }
 
-
 let tabProperties: Array<TabProperty> = [
     
 ];
@@ -157,6 +158,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": generalOptions}),
             new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": generalOptions}),
             new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": flashCardOptions}),
+            new ConfigProperty({"key": "normalEndContentGroup", "type": "ORDER", "options": generalOptions}),
             
         ]}),
         new TabProperty({key: "showType", "iconKey": "iconTags", props: {

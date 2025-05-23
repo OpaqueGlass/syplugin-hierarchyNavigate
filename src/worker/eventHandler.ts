@@ -165,13 +165,26 @@ export default class EventHandler {
             // 区分生成内容；应该不会根据不同的配置使用不同的生成吧，那也太累了，这个部分可能需要使用contentPrinter的对象
             // 如果还需要根据不同的设备走不同的显示内容，就更麻烦了【这里不做区分，如果区分移动端，则使用移动端独有设置项文件mobile-setting.json/{uid}.json】
             const printer = new ContentPrinter(basicInfo, protyleEnvInfo);
-            const finalElement = await printer.print();
-            logPush("finalElement", finalElement);
-            if (finalElement) {
+            const printAreas = await printer.print(false);
+            logPush("finalElement", printAreas);
+            const applyer = new ContentApplyer(basicInfo, protyleEnvInfo, protyle.element);
+            let elementPromiseList = [];
+            if (printAreas) {
                 // 还是需要回到这里setAndApply
-                const applyer = new ContentApplyer(basicInfo, protyleEnvInfo, protyle.element);
-                applyer.apply(finalElement);
+                elementPromiseList.push(applyer.apply(printAreas));
             }
+            // 处理编辑器末尾的内容区
+            if (!protyleEnvInfo.flashCard && !protyleEnvInfo.notTraditional) {
+                const endPrintAreas = await printer.print(true);
+                if (endPrintAreas) {
+                    // 还是需要回到这里setAndApply
+                    // const applyer = new ContentApplyer(basicInfo, protyleEnvInfo, protyle.element);
+                    elementPromiseList.push(applyer.applyToEnd(endPrintAreas));
+                }
+            }
+            // 设定绑定，处理宽度变化
+            let elementList = await Promise.all(elementPromiseList);
+            elementList.filter((e)=>e).forEach((e)=>applyer.weSetObserver(e));
         } catch(error) {
             errorPush("ERROR", error);
             doNotRetryFlag = true;

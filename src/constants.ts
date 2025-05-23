@@ -7,6 +7,8 @@ export class CONSTANTS {
     public static readonly PLUGIN_NAME: string = "og_hierachy_navigate";
     public static readonly SAVE_TIMEOUT: number = 900;
     public static readonly TOP_CONTAINER_CLASS_NAME: string = "og-hn-heading-docs-container"; // 最上层的
+    public static readonly HEADING_CLASS_NAME: string = "og-hn-at-doc-top";
+    public static readonly FOOTER_CLASS_NAME: string = "og-hn-at-doc-end";
     public static readonly CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-doc-container"; // 包括链接的子容器
     public static readonly ARROW_CLASS_NAME: string = "og-hierachy-navigate-breadcrumb-arrow";
     public static readonly INFO_CONTAINER_CLASS: string = "og-hierachy-navigate-info-container";
