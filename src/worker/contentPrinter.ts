@@ -1,6 +1,6 @@
 import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
-import { getBackLink2T, getBlockBreadcrumb, getDocInfo, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, queryAPI } from "@/syapi"
+import { exportMdContent, getBackLink2T, getBlockBreadcrumb, getDocInfo, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, queryAPI } from "@/syapi"
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
@@ -28,6 +28,7 @@ export default class ContentPrinter {
         [PRINTER_NAME.BLOCK_BREADCRUMB]: BlockTitleBreadcrumbContentPrinter,
         [PRINTER_NAME.ON_THIS_DAY]: OnThisDayInPreviousYears,
         [PRINTER_NAME.FORWARDLINK]: ForwardLinkPrinter,
+        [PRINTER_NAME.PREV_NEXT_PREVIEW]: NeighborWithPreviewContentPrinter,
     }
     
     constructor(basicInfo:IBasicInfo, protyleBasicInfo:IProtyleEnvInfo) {
@@ -106,7 +107,8 @@ export default class ContentPrinter {
         }
     
         const results = await Promise.all(promises);
-        if (g_setting.areaHideFrom > 0) {
+        // 避免实际启用内容区不多时，还显示
+        if (g_setting.areaHideFrom > 0 && results.filter((result)=>result != null).length >= g_setting.areaHideFrom) {
             // for (let i = g_setting.areaHideFrom - 1; i < results.length; i++) {
             //     results[i]?.element.classList.add(CONSTANTS.COULD_FOLD_CLASS_NAME);
             // }
@@ -1370,5 +1372,214 @@ class MoreOrLessPrinter extends BasicContentPrinter {
     }
     static async isOnlyOnce(basicInfo:IBasicInfo): Promise<boolean> {
         return false;
+    }
+}
+
+
+class NeighborWithPreviewContentPrinter extends BasicContentPrinter {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        if (basicInfo.siblingDocLimited) {
+            logPush("出于性能考虑，上一篇下一篇（相邻文档）在本文档不显示");
+            return null;
+        }
+        await fillOneDocRelationOfBasicInfo(basicInfo, "allSiblingDocInfoList");
+        const siblingDocs = basicInfo.allSiblingDocInfoList;
+        // const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"), lang("neighbor_area"));
+        const innerFlexElem = document.createElement("div");
+        innerFlexElem.classList.add("og-hn-np-inner-flex");
+        const result = document.createElement("div");
+        let iCurrentDoc = -1;
+        let previousDocInfo = null, nextDocInfo = null;
+        for (let iSibling = 0; iSibling < siblingDocs.length; iSibling++) {
+            if (siblingDocs[iSibling].id === basicInfo.currentDocId) {
+                iCurrentDoc = iSibling;
+                break;
+            }
+        }
+        // 我们应该根据情况获取，如果是按照月构建的dailynote，同一笔记上可能有多个标签
+        let minCurrentDate = Number.MAX_SAFE_INTEGER.toString(); // 向上跳转用
+        let maxCurrentDate = "0";
+        const protyle = protyleEnvInfo.originProtyle as IProtyle
+        const ialObject = protyle.background?.ial;
+        if (g_setting.previousAndNextFollowDailynote) {
+            for (const key in ialObject) {
+                if (key.startsWith("custom-dailynote-")) {
+                    if (parseInt(ialObject[key]) > parseInt(maxCurrentDate)) {
+                        maxCurrentDate = ialObject[key];
+                    }
+                    if (parseInt(ialObject[key]) < parseInt(minCurrentDate)) {
+                        minCurrentDate = ialObject[key];
+                    }
+                }
+            }
+        }
+        const dailynoteFlag = JSON.stringify(protyle.background?.ial)?.includes("custom-dailynote");
+        const sortMode = getNotebookSortModeF(basicInfo.docBasicInfo.box);
+        const sortByNameOrCreateTimeFlag = isSortByNameOrCreateTime(sortMode);
+        const ascSortFlag = isSortAsc(sortMode);
+        // #78 文档排序方式 升降序补充缺失的上一篇或下一篇；文件名、自然排序、创建时间排序以外的排序方式，不补充；
+        if (iCurrentDoc >= 0 && siblingDocs.length >= 1) {
+            let flag = false;
+            // 上一篇
+            if (dailynoteFlag 
+                && (g_setting.previousAndNextFollowDailynote // 选项强制
+                    || (iCurrentDoc <= 0 && sortByNameOrCreateTimeFlag)  // 第一篇且是按照名字或创建时间排序
+                    )
+                ) {
+                let getNewer = false;
+                if (!g_setting.previousAndNextFollowDailynote && !ascSortFlag) {
+                    getNewer = true;
+                }
+                const thisDocInfo = await getNeighborDailyNoteDoc({ialObject: ialObject, docId: basicInfo.docBasicInfo.id, boxId: basicInfo.docBasicInfo.box, getNewer: getNewer});
+                debugPush("日记组-上一篇", thisDocInfo);
+                if (thisDocInfo) {
+                    thisDocInfo["ogSimpleName"] = htmlTransferParser(thisDocInfo.name);
+                    thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    if (g_setting.requestAllDocIcon && !isMobile()) {
+                        const fullDocInfo = await getDocInfo(thisDocInfo.id);
+                        thisDocInfo["icon"] = fullDocInfo.icon;
+                        thisDocInfo["subFileCount"] = fullDocInfo.subFileCount;
+                    }
+                    previousDocInfo = thisDocInfo;
+                    const oneLinkElem = super.docLinkGenerator(thisDocInfo);
+                    flag = true;
+                }
+            } else if (iCurrentDoc > 0) {
+                let simpleName = htmlTransferParser(siblingDocs[iCurrentDoc - 1]["name"]);
+                let docInfo = Object.assign({}, siblingDocs[iCurrentDoc - 1]);
+                docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
+                previousDocInfo = docInfo;
+                flag = true;
+            }
+
+            if (dailynoteFlag 
+                && (g_setting.previousAndNextFollowDailynote
+                     || (iCurrentDoc + 1 >= siblingDocs.length) && sortByNameOrCreateTimeFlag)
+                    ) {
+                let getNewer = true;
+                if (!g_setting.previousAndNextFollowDailynote && !ascSortFlag) {
+                    getNewer = false;
+                }
+                const thisDocInfo = await getNeighborDailyNoteDoc({ialObject: ialObject, docId: basicInfo.docBasicInfo.id, boxId: basicInfo.docBasicInfo.box, getNewer: getNewer});
+                debugPush("日记组-下一篇", thisDocInfo);
+                if (thisDocInfo) {
+                    thisDocInfo["ogSimpleName"] = htmlTransferParser(thisDocInfo.name);
+                    thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    if (g_setting.requestAllDocIcon && !isMobile()) {
+                        const fullDocInfo = await getDocInfo(thisDocInfo.id);
+                        thisDocInfo["icon"] = fullDocInfo.icon;
+                        thisDocInfo["subFileCount"] = fullDocInfo.subFileCount;
+                    }
+                    nextDocInfo = thisDocInfo;
+                    const oneLinkElem = super.docLinkGenerator(thisDocInfo);
+                    flag = true;
+                }
+            } else if (iCurrentDoc + 1 < siblingDocs.length) {
+                let simpleName = htmlTransferParser(siblingDocs[iCurrentDoc + 1]["name"]);
+                let docInfo = Object.assign({}, siblingDocs[iCurrentDoc + 1]);
+                docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
+                nextDocInfo = docInfo;
+                flag = true;
+            }
+
+            if (flag) {
+                if (previousDocInfo) {
+                    const content = await this.getDocContent(previousDocInfo["id"]);
+                    innerFlexElem.appendChild(this.createNavPreview(previousDocInfo["id"], previousDocInfo["ogSimpleName"], content, true));
+                } else {
+                    innerFlexElem.appendChild(this.createPlaceholderPreview(true));
+                }
+                if (nextDocInfo) {
+                    const content = await this.getDocContent(nextDocInfo["id"]);
+                    innerFlexElem.appendChild(this.createNavPreview(nextDocInfo["id"], nextDocInfo["ogSimpleName"], content, false));
+                } else {
+                    innerFlexElem.appendChild(this.createPlaceholderPreview(false));
+                }
+                result.appendChild(innerFlexElem);
+            } else {
+                const noneElem = this.getNoneElement();
+                result.appendChild(noneElem);
+                result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            }
+        } else {
+            const noneElem = this.getNoneElement();
+            noneElem.title = lang("is_hidden_doc");
+            result.appendChild(noneElem);
+            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        }
+        result.classList.add(CONSTANTS.NEXT_PREVIEW_CONSTAINER_CLASS_NAME);
+        return result;
+    }
+
+    static async getDocContent(docId: string) {
+        const previewContent = await exportMdContent({
+            id: docId,
+            refMode: 2,
+            embedMode: 0,
+            yfm: false
+        });
+        logPush("content", previewContent)
+        let trimed = previewContent.content.substring(0, 3000);
+        // 清理内容
+        // 如果开启导出标题，需要在预览区域去除标题
+        if (window.siyuan.config.export.addTitle) {
+            const splitted = trimed.split("\n");
+            trimed = splitted.slice(1).join('\n');
+        }
+        trimed = trimed.replace(new RegExp(`<iframe.*</iframe>`, "gm"), "");
+        // 移除图片、链接，但保留alt
+        trimed = trimed.replace(/!\[([^\]]+)\]\((.*?)\)/g, '[$1]');
+        trimed = trimed.replace(/\[([^\]]+)\]\((.*?)\)/g, '$1');
+        // trimed = trimed.replace(/!\[.*?\]\(.*?\)/g, '');
+        return trimed;
+    }
+    static createNavPreview(id: string, title: string, content: string, isPrev: boolean, clickable: boolean=true): HTMLElement {
+        let emptyFlag = isValidStr(title) && isValidStr(content);
+        // 创建外层容器
+        const navPreview = document.createElement('div');
+        navPreview.className = `og-hn-np-nav-preview ${isPrev ? 'og-hn-np-prev' : 'og-hn-np-next'} ${clickable ? "refLinks" : "og-hn-np-non-clickable"}`;
+        if (isValidStr(id)) {
+            navPreview.setAttribute("data-id", id);
+        }
+
+        // 创建内部容器
+        const inner = document.createElement('div');
+        inner.className = 'og-hn-np-nav-preview-inner';
+        
+        // 创建方向指示
+        const direction = document.createElement('div');
+        direction.className = 'og-hn-np-nav-direction';
+        direction.textContent = isPrev ? `< ${lang("previous_doc_v2")}` : `${lang("next_doc_v2")} >`;
+
+        // 创建文章标题
+        const titleElement = document.createElement('div');
+        titleElement.className = 'og-hn-np-nav-post-title';
+        titleElement.textContent = title;
+        
+        // 创建内容摘要
+        const excerpt = document.createElement('div');
+        excerpt.className = 'og-hn-np-nav-excerpt';
+        excerpt.textContent = content;
+        
+        // 组装元素
+        inner.appendChild(direction);
+        inner.appendChild(titleElement);
+        inner.appendChild(excerpt);
+        navPreview.appendChild(inner);
+        
+        return navPreview;
+    }
+
+    /**
+     * 创建空占位符导航预览元素
+     * @param isPrev 是否为上一篇占位符
+     * @returns 创建好的占位符元素
+     */
+    static createPlaceholderPreview(isPrev: boolean): HTMLElement {
+        // if (!isPrev) return document.createElement('div'); // 只有上一篇可能有占位符
+        const placeholder = this.createNavPreview('', '', '', isPrev, false);
+        placeholder.querySelector('.og-hn-np-nav-preview-inner')?.classList.add('og-hn-np-placeholder');
+        return placeholder;
     }
 }

@@ -64,6 +64,23 @@ export default class EventHandler {
         if (g_setting.mobileBackReplace && isCurrentVersionLessThan("3.1.25") && isDebugMode()) {
             warnPush("插件替换移动端返回功能仍在生效，如果思源版本大于3.1.25，这不应该发生！");
         }
+        if (siyuanAPIs.getAllEditor == null) {
+            warnPush("不支持的思源版本，请关闭 及时更新 设置项! This version of SiYuan is not supported, please disable the 'immediatelyUpdate' setting!");
+            return;
+        }
+        const allEditor = siyuanAPIs.getAllEditor();
+        const ids = getAllShowingDocId();
+        if (ids != null && ids.length > 0) {
+            for (let editor of allEditor) {
+                if (ids.includes(editor.protyle.block.rootID)) {
+                    debugPush("由 首次加载触发");
+                    const hello = new CustomEvent("loaded-protyle-static", {
+                        detail: { protyle: editor.protyle }
+                    });
+                    this.loadedProtyleHandler(hello).catch(error=>{errorPush("Error in movedoc handler", error)});
+                }
+            }
+        }
     }
 
     unbindHandler() {

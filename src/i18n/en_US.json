@@ -154,7 +154,7 @@
     "===========Display Content Order Control Tab===========": null,
 
     "setting_contentOrderTip_name": "Tip",
-    "setting_contentOrderTip_desp": "This page includes the display content and order adjustment of the hierarchical navigation, distinguishing between General, Flashcard Page, and Android 3 situations",
+    "setting_contentOrderTip_desp": "This page includes the display content and order adjustment of the hierarchical navigation, distinguishing between General, Flashcard Page, Android, and shown at the end of the document.",
 
     "setting_openDocContentGroup_name": "Regular Situation Content Display Order",
     "setting_openDocContentGroup_desp": "You can control the order of content modules displayed when opening documents by dragging the ∷ on the left side of the items below",
@@ -170,7 +170,7 @@
     "setting_openDocContentGroup_option_breadcrumb_desp": "Display the current document path (clickable to jump); to keep it displayed at the beginning of the editing area, please use the '(Pseudo) Document Breadcrumbs' plugin.",
     "setting_openDocContentGroup_option_backlinks": "Backlinks (Doc title only)",
     "setting_openDocContentGroup_option_backlinks_desp": "Display the documents corresponding to the reverse links of the current document",
-    "setting_openDocContentGroup_option_previousAndNext": "Previous and Next",
+    "setting_openDocContentGroup_option_previousAndNext": "Previous and Next(Neighbor Docs)",
     "setting_openDocContentGroup_option_previousAndNext_desp": "Get the previous/next document based on the document tree display order; (Neighbor Docs)",
     "setting_openDocContentGroup_option_info": "Document Information Row",
     "setting_openDocContentGroup_option_info_desp": "Document information includes: creation time, modification time, number of child documents, total character count of child documents (estimated value, including spaces, OCR results, code blocks); even if closed, you can still know the number of documents by hovering the mouse over the prompt word.<br/>By using developer tools and CSS code snippets, it is possible to hide unwanted content. For more details, please consult GPT or other AI assistance.",
@@ -178,7 +178,10 @@
     "setting_openDocContentGroup_option_onThisDay_desp": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) Displays links to daily-note entries from the same month and day; this feature only works with the new version of diaries (requires the `custom-dailynote-yyyyMMdd` attribute; if not available, please upgrade to a newer version of Siyuan and use plugins like siyuan-dailynote-today to bulk-add past diaries attribute); currently, it actually displays other daily-note entries from the same month and day within the same notebook.",
     "setting_openDocContentGroup_option_forwardlinks": "🧪Forward Links (Doc title only)",
     "setting_openDocContentGroup_option_forwardlinks_desp": "Displays documents referenced by the current document (Not including <code class='fn__code'>siyuan://</code> URL)",
-
+    "setting_openDocContentGroup_option_previousAndNextPreview": "Neighbor Documents with Preview",
+    "setting_openDocContentGroup_option_previousAndNextPreview_desp": "",
+    "setting_mobileContentGroup_option_previousAndNextPreview": "Neighbor Documents with Preview",
+    "setting_mobileContentGroup_option_previousAndNextPreview_desp": "",
 
     "setting_removeRegStrListForLinks_name": "Backlinks🛇: Exclude document names matching the regular expression",
     "setting_removeRegStrListForLinks_desp": "One regular expression per line; use options gm when matching.",
@@ -255,6 +258,8 @@
     "setting_normalEndContentGroup_option_onThisDay_desp": "",
     "setting_normalEndContentGroup_option_forwardlinks": "🧪Forward Links (Doc title only)",
     "setting_normalEndContentGroup_option_forwardlinks_desp": "",
+    "setting_normalEndContentGroup_option_previousAndNextPreview": "Neighbor Documents with Preview",
+    "setting_normalEndContentGroup_option_previousAndNextPreview_desp": "",
 
     "setting_hideBlockBreadcrumbInDesktop_name": "The block breadcrumb content area is not displayed on the desktop version",
     "setting_hideBlockBreadcrumbInDesktop_desp": "",
@@ -292,6 +297,9 @@
     "child_word_count": "Child-doc character count ",
     "previous_doc": "<PREV·",
     "next_doc": ">NEXT·",
+    "previous_doc_v2": "PREV",
+    "next_doc_v2": "NEXT",
+    "no_doc": "No document",
     "go_up": "Go up to parent doc",
     "go_down": "Go down to first sub-document",
     "is_top_document": "Already at the top-level document, cannot go up.",

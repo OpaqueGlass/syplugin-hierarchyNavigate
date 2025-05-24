@@ -33,6 +33,7 @@ export class CONSTANTS {
 
     public static readonly NONE_CLASS_NAME: string = "og-hierachy-navigate-doc-not-exist";
     public static readonly NEXT_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-next-doc-container";
+    public static readonly NEXT_PREVIEW_CONSTAINER_CLASS_NAME: string = "og-hierachy-navigate-next-preview-doc-container";
     public static readonly BACKLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-backlink-doc-container";
     public static readonly FOWARDLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-forwardlink-doc-container";
     public static readonly TO_THE_TOP_CLASS_NAME: string = "og-hn-container-to-top";
@@ -71,5 +72,6 @@ export class PRINTER_NAME {
     public static readonly ON_THIS_DAY: string = "onThisDay";
     public static readonly FORWARDLINK: string = "forwardlinks";
     public static readonly MORE_OR_LESS: string = "moreorless";
+    public static readonly PREV_NEXT_PREVIEW: string = "previousAndNextPreview";
 }
   

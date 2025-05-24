@@ -153,7 +153,7 @@
     "===========显示内容顺序控制选项卡===========": null,
 
     "setting_contentOrderTip_name": "提示",
-    "setting_contentOrderTip_desp": "本页面包括层级导航的显示内容和顺序调整，并区分：通用、安卓端、闪卡页面3种",
+    "setting_contentOrderTip_desp": "本页面包括层级导航的显示内容和顺序调整，并区分：通用、安卓端、闪卡页面、文档末尾4种",
 
     "setting_openDocContentGroup_name": "常规情况内容显示顺序",
     "setting_openDocContentGroup_desp": "可以通过拖拽下方项目左侧的∷，控制“打开文档”时显示的内容模块顺序",
@@ -169,14 +169,16 @@
     "setting_openDocContentGroup_option_breadcrumb_desp": "显示当前文档路径（可以点击跳转）；如要保持显示在编辑区首部，请使用“（伪）文档面包屑”插件 。",
     "setting_openDocContentGroup_option_backlinks": "反向链接（文档标题）",
     "setting_openDocContentGroup_option_backlinks_desp": "显示当前文档的反向链接所对应的文档",
-    "setting_openDocContentGroup_option_previousAndNext": "上一篇、下一篇",
-    "setting_openDocContentGroup_option_previousAndNext_desp": "根据文档树显示顺序，获取上一篇/下一篇文档；",
+    "setting_openDocContentGroup_option_previousAndNext": "上一篇、下一篇（相邻文档）",
+    "setting_openDocContentGroup_option_previousAndNext_desp": "根据文档树显示顺序，获取上一篇/下一篇文档",
     "setting_openDocContentGroup_option_info": "文档信息行",
     "setting_openDocContentGroup_option_info_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；通过使用开发者工具与css代码片段，可以隐藏不需要的内容，可询问通义千问等AI助手了解详细步骤；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数；",
     "setting_openDocContentGroup_option_onThisDay": "往年今日",
     "setting_openDocContentGroup_option_onThisDay_desp": "（测试中功能，如有问题请反馈）显示同月同日的日记链接；此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本，并使用今日笔记等插件为过去的日记批量添加）；在目前的实现中，实际上是显示同一个笔记本内同月同日的其他日记",
     "setting_openDocContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",
     "setting_openDocContentGroup_option_forwardlinks_desp": "显示当前文档引用的文档（不识别<code class='fn__code'>siyuan://</code>URL）",
+    "setting_openDocContentGroup_option_previousAndNextPreview": "带预览的上一篇、下一篇",
+    "setting_openDocContentGroup_option_previousAndNextPreview_desp": "",
 
 
 
@@ -202,6 +204,8 @@
     "setting_mobileContentGroup_option_onThisDay_desp": "",
     "setting_mobileContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",
     "setting_mobileContentGroup_option_forwardlinks_desp": "",
+    "setting_mobileContentGroup_option_previousAndNextPreview": "带预览的上一篇、下一篇",
+    "setting_mobileContentGroup_option_previousAndNextPreview_desp": "",
 
 
     "setting_flashcardContentGroup_name": "闪卡页面内容显示顺序",
@@ -247,7 +251,8 @@
     "setting_normalEndContentGroup_option_onThisDay_desp": "",
     "setting_normalEndContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",
     "setting_normalEndContentGroup_option_forwardlinks_desp": "",
-
+    "setting_normalEndContentGroup_option_previousAndNextPreview": "带预览的上一篇、下一篇",
+    "setting_normalEndContentGroup_option_previousAndNextPreview_desp": "",
 
     "setting_enableForOtherCircumstance_name": "❌🧪在其他情况也显示层级导航",
     "setting_enableForOtherCircumstance_desp": "可能与其他插件和（或）其他文档预览区域（或编辑区域）等冲突，请谨慎启用",
@@ -287,7 +292,10 @@
     "child_count": "%NUM%%TOTAL%篇子文档",
     "child_word_count": "子文档字符总数 ",
     "previous_doc": "<上一篇·",
+    "previous_doc_v2": "上一篇",
     "next_doc": ">下一篇·",
+    "next_doc_v2": "下一篇",
+    "no_doc": "无",
     "go_up": "打开父文档",
     "go_down": "打开首个子文档",
     "is_top_document": "已经是顶层文档，无法向上跳转",

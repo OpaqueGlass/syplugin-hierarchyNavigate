@@ -822,6 +822,48 @@ export async function batchSetBlockAtrs(blockAttrs: string) {
     return null;
 }
 
+
+export async function fullTextSearchBlock({query, method = 0, paths = [], groupBy = 1, orderBy = 0, page = 1, types = DEFAULT_FILTER}:FullTextSearchQuery) {
+    const url = "/api/search/fullTextSearchBlock";
+    if (groupBy == 0 && orderBy == 5){
+        orderBy = 0;
+        warnPush("orderBy取值不合法，已被重置");
+    }
+    let postBody = {
+        query,
+        method,
+        page,
+        paths,
+        groupBy,
+        orderBy,
+        types,
+        pageSize: 10,
+    }
+    postBody["reqId"] = Date.now();
+    let response = await postRequest(postBody, url);
+    if (response.code == 0) {
+        return response.data;
+    } else {
+        throw new Error("fullTextSearchBlock Failed: " + response.msg);
+    }
+}
+
+export async function exportMdContent({id, refMode, embedMode, yfm}: ExportMdContentBody) {
+    const url = "/api/export/exportMdContent";
+    let postBody = {
+        id,
+        refMode,
+        embedMode,
+        yfm,
+    }
+    let response = await postRequest(postBody, url);
+    if (response.code == 0) {
+        return response.data;
+    } else {
+        throw new Error("exportMdContent Failed: " + response.msg);
+    }
+}
+
 export const DOC_SORT_TYPES = {
     FILE_NAME_ASC: 0,
     FILE_NAME_DESC: 1,

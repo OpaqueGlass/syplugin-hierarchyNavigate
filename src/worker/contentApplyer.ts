@@ -95,7 +95,6 @@ export default class ContentApplyer {
                 } else {
                     this.defaultApply(finalElement);
                 }
-                this.headingElement = finalElement;
             }
         } else {
             // 已经存在，进入替换模式
@@ -199,6 +198,10 @@ export default class ContentApplyer {
             for (const elem of printerAllResults.elements) {
                 finalElement.appendChild(elem);
             }
+            // 占位符
+            const holdEle = document.createElement("div");
+            holdEle.style.height = "150px";
+            finalElement.appendChild(holdEle);
             // 判断当前类型，交给不同的apply
             if (this.protyleEnvInfo.flashCard) {
                 this.flashcardApply(finalElement);
@@ -432,7 +435,7 @@ export default class ContentApplyer {
         // 番茄工具箱 [bkmaker_add]
         this.protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-end")?.remove();
         // 插入新的
-        const contentTarget = this.protyleElement.querySelector(`.protyle-content`);
+        const contentTarget = this.protyleElement.querySelector(`.protyle-content`) as HTMLElement;
         // 初始宽度设定
         const titleTarget = this.protyleElement.querySelector(`.protyle-title`); //  .protyle-title__input
         if (titleTarget) {
@@ -445,7 +448,13 @@ export default class ContentApplyer {
         if (contentTarget) {
             contentTarget.insertAdjacentElement("beforeend", finalElement);
         }
-        
+        const wysiwyg = this.protyleElement.querySelector(".protyle-wysiwyg") as HTMLElement;
+        debugPush("paddingBottom", wysiwyg, wysiwyg.style.paddingBottom, this.protyleElement.clientHeight / 3);
+        if (wysiwyg?.style?.paddingBottom) {
+            if (!isMobile()) {
+                wysiwyg.style.paddingBottom = this.protyleElement.clientHeight / 5 + "px";
+            }
+        }
     }
 
     async mobileApply(finalElement: HTMLElement) {
@@ -472,7 +481,7 @@ export default class ContentApplyer {
     bindBasicClickEvent(element: Element) {
         const g_settings = getReadOnlyGSettings();
         // 理论上需要包含openRefLink的绑定（统一）其他的交给Printer管
-        element.querySelectorAll(".og-hn-heading-docs-container span.refLinks").forEach((elem) => {
+        element.querySelectorAll(".og-hn-heading-docs-container .refLinks").forEach((elem) => {
             // .bind结果应当暂存，否则无法remove先前的
             elem.removeEventListener("click", this.clickEventHandler, g_settings.openDocClickListenerCompatibilityMode);
             elem.addEventListener("click", this.clickEventHandler, g_settings.openDocClickListenerCompatibilityMode);

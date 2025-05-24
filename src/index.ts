@@ -101,6 +101,7 @@ export default class OGPluginTemplate extends Plugin {
     onLayoutReady(): void {
         loadSettings().then(()=>{
             this.myEventHandler.bindHandler();
+            logPush("绑定Handler结束");
             setStyle();
         }).catch((e)=>{
             showMessage("文档层级导航插件载入设置项失败。Load plugin settings faild. syplugin-hierarchy-navigate");
@@ -109,6 +110,7 @@ export default class OGPluginTemplate extends Plugin {
     }
 
     onunload(): void {
+        logPush("正在卸载插件");
         // 善后
         this.myEventHandler.unbindHandler();
         // 移除所有已经插入的导航区
