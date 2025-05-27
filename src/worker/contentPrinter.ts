@@ -385,7 +385,11 @@ class BasicContentPrinter {
 class DocInfoContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         // 请求总字数
-        const totalWords = await getChildDocumentsWordCount(basicInfo.currentDocId);
+        const g_setting = getReadOnlyGSettings();
+        let totalWords = null;
+        if (!g_setting.performanceMode) {
+            totalWords = await getChildDocumentsWordCount(basicInfo.currentDocId);
+        }
         let totalChildDocs: any, totalChildDocsNum:Number = 0;
         let directChildDocsNum:Number = basicInfo.docBasicInfo.subFileCount;
         if (!basicInfo.siblingDocLimited) {
@@ -424,6 +428,11 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         // firstLineElem.style.cssText = CONTAINER_STYLE;
         let box = getNotebookInfoLocallyF(basicInfo.docBasicInfo.box);
         
+        let infoWordsHtml = totalWords ? `<span class="og-hn-child-word-count-wrapper">
+            <span class="og-hn-child-word-count-indicator">${lang("child_word_count")}</span> 
+            <span class="og-hn-child-word-count-content">${totalWords}</span>
+        </span>` : ``;
+
         let infoElemInnerText = `<span class="og-hn-create-at-wrapper">
             <span class="og-hn-create-at-indicator">${lang("create_at")}</span> 
             <span class="og-hn-create-at-content">${thisDocInfos["hCtime"]}</span>
@@ -436,15 +445,13 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${directChildDocsNum}</span>`).replace("%TOTAL%", `<span class="og-hn-total-child-doc-count-content">(${totalChildDocsNum})</span>`)} 
         </span>
         ${directChildDocsNum == 0 ? "" : 
-        `<span class="og-hn-child-word-count-wrapper">
-            <span class="og-hn-child-word-count-indicator">${lang("child_word_count")}</span> 
-            <span class="og-hn-child-word-count-content">${totalWords}</span>
-        </span>`}
+        infoWordsHtml}
         
         <span class="og-hn-notebook-wrapper">
             ${box.name}
         </span>
         `;
+        
         result.innerHTML = infoElemInnerText;
         return result;
     }

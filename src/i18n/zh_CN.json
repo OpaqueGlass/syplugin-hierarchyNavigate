@@ -113,7 +113,7 @@
     "setting_immediatelyUpdate_name": " 🧪及时更新",
     "setting_immediatelyUpdate_desp": "（仅思源v3.1.11以上版本可用，其他版本请关闭此功能）在文档移动、重命名或删除后及时刷新内容区。此项修改后需要重启思源后方可生效。请注意：由于相关事件也关联文档输入等基本动作，在大量编辑时可能导致卡顿等性能问题，如果出现此类情况，请关闭此功能。",
     "setting_performanceMode_name": " 🧪性能模式",
-    "setting_performanceMode_desp": "启用后，如果子文档或同级文档的数量大于512，将不显示部分内容区。受影响范围包括：上一篇下一篇、同级文档、子文档。",
+    "setting_performanceMode_desp": "启用后，如果子文档或同级文档的数量大于512，将不显示部分内容区。受影响范围包括：上一篇下一篇、同级文档、子文档、文档信息行。",
     "setting_docNameCentering_name": "🆕文档名称居中显示",
     "setting_docNameCentering_desp": "用于控制文档链接中名称是否居中，关闭则左对齐",
 
@@ -172,7 +172,7 @@
     "setting_openDocContentGroup_option_previousAndNext": "上一篇、下一篇（相邻文档）",
     "setting_openDocContentGroup_option_previousAndNext_desp": "根据文档树显示顺序，获取上一篇/下一篇文档",
     "setting_openDocContentGroup_option_info": "文档信息行",
-    "setting_openDocContentGroup_option_info_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；通过使用开发者工具与css代码片段，可以隐藏不需要的内容，可询问通义千问等AI助手了解详细步骤；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数；",
+    "setting_openDocContentGroup_option_info_desp": "文档信息包括：当前文档的创建时间、更改时间、子文档个数、子文档总字符数（估计值，含空格、OCR结果、代码块）；通过使用开发者工具与css代码片段，可以隐藏不需要的内容，可询问通义千问等AI助手了解详细步骤；关闭后，仍可以通过鼠标悬停在提示词处得知文档个数；若性能模式开启，性能模式将阻止文档字符总数的统计；",
     "setting_openDocContentGroup_option_onThisDay": "往年今日",
     "setting_openDocContentGroup_option_onThisDay_desp": "（测试中功能，如有问题请反馈）显示同月同日的日记链接；此项仅对新版日记生效（需要有`custom-dailynote-yyyyMMdd`属性，如果没有，请升级到较新的思源版本，并使用今日笔记等插件为过去的日记批量添加）；在目前的实现中，实际上是显示同一个笔记本内同月同日的其他日记",
     "setting_openDocContentGroup_option_forwardlinks": "🧪正向链接（文档标题）",

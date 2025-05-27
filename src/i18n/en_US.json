@@ -115,7 +115,7 @@
     "setting_autoRemoveOldTabJudgeMiliseconds_name": "🧪Close previous document if open multiple times in a short time",
     "setting_autoRemoveOldTabJudgeMiliseconds_desp": "(Only for Siyuan 3.1.11 or above, please keep it disabled for other versions) Set to 0 to disable; unit: milliseconds; Please note: When this option is enabled, an attempt will be made to close the previous document regardless of whether it has been modified.",
     "setting_performanceMode_name": "🧪 Performance Mode",
-    "setting_performanceMode_desp": "When enabled, if the number of sub-documents or sibling documents is greater than 512, parts of the content area will not be displayed. The affected scope includes: previous and next documents, sibling documents, sub-documents.",
+    "setting_performanceMode_desp": "When enabled, if the number of sub-documents or sibling documents is greater than 512, parts of the content area will not be displayed. The affected scope includes: previous and next documents, sibling documents, sub-documents, doc-info-row.",
     "setting_docNameCentering_name": "🆕Document Name Centering",
     "setting_docNameCentering_desp": "This setting controls whether the name in document links is centered; turning it off will left-align the text.",
     
@@ -173,7 +173,7 @@
     "setting_openDocContentGroup_option_previousAndNext": "Previous and Next(Neighbor Docs)",
     "setting_openDocContentGroup_option_previousAndNext_desp": "Get the previous/next document based on the document tree display order; (Neighbor Docs)",
     "setting_openDocContentGroup_option_info": "Document Information Row",
-    "setting_openDocContentGroup_option_info_desp": "Document information includes: creation time, modification time, number of child documents, total character count of child documents (estimated value, including spaces, OCR results, code blocks); even if closed, you can still know the number of documents by hovering the mouse over the prompt word.<br/>By using developer tools and CSS code snippets, it is possible to hide unwanted content. For more details, please consult GPT or other AI assistance.",
+    "setting_openDocContentGroup_option_info_desp": "Document information includes: creation time, modification time, number of child documents, total character count of child documents (estimated value, including spaces, OCR results, code blocks); even if closed, you can still know the number of documents by hovering the mouse over the prompt word.<br/>By using developer tools and CSS code snippets, it is possible to hide unwanted content. For more details, please consult GPT or other AI assistance. If performance mode is on, character counts will not be displayed",
     "setting_openDocContentGroup_option_onThisDay": "On This Day in Previous Years",
     "setting_openDocContentGroup_option_onThisDay_desp": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) Displays links to daily-note entries from the same month and day; this feature only works with the new version of diaries (requires the `custom-dailynote-yyyyMMdd` attribute; if not available, please upgrade to a newer version of Siyuan and use plugins like siyuan-dailynote-today to bulk-add past diaries attribute); currently, it actually displays other daily-note entries from the same month and day within the same notebook.",
     "setting_openDocContentGroup_option_forwardlinks": "🧪Forward Links (Doc title only)",
