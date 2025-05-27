@@ -5,7 +5,7 @@ import { getPluginInstance } from "@/utils/getInstance";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { setStyle } from "@/worker/setStyle";
-import { DOC_SORT_TYPES, getJSONFile, isMobile } from "@/syapi";
+import { DOC_SORT_TYPES, getJSONFile, isMobile, queryAPI } from "@/syapi";
 import { isValidStr } from "@/utils/commonCheck";
 import * as siyuan from "siyuan";
 import outdatedSettingVue from "@/components/dialog/outdatedSetting.vue";
@@ -268,7 +268,8 @@ export async function loadSettings() {
             loadResult = defaultSetting;
         }
     }
-    const currentVersion = 20241219;
+    const currentVersion = 20250527;
+    let saveItNowFlag = false;
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
         loadResult["@version"] = currentVersion;
@@ -277,6 +278,22 @@ export async function loadSettings() {
         }
         // 检查数组中指定设置和defaultSetting是否一致
         showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
+        // 调整性能模式
+
+        if (loadResult["performanceMode"] == false) {
+            const queryResult = await queryAPI(`SELECT COUNT(*) as count FROM blocks limit 999999999`);
+            logPush("快数量统计", queryResult);
+            if (queryResult && queryResult.length > 0) {
+                let count = queryResult[0]["count"];
+                if (count > 150000) {
+                    loadResult["performanceMode"] = true;
+                    warnPush("[文档层级导航 HierarchyNavigate]: You have a large number of documents, the plugin will enter performance mode to avoid potential slowdowns.")
+                    siyuan.showMessage(lang("default_performance"), 5000);
+                    saveItNowFlag = true;
+                }
+                
+            }
+        }
     }
     // showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
     // 检查选项类设置项，如果发现不在列表中的，重置为默认
@@ -306,7 +323,7 @@ export async function loadSettings() {
             changeDebug(newVal);
             updateTimeout = null;
         }, 1000);
-    }, {deep: true, immediate: false});
+    }, {deep: true, immediate: saveItNowFlag});
 }
 
 function checkOutdatedSettings(loadSetting) {
