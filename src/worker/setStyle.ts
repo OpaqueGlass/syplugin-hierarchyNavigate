@@ -444,12 +444,12 @@ export function setStyle() {
     }
 
     .og-hierachy-navigate-doc-container {
-        max-height: ${g_setting.maxHeightLimit}em;
+        max-height: ${isMobile() ? "25vh" : g_setting.maxHeightLimit + "em"};
         overflow-y: scroll;
     }
 
     .og-hierachy-navigate-doc-container.og-hn-not-fold {
-        max-height: 50vh;
+        max-height: none;
     }
 
     .og-hierachy-navigate-doc-container + .og-hierachy-navigate-doc-container {
