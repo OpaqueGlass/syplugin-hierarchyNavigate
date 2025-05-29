@@ -69,3 +69,4 @@
 | [zxhd863943427](https://github.com/zxhd863943427)&[mozhux (赐我一胖) (github.com)](https://github.com/mozhux) |                                                              | 样式建议等                   |
 |[wetoria](https://github.com/Wetoria)/[DailyNotesWalker](https://github.com/Wetoria/siyuan-plugin-DailyNotesWalker)|快捷键快速查看上下一篇日记|参考其idea和快捷键绑定方式|
 | (qq) 八面风, 与路同飞, (Github) [QQQOrange](https://github.com/QQQOrange) |  | 帮助定位问题 |
+|[Trilium](https://github.com/zadam/trilium) / note-list-widget |                                                              | 预览方格内容区css样式，和功能设计 |
