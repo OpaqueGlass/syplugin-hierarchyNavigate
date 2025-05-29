@@ -390,15 +390,17 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         if (!g_setting.performanceMode) {
             totalWords = await getChildDocumentsWordCount(basicInfo.currentDocId);
         }
-        let totalChildDocs: any, totalChildDocsNum:Number = 0;
+        let totalChildDocs: any, totalChildDocsNum:Number = -1;
         let directChildDocsNum:Number = basicInfo.docBasicInfo.subFileCount;
         if (!basicInfo.siblingDocLimited) {
             await fillOneDocRelationOfBasicInfo(basicInfo, "allSiblingDocInfoList");
         }
         // 获得所有子文档个数统计
         try {
-            totalChildDocs = await queryAPI(`SELECT count(*) as total_count FROM blocks WHERE path like "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%" AND type = "d"`);
-            totalChildDocsNum = totalChildDocs[0]["total_count"];
+            if (!g_setting.performanceMode) {
+                totalChildDocs = await queryAPI(`SELECT count(*) as total_count FROM blocks WHERE path like "${basicInfo.docBasicInfo.path.replace(".sy", "")}/%" AND type = "d"`);
+                totalChildDocsNum = totalChildDocs[0]["total_count"];
+            }
         } catch(err) {
             errorPush(err);
         }
@@ -442,7 +444,7 @@ class DocInfoContentPrinter extends BasicContentPrinter {
             <span class="og-hn-create-at-content">${thisDocInfos["hMtime"]}</span>
         </span>
         <span class="og-hn-child-doc-count-wrapper">
-        ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${directChildDocsNum}</span>`).replace("%TOTAL%", `<span class="og-hn-total-child-doc-count-content">(${totalChildDocsNum})</span>`)} 
+        ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${directChildDocsNum}</span>`).replace("%TOTAL%", totalChildDocsNum == -1 ? "":`<span class="og-hn-total-child-doc-count-content">(${totalChildDocsNum})</span>`)} 
         </span>
         ${directChildDocsNum == 0 ? "" : 
         infoWordsHtml}
