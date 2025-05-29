@@ -73,5 +73,6 @@ export class PRINTER_NAME {
     public static readonly FORWARDLINK: string = "forwardlinks";
     public static readonly MORE_OR_LESS: string = "moreorless";
     public static readonly PREV_NEXT_PREVIEW: string = "previousAndNextPreview";
+    public static readonly PREVIEW_BOX:string = "previewBox";
 }
   

@@ -179,7 +179,8 @@
     "setting_openDocContentGroup_option_forwardlinks_desp": "显示当前文档引用的文档（不识别<code class='fn__code'>siyuan://</code>URL）",
     "setting_openDocContentGroup_option_previousAndNextPreview": "带预览的上一篇、下一篇",
     "setting_openDocContentGroup_option_previousAndNextPreview_desp": "",
-
+    "setting_openDocContentGroup_option_previewBox": "🧪预览方格",
+    "setting_openDocContentGroup_option_previewBox_desp": "包括有直接下层文档简单预览的内容方格；对于无内容的文档，将显示其下层文档的链接",
 
 
     "setting_mobileContentGroup_name": "安卓端（移动端）内容显示顺序",
@@ -206,6 +207,8 @@
     "setting_mobileContentGroup_option_forwardlinks_desp": "",
     "setting_mobileContentGroup_option_previousAndNextPreview": "带预览的上一篇、下一篇",
     "setting_mobileContentGroup_option_previousAndNextPreview_desp": "",
+    "setting_mobileContentGroup_option_previewBox": "🧪预览方格",
+    "setting_mobileContentGroup_option_previewBox_desp": "",
 
 
     "setting_flashcardContentGroup_name": "闪卡页面内容显示顺序",
@@ -228,6 +231,8 @@
     "setting_flashcardContentGroup_option_info_desp": "",
     "setting_flashcardContentGroup_option_blockBreadcrumb": "块面包屑",
     "setting_flashcardContentGroup_option_blockBreadcrumb_desp": "（测试中功能，如有问题请反馈）显示当前闪卡的块路径信息（仅标题、列表项），并忽略闪卡所在的节点；",
+    "setting_flashcardContentGroup_option_previewBox": "🧪预览方格",
+    "setting_flashcardContentGroup_option_previewBox_desp": "",
 
     "setting_normalEndContentGroup_name": "(常规情况)文末内容显示顺序",
     "setting_normalEndContentGroup_desp": "可以通过拖拽下方项目左侧的∷，控制“编辑区结尾”显示的内容模块顺序",
@@ -253,6 +258,8 @@
     "setting_normalEndContentGroup_option_forwardlinks_desp": "",
     "setting_normalEndContentGroup_option_previousAndNextPreview": "带预览的上一篇、下一篇",
     "setting_normalEndContentGroup_option_previousAndNextPreview_desp": "",
+    "setting_normalEndContentGroup_option_previewBox": "🧪预览方格",
+    "setting_normalEndContentGroup_option_previewBox_desp": "",
 
     "setting_enableForOtherCircumstance_name": "❌🧪在其他情况也显示层级导航",
     "setting_enableForOtherCircumstance_desp": "可能与其他插件和（或）其他文档预览区域（或编辑区域）等冲突，请谨慎启用",

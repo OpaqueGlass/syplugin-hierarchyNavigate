@@ -211,7 +211,7 @@ export function setStyle() {
 
 .og-hn-np-nav-excerpt {
     color: var(--b3-theme-on-surface);
-    font-size: 0.9em;
+    font-size: 1em;
     line-height: 1.5;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -250,6 +250,121 @@ export function setStyle() {
 .og-hn-heading-docs-container.og-hn-at-doc-end {
     padding-bottom: 20px;
 }
+    `;
+
+    const previewBox = `
+    /* 主容器 */
+.og-hn-pb-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    overflow: auto;
+}
+
+/* 单个文档方块 */
+.og-hn-pb-doc-box {
+    border: 1px solid var(--b3-table-border-color);
+    flex: 1 0 250px;
+    max-height: 200px;
+    overflow: auto;
+    border-radius: 10px;
+    padding: 10px 15px 15px 8px;
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 文档标题 */
+.og-hn-pb-title {
+    margin: 10px 0;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--custom-h2-color);
+    cursor: pointer;
+}
+
+/* 文档内容预览 */
+.og-hn-pb-content {
+    margin: 0 0 0 7px;
+    width: 95%;
+    white-space: normal;
+    overflow: hidden;
+    font-size: 1em;
+}
+
+/* 子文档容器 */
+.og-hn-pb-child-container {
+    margin-left: 7px;
+    width: 95%;
+}
+
+/* 子文档项 */
+.og-hn-pb-child-item {
+    margin: 5px 0;
+    font-size: 0.9em;
+    white-space: normal;
+}
+
+/* 子文档链接 */
+.og-hn-pb-child-item {
+    cursor: pointer;
+    color: var(--b3-protyle-inline-link-color);
+}
+.og-hn-pb-child-item:hover {
+    background-color: #00000010;
+}
+
+/* emoji图标 */
+.og-hn-pb-emoji {
+    margin-right: 5px;
+}
+
+/* 深色模式适配 */
+.dark-mode .og-hn-pb-doc-box {
+    background-color: #efefef15;
+    color: #C9D1D9;
+}
+
+.dark-mode .og-hn-pb-doc-box:hover {
+    background-color: #efefef25;
+}
+
+.dark-mode .og-hn-pb-content a {
+    color: #7aa7d4 !important;
+}
+
+/* 悬停效果 */
+.og-hn-pb-doc-box:hover {
+    border-color: #888;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 任务列表样式调整 */
+.og-hn-pb-content ul:has(> .protyle-task) {
+    list-style-type: none;
+    padding-left: 16px;
+}
+
+.og-hn-pb-content > ul:has(> .protyle-task) {
+    padding-left: 0px;
+}
+
+.og-hn-pb-content .protyle-task input ~ p {
+    display: inline-block;
+}
+
+/* 图片显示 */
+.og-hn-pb-content .img img {
+    max-width: 100%;
+    display: inline-block;
+}
+.og-hn-pb-content .code-block {
+    background-color: unset;
+}
+.og-hn-pb-content .code-block .hljs {
+    overflow: hidden;
+}
+
     `;
 
     style.innerHTML = `
@@ -320,6 +435,8 @@ export function setStyle() {
     ${toTheTop}
 
     ${previewNext}
+
+    ${previewBox}
 
     /* 限制相邻文档区域 链接宽度*/
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {

@@ -1,6 +1,6 @@
 import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
-import { exportMdContent, getBackLink2T, getBlockBreadcrumb, getDocInfo, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, queryAPI } from "@/syapi"
+import { exportMdContent, getBackLink2T, getBlockBreadcrumb, getDocInfo, getDocPreview, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, listDocsByPathT, queryAPI } from "@/syapi"
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
@@ -29,6 +29,7 @@ export default class ContentPrinter {
         [PRINTER_NAME.ON_THIS_DAY]: OnThisDayInPreviousYears,
         [PRINTER_NAME.FORWARDLINK]: ForwardLinkPrinter,
         [PRINTER_NAME.PREV_NEXT_PREVIEW]: NeighborWithPreviewContentPrinter,
+        [PRINTER_NAME.PREVIEW_BOX]: PreviewBoxContentPrinter,
     }
     
     constructor(basicInfo:IBasicInfo, protyleBasicInfo:IProtyleEnvInfo) {
@@ -1590,5 +1591,201 @@ class NeighborWithPreviewContentPrinter extends BasicContentPrinter {
         const placeholder = this.createNavPreview('', '', '', isPrev, false);
         placeholder.querySelector('.og-hn-np-nav-preview-inner')?.classList.add('og-hn-np-placeholder');
         return placeholder;
+    }
+}
+
+class PreviewBoxContentPrinter extends BasicContentPrinter {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        
+        // 创建外层容器
+        const container = document.createElement('div');
+        container.className = 'og-hn-pb-container og-hierachy-navigate-doc-container';
+        
+        if (basicInfo.subDocLimited) {
+            logPush("文档数量过多，停止显示");
+            return null;
+        }
+        // 获取子文档列表
+        await fillOneDocRelationOfBasicInfo(basicInfo, "childDocInfoList");
+        const directChildDocs = basicInfo.childDocInfoList;
+        // await listDocsByPathT({
+        //     notebook: basicInfo.docBasicInfo.box,
+        //     path: basicInfo.docBasicInfo.path,
+        //     g_setting.maxListCount,
+        //     g_setting.sortBy,
+        //     g_setting.showHiddenDocs
+        // });
+
+        // 处理每个子文档
+        for (const childDoc of directChildDocs) {
+            const docBox = document.createElement('div');
+            docBox.className = 'og-hn-pb-doc-box ';
+            docBox.setAttribute('data-id', childDoc.id);
+            
+            // 处理文档名
+            let docName = childDoc.name;
+            if (docName.endsWith('.sy')) {
+                docName = docName.slice(0, -3);
+            }
+            
+            // 添加emoji图标
+            // const emojiSpan = document.createElement('span');
+            // emojiSpan.className = 'og-hn-pb-emoji';
+            // emojiSpan.innerHTML = 
+            // docBox.appendChild(emojiSpan);
+            
+            // 添加标题
+            const title = document.createElement('h4');
+            title.className = 'og-hn-pb-title refLinks';
+            title.setAttribute("data-id", childDoc.id);
+            title.insertAdjacentHTML("afterbegin", this.getEmojiHtmlStr(childDoc.icon, childDoc.subFileCount > 0, g_setting) + docName);
+            // title.textContent = docName;
+            docBox.appendChild(title);
+            
+            // 获取预览内容
+            const [previewText, isEmpty] = await this.generatePreview(childDoc.id);
+            
+            if (!isEmpty) {
+                // 如果有内容，直接显示预览
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'og-hn-pb-content';
+                contentDiv.innerHTML = previewText;
+                docBox.appendChild(contentDiv);
+            } else {
+                // 如果没有内容，显示子文档列表
+                const subDocs = await this.generateSecond(
+                    basicInfo.docBasicInfo.box,
+                    childDoc.path,
+                    g_setting.maxListCount,
+                    g_setting.sortBy,
+                    g_setting.showHiddenDocs
+                );
+                docBox.appendChild(subDocs);
+            }
+            
+            container.appendChild(docBox);
+        }
+        
+        return container;
+    }
+
+    static async generatePreview(docId: string): Promise<[string, boolean]> {
+
+        const previewHtml = await getDocPreview(docId);
+        const TRIM_THRESHOLD = 20000;
+        
+        // 处理过长的预览内容
+        let trimmedHtml = previewHtml;
+        if (previewHtml.length > TRIM_THRESHOLD) {
+            const temp = previewHtml.substring(TRIM_THRESHOLD);
+            const crIndex = temp.search("</p>");
+            if (crIndex !== -1) {
+                trimmedHtml = previewHtml.substring(0, TRIM_THRESHOLD + crIndex + 1);
+                logPush("预览内容过长，强制截断了预览内容");
+            }
+        }
+        
+        // 清理HTML内容
+        const cleanedHtml = this.cleanDocHtml(trimmedHtml);
+        const removeSpacedHtml = cleanedHtml
+            .replace(/&zwj;|&zwnj;|&thinsp;|&emsp;|&ensp;|&nbsp;/g, "")
+            .replace(/<p[^>]*>[\u200d]*<\/p>/g, "")
+            .replace(/ |\n/g, "");
+        
+        return [cleanedHtml, !isValidStr(removeSpacedHtml)];
+    }
+
+    static async generateSecond(notebook: string, docPath: string, maxListCount: number, sortBy: string, showHidden: boolean): Promise<HTMLElement> {
+        const container = document.createElement('div');
+        container.className = 'og-hn-pb-child-container';
+        const g_setting = getReadOnlyGSettings();
+        
+        const childDocs = await listDocsByPathT({notebook, path: docPath, maxListCount, sort: sortBy, showHidden});
+        
+        for (const childDoc of childDocs) {
+            let docName = childDoc.name;
+            if (docName.endsWith('.sy')) {
+                docName = docName.slice(0, -3);
+            }
+            
+            const docItem = document.createElement('p');
+            docItem.className = 'og-hn-pb-child-item refLinks';
+            docItem.setAttribute('data-id', childDoc.id);
+            
+            const docLink = document.createElement('span');
+            docLink.className = 'og-hn-pb-child-link ';
+            // docLink.setAttribute('data-type', 'block-ref');
+            // docLink.setAttribute('data-subtype', 'd');
+            // docLink.setAttribute('data-id', childDoc.id);
+            
+            docLink.innerHTML = this.getEmojiHtmlStr(childDoc.icon, childDoc.subFileCount > 0, g_setting);
+            
+            docLink.appendChild(document.createTextNode(docName));
+            docItem.appendChild(docLink);
+            container.appendChild(docItem);
+        }
+        
+        return container;
+    }
+
+    static cleanDocHtml(text: string): string {
+        // 创建临时容器
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = text;
+        
+        // 移除iframe
+        const iframes = tempDiv.querySelectorAll('.iframe');
+        iframes.forEach(iframe => iframe.remove());
+        
+        // 如果需要导出标题，移除第一个h1
+        if (window.top.siyuan.config.export.addTitle) {
+            const h1Elements = tempDiv.querySelectorAll('h1');
+            if (h1Elements.length > 0) {
+                h1Elements[0].remove();
+            }
+        }
+        
+        // 处理emoji图标
+        const emojis = tempDiv.querySelectorAll('.emoji');
+        emojis.forEach(emoji => emoji.classList.add('iconpic'));
+        
+        // 移除空段落
+        const paragraphs = tempDiv.querySelectorAll('p');
+        paragraphs.forEach(p => {
+            if (!p.innerHTML.trim() || p.innerHTML === String.fromCharCode(0x200d)) {
+                p.remove();
+            }
+        });
+        
+        // 处理图片路径
+        const images = tempDiv.querySelectorAll('img');
+        images.forEach(img => {
+            let path = img.getAttribute('src') || '';
+            path = path.replace(/http(s)*:\/\/[^\/]*\/widgets\/listChildDocs(-dev)*/, '');
+            img.setAttribute('src', path);
+        });
+
+        // 处理A标签
+        const links = tempDiv.querySelectorAll('a');
+        links.forEach(a => {
+            // 创建文本节点替换a标签
+            const textNode = document.createTextNode(a.textContent || '');
+            a.parentNode?.replaceChild(textNode, a);
+        });
+
+        // 将h1-h5标题转换为加粗文本
+        const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5');
+        headings.forEach(heading => {
+            const bold = document.createElement('strong');
+            bold.textContent = heading.textContent;
+            heading.parentNode?.replaceChild(bold, heading);
+        });
+        
+        // 删除所有input节点
+        const inputs = tempDiv.querySelectorAll('input');
+        inputs.forEach(input => input.remove());
+        
+        return tempDiv.innerHTML;
     }
 }
