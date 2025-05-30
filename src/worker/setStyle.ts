@@ -143,7 +143,7 @@ export function setStyle() {
     const previewNext = `
 .og-hierachy-navigate-next-preview-doc-container {
     max-height: 230px;
-    overflow: hidden;
+    overflow: scroll;
 }
 .og-hn-np-inner-flex {
     display: flex;
@@ -259,6 +259,7 @@ export function setStyle() {
     flex-wrap: wrap;
     gap: 5px;
     overflow: auto;
+    max-height: 30vh;
 }
 
 /* 单个文档方块 */
@@ -269,7 +270,7 @@ export function setStyle() {
     overflow: auto;
     border-radius: 10px;
     padding: 10px 15px 15px 8px;
-    margin: 5px;
+    /*margin: 5px;*/
     display: flex;
     flex-direction: column;
 }

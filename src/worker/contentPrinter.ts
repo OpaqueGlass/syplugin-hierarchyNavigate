@@ -1600,7 +1600,7 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
         
         // 创建外层容器
         const container = document.createElement('div');
-        container.className = 'og-hn-pb-container og-hierachy-navigate-doc-container';
+        container.className = 'og-hn-pb-container';
         
         if (basicInfo.subDocLimited) {
             logPush("文档数量过多，停止显示");
