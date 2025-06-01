@@ -19,6 +19,7 @@ export async function getBasicInfo(docId:string, docPath: string, notebookId: st
     };
     result.docBasicInfo = await getSimpleDocInfo(docId, docPath, notebookId);
     const parentDocId = getParentDocIdFromPath(docPath);
+    // 笔记本的时候就没有上层,也导致下面没有统计
     if (isValidStr(parentDocId)) {
         result.parentDocBasicInfo = await getSimpleDocInfo(parentDocId, getParentPath(docPath));
     }
@@ -134,7 +135,7 @@ function getLimitation(docBasicInfo, parentDocInfo) {
 export function isTooMuchSubDoc(count: number) {
     if (count == null) {
         logPush("[性能]没有输入文档个数", count);
-        return true;
+        return false;
     }
     const g_setting = getReadOnlyGSettings();
     if (g_setting.performanceMode && count > 512) {
