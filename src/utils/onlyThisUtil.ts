@@ -114,6 +114,12 @@ export function openRefLinkByAPIWithConfig({mouseEvent, paramDocId = "", keyPara
     if (g_setting.autoRemoveOldTabJudgeMiliseconds != 0 && Number.isInteger(g_setting.autoRemoveOldTabJudgeMiliseconds)) {
         autoRemoveJudgeMiliseconds = g_setting.autoRemoveOldTabJudgeMiliseconds;
     }
+    // TODO: 集中处理，以防止嵌套触发；不stopProp是为了分屏情况在正确的分屏区打开
+    // if (mouseEvent.currentTarget != mouseEvent.target && mouseEvent.currentTarget.classList.contains("refLinks") && mouseEvent.target.classList.contains("refLinks")) {
+    //     debugPush("WARN");
+    // } else {
+    //     debugPush("WARNCliked", mouseEvent.currentTarget, mouseEvent.target);
+    // }
     openRefLinkByAPI({mouseEvent, paramDocId, keyParam, openInFocus, removeCurrentTab, autoRemoveJudgeMiliseconds});
 }
 

@@ -1,5 +1,18 @@
 ## 更新日志
 
+### v1.6.1 (2025年6月1日)
+
+- 修复：笔记本下的第一层文档，上一篇下一篇、同级文档不显示的问题；
+- 改进：样式调整；
+  - 父文档、相邻文档均纳入“文档链接等宽分列数”控制范围，如要修改为原状，请使用
+    ```css
+    .og-hierachy-navigate-parent-doc-container docLinksWrapper, .og-hierachy-navigate-next-doc-container docLinksWrapper {
+      width: unset;
+    }
+    ```
+  - 预览方格内容区不再纳入`最大高度限制`控制范围，现在是单独控制的`max-height: 30vh`；对应有选择器调整，请使用`.og-hn-pb-container`选中预览方格内容区；
+  - 宽度一致性：带预览的相邻文档，改为`overflow: scroll`；
+
 ### v1.6.0 (2025年5月29日)
 
 - 新增：🧪将内容区显示在文档末尾；

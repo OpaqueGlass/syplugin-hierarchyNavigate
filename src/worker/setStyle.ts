@@ -38,6 +38,10 @@ export function setStyle() {
         display: none;
     }
     ` : "";
+    let endDocAreaPaddingTop = g_setting.endDocAreaPaddingTop ? `/*文档结尾区域*/
+    .og-hn-heading-docs-container.og-hn-at-doc-end{
+        border-top: 2px dotted var(--b3-table-border-color);
+    }` : "";
     // 第二行后对齐链接文本，（向内缩进： #21）
     let alignStyle = `
     .og-hn-container-multiline {
@@ -82,6 +86,8 @@ export function setStyle() {
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-children-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-onthisday-doc-container span.docLinksWrapper,
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper,
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-parent-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-backlink-doc-container span.docLinksWrapper {
         width: calc( (100% - ${calColumnCount} * ${calColumnCount == 1 ? "0px" : "10px"}) / ${calColumnCount});
         ${calColumnCount == 1 ? "margin-right: 0px;" : ""}/*仅一列时忽略margin-right*/
@@ -250,6 +256,9 @@ export function setStyle() {
 .og-hn-heading-docs-container.og-hn-at-doc-end {
     padding-bottom: 20px;
 }
+.og-hn-np-nav-preview-inner.og-hn-np-placeholder .og-hn-np-nav-direction {
+    color: #999;
+}
     `;
 
     const previewBox = `
@@ -257,9 +266,8 @@ export function setStyle() {
 .og-hn-pb-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
-    overflow: auto;
-    max-height: 30vh;
+    gap: 10px;
+    overflow: scroll;
 }
 
 /* 单个文档方块 */
@@ -439,10 +447,12 @@ export function setStyle() {
 
     ${previewBox}
 
-    /* 限制相邻文档区域 链接宽度*/
+    ${endDocAreaPaddingTop}
+
+    /* 限制相邻文档区域 链接宽度
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
-        max-width: calc( (100% - 2em - 1 * 10px) / 2);
-    }
+        width: calc( (100% - 2em - 1 * 10px) / 4);
+    }*/
 
     .og-hierachy-navigate-doc-container {
         max-height: ${isMobile() ? "25vh" : g_setting.maxHeightLimit + "em"};

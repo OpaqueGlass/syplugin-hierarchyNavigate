@@ -74,6 +74,7 @@ interface IPluginSettings {
     asapRefresh: boolean,
     performanceMode: boolean,
     docNameCentering: boolean,
+    endDocAreaPaddingTop: boolean,
 };
 let defaultSetting: any = {
     fontSize: 12,
@@ -135,6 +136,7 @@ let defaultSetting: any = {
     requestAllDocIcon: false,
     performanceMode: false,
     docNameCentering: true,
+    endDocAreaPaddingTop: true,
 }
 
 let tabProperties: Array<TabProperty> = [
@@ -208,6 +210,7 @@ export function initSettingProperty() {
             new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
             new ConfigProperty({"key": "areaBorder", "type": "SWITCH"}),
             new ConfigProperty({"key": "docNameCentering", "type": "SWITCH"}),
+            new ConfigProperty({"key": "endDocAreaPaddingTop", "type": "SWITCH"}),
             new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),
             new ConfigProperty({"key": "parentBoxCSS", "type": "TEXTAREA"}),
             new ConfigProperty({"key": "siblingBoxCSS", "type": "TEXTAREA"}),

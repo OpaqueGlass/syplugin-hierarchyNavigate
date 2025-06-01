@@ -59,7 +59,7 @@
     "setting_sameWidth_name": "Minimum Width of Document Links",
     "setting_sameWidth_desp": "Ensure all document links have a consistent minimum width. Set as <code>0</code> to disable. Unit: em",
     "setting_sameWidthColumn_name": "Number of document links' column with equal width",
-    "setting_sameWidthColumn_desp": "In the area of sibling documents and sub-documents, enable equal-width display by setting the number of columns. Set it to <code>0</code> to disable this feature. If the number of columns does not meet your expectations, please check the \"Minimum Width of Document Links\" setting, as it may be affecting the layout.",
+    "setting_sameWidthColumn_desp": "In the area of sibling documents, sub-documents, backlinks, Today in History, parent documents, and previous/next navigation, enable equal-width display by setting the number of columns. Set it to <code>0</code> to disable this feature. Due to the \"Minimum Width of Document Links\" setting, if the number of columns does not meet your expectation, please check the \"Minimum Width of Document Links\" option.",
     "setting_sameWidthColumnMobile_name": "Number of document links' column with equal width (Mobile)",
     "setting_sameWidthColumnMobile_desp": "",
     "setting_hideIndicator_name": "Hide hint words",
@@ -118,6 +118,8 @@
     "setting_performanceMode_desp": "When enabled, if the number of sub-documents or sibling documents is greater than 512, parts of the content area will not be displayed. The affected scope includes: previous and next documents, sibling documents, sub-documents, doc-info-row.",
     "setting_docNameCentering_name": "🆕Document Name Centering",
     "setting_docNameCentering_desp": "This setting controls whether the name in document links is centered; turning it off will left-align the text.",
+    "setting_endDocAreaPaddingTop_name": "The separator above the content area at the end of the document",
+    "setting_endDocAreaPaddingTop_desp": "",
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
     "setting_childOrder_option_FILE_NAME_DESC": "File Name Descending",

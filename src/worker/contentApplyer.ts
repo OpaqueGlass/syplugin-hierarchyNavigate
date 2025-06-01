@@ -195,6 +195,10 @@ export default class ContentApplyer {
 
         if (!existContentMainPart) {
             debugPush("未找到已经存在的，插入新的区域");
+            if (printerAllResults.relateContentKeys == null || printerAllResults.relateContentKeys.length == 0) {
+                debugPush("空内容区，区域不再置入");
+                return;
+            }
             for (const elem of printerAllResults.elements) {
                 finalElement.appendChild(elem);
             }
