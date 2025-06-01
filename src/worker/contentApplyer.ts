@@ -300,6 +300,7 @@ export default class ContentApplyer {
                 }
             }
             existContentMainPart.setAttribute("data-exist-content-part", JSON.stringify(printerAllResults.relateContentKeys));
+            // this.adjustWysiwygPaddingBottom();
         }
         // 重新挂载事件
         if (existContentMainPart) {
@@ -452,6 +453,10 @@ export default class ContentApplyer {
         if (contentTarget) {
             contentTarget.insertAdjacentElement("beforeend", finalElement);
         }
+        // this.adjustWysiwygPaddingBottom();
+    }
+
+    adjustWysiwygPaddingBottom() {
         const wysiwyg = this.protyleElement.querySelector(".protyle-wysiwyg") as HTMLElement;
         debugPush("paddingBottom", wysiwyg, wysiwyg.style.paddingBottom, this.protyleElement.clientHeight / 3);
         if (wysiwyg?.style?.paddingBottom) {
