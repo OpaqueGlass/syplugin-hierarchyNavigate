@@ -351,7 +351,9 @@ export default class ContentApplyer {
         }
         let targetNode = this.protyleElement.querySelector('.protyle-title');
         if (!targetNode) {
-            warnPush("无法找到 .protyle-title 元素，observer 未设置");
+            if (!this.protyleEnvInfo.flashCard) {
+                warnPush("无法找到 .protyle-title 元素，observer 未设置");
+            }
             return;
         }
         const protyleElement = this.protyleElement;

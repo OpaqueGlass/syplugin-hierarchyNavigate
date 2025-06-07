@@ -88,6 +88,7 @@ export default class ContentPrinter {
 
         if (this.protyleBasicInfo.flashCard) {
             docContentKeyGroup = g_setting.flashcardContentGroup;
+            logPush("选择闪卡排序");
         }
         if (inTheEndFlag && this.protyleBasicInfo.mobile) {
             return null;
