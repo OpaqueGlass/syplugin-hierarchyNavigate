@@ -4,10 +4,9 @@
 
 > 在文档标题下添加上下层文档导航的[思源笔记](https://github.com/siyuan-note/siyuan)插件。
 
-> 当前版本：v1.6.1
+> 当前版本：v1.7.0 近期版本更新包含较大变动，可能带来其他未知问题
 >
-> 修复：笔记本下的第一层文档，上一篇下一篇、同级文档不显示的问题；
-> 改进：样式调整；
+> 新增：笔记本独立内容区顺序设定；
 > 
 > 其他详见 [更新日志](CHANGELOG.md)。
 
@@ -17,7 +16,7 @@
 - 开启插件即可；
 - 其他请浏览插件设置页面（`设置`→`集市`→`已下载`→`插件`→`文档层级导航`→“设置图标”），**提示：设置页可以上下滑动哦**；
 - 带有`og-hn-ignore`或`og文档导航忽略`属性或属性值的文档将被忽略，不显示层级导航；
-  - 通过文档上的`og-hn-content`属性，可自定义当前文档的内容显示顺序，属性值为字符串数组，例`["info","breadcrumb","parent","sibling","previousAndNext","backlinks","child","widget"]`;
+  - 通过文档上的`og-hn-content`属性，可自定义当前文档的内容显示顺序，属性值为字符串数组，例`["info","breadcrumb","parent","sibling","previousAndNext","backlinks","child","widget", "previousAndNextPreview", "previewBox"]`;
 - 每个内容区默认限制高度（设置-外观、CSS-最大高度限制），右键内容区，可临时解除内容区高度限制；
 
 #### 快捷键说明
