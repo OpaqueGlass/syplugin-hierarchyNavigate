@@ -155,14 +155,21 @@ export function initSettingProperty() {
     
     const flashCardOptions = [PRINTER_NAME.PARENT, PRINTER_NAME.CHILD, PRINTER_NAME.SIBLING, PRINTER_NAME.PREV_NEXT, PRINTER_NAME.BACKLINK, PRINTER_NAME.BREADCRUMB, PRINTER_NAME.INFO, PRINTER_NAME.WIDGET, PRINTER_NAME.BLOCK_BREADCRUMB];
     tabProperties.push(
-        new TabProperty({key: "content", "iconKey": "iconOrderedList", props:[
-            new ConfigProperty({"key": "contentOrderTip", "type": "TIPS"}),
-            new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": generalOptions}),
-            new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": generalOptions}),
-            new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": flashCardOptions}),
-            new ConfigProperty({"key": "normalEndContentGroup", "type": "ORDER", "options": generalOptions}),
-            
-        ]}),
+        new TabProperty({key: "content", "iconKey": "iconOrderedList", props: {
+            "basic": 
+            [
+                new ConfigProperty({"key": "contentOrderTip", "type": "TIPS"}),
+                new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": generalOptions}),
+                new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": generalOptions}),
+                new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": flashCardOptions}),
+                new ConfigProperty({"key": "normalEndContentGroup", "type": "ORDER", "options": generalOptions}),
+                
+            ],
+            "notebook": [
+                new ConfigProperty({"key": "notebookOpenDocContentGroup", "type": "CUSTOM_NOTEBOOK"})
+            ]
+        }
+        }),
         new TabProperty({key: "showType", "iconKey": "iconTags", props: {
             "showOrNot": [
                 new ConfigProperty({"key": "noChildIfHasAv", "type": "SWITCH"}),
@@ -325,7 +332,7 @@ export async function loadSettings() {
             setStyle();
             changeDebug(newVal);
             updateTimeout = null;
-        }, 1000);
+        }, 400);
     }, {deep: true, immediate: saveItNowFlag});
 }
 

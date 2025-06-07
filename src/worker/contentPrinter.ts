@@ -53,19 +53,41 @@ export default class ContentPrinter {
         if (ialString.includes("og-hn-ignore") || ialString.includes("og文档导航忽略")) {
             return null;
         }
-        // doc覆盖
-        if (this.basicInfo.currentDocAttrs["custom-og-hn-content"]) {
-            try {
-                docContentKeyGroup = JSON.parse(this.basicInfo.currentDocAttrs["custom-og-hn-content"]);
-            } catch(e) {
-                logPush("用户自定义顺序读取失败", e);
+        if (!inTheEndFlag) {
+            // 笔记本覆盖
+            if (g_setting["setting_notebook_order_top_" + this.basicInfo.docBasicInfo.box]) {
+                docContentKeyGroup = g_setting["setting_notebook_order_top_" + this.basicInfo.docBasicInfo.box];
+                logPush("选择笔记本排序-top");
+            }
+            // doc覆盖
+            if (this.basicInfo.currentDocAttrs["custom-og-hn-content"]) {
+                try {
+                    docContentKeyGroup = JSON.parse(this.basicInfo.currentDocAttrs["custom-og-hn-content"]);
+                    logPush("选择文档排序-top");
+                } catch(e) {
+                    logPush("用户自定义顺序读取失败", e);
+                }
+            }
+        } else {
+            docContentKeyGroup = g_setting.normalEndContentGroup;
+            // 笔记本指定
+            if (g_setting["setting_notebook_order_end_" + this.basicInfo.docBasicInfo.box]) {
+                docContentKeyGroup = g_setting["setting_notebook_order_end_" + this.basicInfo.docBasicInfo.box];
+                logPush("选择笔记本排序-end");
+            }
+            // 文档排序覆盖
+            if (this.basicInfo.currentDocAttrs["custom-og-hn-end-content"]) {
+                try {
+                    docContentKeyGroup = JSON.parse(this.basicInfo.currentDocAttrs["custom-og-hn-end-content"]);
+                    logPush("选择文档排序-end");
+                } catch(e) {
+                    logPush("用户自定义顺序读取失败", e);
+                }
             }
         }
+
         if (this.protyleBasicInfo.flashCard) {
             docContentKeyGroup = g_setting.flashcardContentGroup;
-        }
-        if (inTheEndFlag) {
-            docContentKeyGroup = g_setting.normalEndContentGroup;
         }
         if (inTheEndFlag && this.protyleBasicInfo.mobile) {
             return null;

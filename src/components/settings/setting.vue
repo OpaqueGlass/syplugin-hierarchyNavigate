@@ -18,7 +18,7 @@
                 <Column :hide="!tab.isColumn" :column-keys="tab.columnKeys" :column-names="tab.columnNames" >
                     <template #[key] v-for="(items, key) in tab.props">
                         <template v-for="(item, index) in items">
-                            <template v-if="['TEXTAREA', 'CUSTOM', 'ORDER', 'TIPS'].indexOf(item.type) == -1">
+                            <template v-if="['TEXTAREA', 'CUSTOM', 'ORDER', 'TIPS', 'CUSTOM_NOTEBOOK'].indexOf(item.type) == -1">
                                 <Item :key="index" :setting-key="item.key"  :config-name="item.configName" :config-desp="item.description">
                                     <template v-if="item.type == 'SWITCH'">
                                         <Switch v-model="g_setting[item.key]"></Switch>
@@ -45,6 +45,9 @@
                                         Oops, can't load settings, check code please. Key: {{ item.key }}
                                     </template>
                                 </Item>
+                            </template>
+                            <template v-else-if="item.type == 'CUSTOM_NOTEBOOK'">
+                                <Notebookorder :options="item.options"></Notebookorder>
                             </template>
                             <template v-else>
                                 <Block :setting-key="item.key" :config-name="item.configName" :config-desp="item.description">
@@ -84,6 +87,7 @@ import Textarea from './items/textarea.vue';
 import Order from './items/order.vue';
 import { getGSettings, getTabProperties } from '@/manager/settingManager';
 import { logPush } from '@/logger';
+import Notebookorder from './notebookorder.vue';
 
 // const props = defineProps<{
 //     tabs: Array<ITabProperty>

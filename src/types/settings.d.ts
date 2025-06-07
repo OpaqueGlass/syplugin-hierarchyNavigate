@@ -16,7 +16,8 @@ type IConfigPropertyType =
     "TEXTAREA" |
     "SWITCH" |
     "ORDER" |
-    "TIPS";
+    "TIPS" |
+    "CUSTOM_NOTEBOOK";
 
 type ITabProperty = {
     nameKey: string, // 标签页名称对应的语言文件关键字
