@@ -90,11 +90,12 @@ export default class ContentApplyer {
                 });
                 
                 // 响应右键折叠结束
-                if (g_setting.doNotAddToTitle) {
-                    this.betaApply(finalElement);
-                } else {
-                    this.defaultApply(finalElement);
-                }
+                this.betaApply(finalElement);
+                // if (g_setting.doNotAddToTitle) {
+                //     this.betaApply(finalElement);
+                // } else {
+                //     this.defaultApply(finalElement);
+                // }
             }
         } else {
             // 已经存在，进入替换模式

@@ -59,7 +59,7 @@ interface IPluginSettings {
     previousAndNextFollowDailynote: boolean,
     mobileBackReplace: boolean,
     mobileRemoveAllArea: boolean,
-    doNotAddToTitle: boolean,
+    // doNotAddToTitle: boolean, v1.7.1起移除
     areaBorder: boolean,
     debugMode: boolean,
     showNotebookInBreadcrumb: boolean,
@@ -234,7 +234,6 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "performanceMode", "type": "SWITCH"}),
             ],
             "stop": [
-                new ConfigProperty({"key": "doNotAddToTitle", "type": "SWITCH"}), // 移除此项时注意appler判断了此项开启时允许右键行为
                 new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
             ]},
         }),
@@ -278,7 +277,7 @@ export async function loadSettings() {
             loadResult = defaultSetting;
         }
     }
-    const currentVersion = 20250527;
+    const currentVersion = 20250609;
     let saveItNowFlag = false;
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
@@ -286,10 +285,10 @@ export async function loadSettings() {
         if (siyuan.getAllEditor == null) {
             loadResult["immediatelyUpdate"] = false;
         }
+        loadResult["doNotAddToTitle"] = true;
         // 检查数组中指定设置和defaultSetting是否一致
         showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
         // 调整性能模式
-
         if (loadResult["performanceMode"] == false) {
             const queryResult = await queryAPI(`SELECT COUNT(*) as count FROM blocks limit 999999999`);
             logPush("快数量统计", queryResult);
