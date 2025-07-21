@@ -123,15 +123,16 @@ export default class EventHandler {
         // 我也忘了为什么要绑定load-了（目前主要是其他载入情况使用，例如闪卡）；只是打开文档的话，switch-protyle事件就够了
         // 下面主要是避免两个事件同时触发造成的反复更新
         const originBlockId = event?.detail?.protyle?.block?.id ?? "undefined";
-        if (this.docIdMutex[originBlockId] > 0) {
+        const uuid = event?.detail?.protyle.element.getAttribute("data-id");
+        if (this.docIdMutex[uuid] > 0) {
             const path = await getHPathById(event.detail.protyle.block.id);
             logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, path);
             return true;
-        } else if (!this.docIdMutex[originBlockId]) {
-            this.docIdMutex[originBlockId] = 0;
+        } else if (!this.docIdMutex[uuid]) {
+            this.docIdMutex[uuid] = 0;
         }
-        debugPush("mutex", originBlockId, this.docIdMutex[originBlockId]);
-        this.docIdMutex[originBlockId]++;
+        debugPush("mutex", originBlockId, this.docIdMutex[uuid]);
+        this.docIdMutex[uuid]++;
         let doNotRetryFlag = true;
         if (isDebugMode()) {
             console.time(CONSTANTS.PLUGIN_NAME + " " + originBlockId);
@@ -211,7 +212,7 @@ export default class EventHandler {
                 console.timeEnd(CONSTANTS.PLUGIN_NAME + " " + originBlockId);
             }
             this.loadAndSwitchMutex.unlock();
-            this.docIdMutex[originBlockId]--;
+            this.docIdMutex[uuid]--;
         }
         return doNotRetryFlag;
     }

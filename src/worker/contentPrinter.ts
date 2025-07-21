@@ -11,6 +11,7 @@ import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrC
 import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
 import { formatDateStringLikeFileTree, parseDateString } from "@/utils/common";
+import { clearMenuInstance, saveMenuInstance } from "./menuHelper";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -654,6 +655,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         return result;
     }
     static async openRelativeMenu(event) {
+        clearMenuInstance();
         const g_setting = getReadOnlyGSettings();
         let id = event.currentTarget.getAttribute("data-parent-id");
         let nextId = event.currentTarget.getAttribute("data-next-id");
@@ -698,6 +700,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         }
     
         tempMenu.open({x: rect.left, y: rect.bottom, isLeft:false}); 
+        saveMenuInstance(tempMenu);
     }
     static getEmojiHtmlStrE2(iconString, hasChild) {
         const g_setting = getReadOnlyGSettings();
