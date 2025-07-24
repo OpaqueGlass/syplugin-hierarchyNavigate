@@ -74,6 +74,14 @@ export function setStyle() {
     background: var(--b3-toolbar-background);
     border: 1px solid var(--b3-toolbar-blur-background);
 }
+
+.${CONSTANTS.TO_THE_TOP_CLASS_NAME} .og-hierachy-navigate-movetoparea-container {
+    cursor: move;
+    display: block;
+}
+.og-hierachy-navigate-movetoparea-container {
+    display: none;
+}
     `;
 
     let calColumnCount = g_setting.sameWidthColumn;

@@ -2,7 +2,7 @@ import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
 import { exportMdContent, getBackLink2T, getBlockBreadcrumb, getDocInfo, getDocPreview, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, listDocsByPathT, queryAPI } from "@/syapi"
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
-import { getReadOnlyGSettings } from "@/manager/settingManager";
+import { getGSettings, getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
 import { debugPush, errorPush, logPush, warnPush } from "@/logger";
 import { IProtyle, Menu } from "siyuan";
@@ -144,6 +144,11 @@ export default class ContentPrinter {
                 relateContentKey: PRINTER_NAME.MORE_OR_LESS
             });
         }
+        results.unshift({
+            element: await MoveAreaContentPrinter.getBindedElement(this.basicInfo, this.protyleBasicInfo),
+            onlyOnce: await MoveAreaContentPrinter.isOnlyOnce(this.basicInfo),
+            relateContentKey: PRINTER_NAME.MOVE_TOP_AREA
+        });
     
         return {
             elements: results.filter((result) => result !== null).map((result) => result.element),
@@ -404,6 +409,69 @@ class BasicContentPrinter {
                 warnPush("未知的排序类型：" + sortType);
                 return " ORDER BY updated DESC";
         }
+    }
+}
+
+class MoveAreaContentPrinter extends BasicContentPrinter {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const result = super.getBasicElement(CONSTANTS.MOVE_TOP_AREA_CONTAINER_CLASS_NAME, null, null, null);
+        const moreOrLess = document.createElement("span");
+        moreOrLess.innerHTML = lang("move_temp_top_area");
+        result.appendChild(moreOrLess);
+        // result.classList.add("og-hn-more-less");
+        let offsetX, offsetY, x, y;
+        result.addEventListener("mousedown", (e)=>{
+            const styleElem = document.getElementById(CONSTANTS.HIDE_COULD_FOLD_STYLE_ID);
+            
+            const moveElem = document.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top.og-hn-container-to-top");
+            if (!moveElem) {
+                return;
+            }
+            const rect = moveElem.getBoundingClientRect();
+            offsetX = e.clientX - rect.left - result.offsetLeft;  // 计算鼠标相对于元素左边的偏移量
+            offsetY = e.clientY - rect.top - result.offsetTop;   // 计算鼠标相对于元素顶部的偏移量
+            let timeout = null;
+            // 监听鼠标移动
+            const onMouseMove = (e) => {
+                timeout = setTimeout(()=>{
+                    clearTimeout(timeout)
+                    x = e.clientX - offsetX;
+                    y = e.clientY - offsetY;
+                    x = Math.max(x, 65);
+                    x = Math.min(x, window.innerWidth - 100);
+                    y = Math.max(y, 65);
+                    y = Math.min(y, window.innerHeight - 100);
+                    
+                    moveElem.style.left = `${x}px`;
+                    moveElem.style.top = `${y}px`;
+                }, 10);
+                
+            };
+
+            // 监听鼠标释放
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                const g_settings = getGSettings();
+                g_settings.value["topMovePosition"] = {
+                    applyLeft: x,
+                    applyTop: y,
+                    wndHeight: window.innerHeight,
+                    wndWidth: window.innerWidth,
+                    relativeLeft: x / window.innerWidth,
+                    relativeTop: y / window.innerHeight,
+                };
+            };
+
+            // 绑定鼠标移动和释放事件
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+        result.dataset.ogContentType = PRINTER_NAME.MOVE_TOP_AREA;
+        return result;
+    }
+    static async isOnlyOnce(basicInfo:IBasicInfo): Promise<boolean> {
+        return false;
     }
 }
 

@@ -323,8 +323,15 @@ async function turnNavigationToTop() {
     // 调整位置
     const protyleContentEle = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-content");
     const rect = protyleContentEle.getBoundingClientRect();
-    const left = rect.left;
-    const top = rect.top;
+    let left = rect.left;
+    let top = rect.top;
+    // 需要从缓存中读取位置信息
+    const g_setting = getReadOnlyGSettings();
+    if (g_setting["topMovePosition"]) {
+        left = Math.max(g_setting["topMovePosition"]["relativeLeft"] * window.innerWidth, 32);
+        left = Math.min(left, window.innerWidth - 32);
+        top = Math.max(g_setting["topMovePosition"]["relativeTop"] * window.innerHeight, 64);
+    }
     navigationArea.style.left = `${left}px`;
     navigationArea.style.top = `${top}px`;
     // 添加监听，有点击事件则清除之
@@ -333,12 +340,15 @@ async function turnNavigationToTop() {
 
 export function removeToTheTop() {
     // window.document.removeEventListener("click", removeToTheTop);
-    const navigationArea = window.document.querySelector(`.layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container.${CONSTANTS.TO_THE_TOP_CLASS_NAME}`);
-    if (navigationArea) {
+    //.layout__wnd--active .protyle.fn__flex-1:not(.fn__none)
+    const navigationAreaList = window.document.querySelectorAll(` .og-hn-heading-docs-container.${CONSTANTS.TO_THE_TOP_CLASS_NAME}`);
+    if (navigationAreaList && navigationAreaList.length > 0) {
         window.document.querySelectorAll(`.${CONSTANTS.PLACEHOLDER_FOR_POP_OUT_CLASS_NAME}`).forEach(elem=>elem.remove());
-        navigationArea.classList.remove(CONSTANTS.TO_THE_TOP_CLASS_NAME);
-        navigationArea.style.left = '';
-        navigationArea.style.top = '';
+        navigationAreaList.forEach((elem)=>{
+            elem.classList.remove(CONSTANTS.TO_THE_TOP_CLASS_NAME);
+            elem.style.left = '';
+            elem.style.top = '';
+        })
         return true;
     }
     return false;
