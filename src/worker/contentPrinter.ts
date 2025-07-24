@@ -422,17 +422,16 @@ class MoveAreaContentPrinter extends BasicContentPrinter {
         let offsetX, offsetY, x, y;
         let restricArea = protyleEnvInfo.originProtyle.element; // 获取禁区元素
         result.addEventListener("mousedown", (e) => {
-            const styleElem = document.getElementById(CONSTANTS.HIDE_COULD_FOLD_STYLE_ID);
-            
-            const moveElem = document.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top.og-hn-container-to-top");
-            if (!moveElem) {
+            const outerAreaElem = document.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top.og-hn-container-to-top") as HTMLElement;
+            if (!outerAreaElem) {
                 return;
             }
-            const rect = moveElem.getBoundingClientRect();
-            offsetX = e.clientX - rect.left - result.offsetLeft;  // 计算鼠标相对于元素左边的偏移量
-            offsetY = e.clientY - rect.top - result.offsetTop;   // 计算鼠标相对于元素顶部的偏移量
+            // outerAreaElem 的 left 和 top 属性是通过 style 设置的，它们是相对于其父容器的。而 getBoundingClientRect() 返回的是相对于视口的位置。所以，使用 e.clientX - rect.left 来计算偏移量会产生一个基于视口的偏移值，而不是基于父容器的偏移值。
+            // 之后我们的修改直接赋予style.left/top所以应当基于这个
+            offsetX = e.clientX - parseFloat(outerAreaElem.style.left);  // 计算鼠标移动位置，并加上left原始值，下同
+            offsetY = e.clientY - parseFloat(outerAreaElem.style.top);
             let timeout = null;
-            // 获取限制区域的位置
+            // 获取限制区域的位置v
             const restrictedRect = restricArea.getBoundingClientRect();
             // 监听鼠标移动
             const onMouseMove = (e) => {
@@ -443,12 +442,12 @@ class MoveAreaContentPrinter extends BasicContentPrinter {
                     y = e.clientY - offsetY;
                     // 限制拖拽框在 restricArea 区域内的范围
                     x = Math.max(x, restrictedRect.left);
-                    x = Math.min(x, restrictedRect.right - moveElem.offsetWidth);
+                    x = Math.min(x, restrictedRect.right - outerAreaElem.offsetWidth);
                     y = Math.max(y, restrictedRect.top);
-                    y = Math.min(y, restrictedRect.bottom - moveElem.offsetHeight);
+                    y = Math.min(y, restrictedRect.bottom - outerAreaElem.offsetHeight);
                     // 更新元素位置
-                    moveElem.style.left = `${x}px`;
-                    moveElem.style.top = `${y}px`;
+                    outerAreaElem.style.left = `${x}px`;
+                    outerAreaElem.style.top = `${y}px`;
                 }, 10);
             };
 

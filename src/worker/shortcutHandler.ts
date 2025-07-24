@@ -301,9 +301,20 @@ async function addWidgetShortcutHandler(protyle:any) {
 }
 
 async function turnNavigationToTop() {
-    if (removeToTheTop()) {
+    // 确认当前聚焦的是否是本文档内容
+    const currentProtyle = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none)") as HTMLElement;
+    if (!currentProtyle) {
         return;
     }
+    const currentProtyleId = currentProtyle.getAttribute("data-id");
+    // 如果和当前正置顶的相同，那么关闭；如果和当前正置顶的不同，关闭，并打开新的；
+    if (getCurrentTopAreaProtyleId() === currentProtyleId) {
+        removeToTheTop();
+        return;
+    } else {
+        removeToTheTop();
+    }
+    
     // 找到当前有效的，指定之
     const navigationArea = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .og-hn-heading-docs-container") as HTMLElement;
     if (!navigationArea) {
@@ -342,10 +353,27 @@ async function turnNavigationToTop() {
     // window.document.addEventListener("click", removeToTheTop);
 }
 
+export function getCurrentTopAreaProtyleId() {
+    const navigationArea = window.document.querySelector(`.og-hn-heading-docs-container.${CONSTANTS.TO_THE_TOP_CLASS_NAME}`);
+    let temp = navigationArea;
+    let protyleElem = null;
+    for (let i=0; i < 4; i++) {
+        if (temp == null) {
+            break;
+        }
+        if (temp.getAttribute("data-id")) {
+            protyleElem = temp;
+            break;
+        }
+        temp = temp.parentElement;
+    }
+    return protyleElem?.getAttribute("data-id");
+}
+
 export function removeToTheTop() {
     // window.document.removeEventListener("click", removeToTheTop);
     //.layout__wnd--active .protyle.fn__flex-1:not(.fn__none)
-    const navigationAreaList = window.document.querySelectorAll(` .og-hn-heading-docs-container.${CONSTANTS.TO_THE_TOP_CLASS_NAME}`);
+    const navigationAreaList = window.document.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.TO_THE_TOP_CLASS_NAME}`);
     if (navigationAreaList && navigationAreaList.length > 0) {
         window.document.querySelectorAll(`.${CONSTANTS.PLACEHOLDER_FOR_POP_OUT_CLASS_NAME}`).forEach(elem=>elem.remove());
         navigationAreaList.forEach((elem)=>{

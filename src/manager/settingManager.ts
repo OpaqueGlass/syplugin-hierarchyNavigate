@@ -76,7 +76,7 @@ interface IPluginSettings {
     docNameCentering: boolean,
     endDocAreaPaddingTop: boolean,
 };
-let defaultSetting: any = {
+const defaultSetting: any = {
     fontSize: 12,
     parentBoxCSS: "",
     siblingBoxCSS: "",
@@ -315,7 +315,7 @@ export async function loadSettings() {
     // 如果有必要，判断设置项是否对当前设备生效
     // TODO: 对于Order，switch需要进行检查，防止版本问题导致选项不存在，不存在的用默认值
     // TODO: switch旧版需要迁移，另外引出迁移逻辑
-    setting.value = Object.assign(defaultSetting, loadResult);
+    setting.value = Object.assign(Object.assign({}, defaultSetting), loadResult);
     logPush("载入设置项", setting.value);
     // return loadResult;
     watch(setting, (newVal) => {
@@ -472,7 +472,7 @@ async function transferOldSetting() {
             delete newSetting[key];
         }
     }
-    newSetting = Object.assign(defaultSetting, newSetting);
+    newSetting = Object.assign(Object.assign({}, defaultSetting), newSetting);
     
     return newSetting;
 }

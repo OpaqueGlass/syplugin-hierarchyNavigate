@@ -19,7 +19,7 @@
                     <template #[key] v-for="(items, key) in tab.props">
                         <template v-for="(item, index) in items">
                             <template v-if="['TEXTAREA', 'CUSTOM', 'ORDER', 'TIPS', 'CUSTOM_NOTEBOOK'].indexOf(item.type) == -1">
-                                <Item :key="index" :setting-key="item.key"  :config-name="item.configName" :config-desp="item.description">
+                                <Item :key="index" :setting-key="item.key"  :config-name="item.configName" :config-desp="item.description" :apply-value="g_setting[item.key]" :default-value="defaultSettings[item.key]">
                                     <template v-if="item.type == 'SWITCH'">
                                         <Switch v-model="g_setting[item.key]"></Switch>
                                     </template>
@@ -85,7 +85,7 @@ import Input from './items/input.vue';
 import Select from './items/select.vue';
 import Textarea from './items/textarea.vue';
 import Order from './items/order.vue';
-import { getGSettings, getTabProperties } from '@/manager/settingManager';
+import { getDefaultSettings, getGSettings, getTabProperties } from '@/manager/settingManager';
 import { logPush } from '@/logger';
 import Notebookorder from './notebookorder.vue';
 
@@ -94,6 +94,8 @@ import Notebookorder from './notebookorder.vue';
 // }>();
 
 const g_setting = getGSettings();
+
+const defaultSettings = getDefaultSettings();
 
 const tabList = getTabProperties();
 

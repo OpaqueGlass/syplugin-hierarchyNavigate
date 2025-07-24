@@ -1,17 +1,37 @@
 
 export function saveMenuInstance(menu, id) {
-    if (!window["OGTempHN"]) {
-        window["OGTempHN"] = {};
-    }
+    testTempStorage();
     window["OGTempHN"]["recentMenu"] = {
         "menu": menu,
         "id": id
     };
 }
 
-export function clearMenuInstance(id) {
+export function testTempStorage() {
     if (!window["OGTempHN"]) {
         window["OGTempHN"] = {};
+        return false;
+    }
+    return true;
+}
+
+export function setTop(topElement) {
+    testTempStorage();
+    window["OGTempHN"]["topElement"] = topElement;
+}
+export function getTop() {
+    if (testTempStorage()) {
+        return window["OGTempHN"]["topElement"];
+    }
+    return null;
+}
+export function removeTop() {
+    testTempStorage();
+    window["OGTempHN"]["topElement"] = null;
+}
+
+export function clearMenuInstance(id) {
+    if (!testTempStorage()) {
         return false;
     }
     if (window["OGTempHN"]["recentMenu"]) {

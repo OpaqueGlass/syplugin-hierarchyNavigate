@@ -372,6 +372,7 @@
     "dialog_panel_switchDoc_search_plugin_not_found": "The \"Document Search\" plugin is not enabled, or the plugin version is not supported. --HierarchyNavigate",
 
     "move_temp_top_area": "Drug to move",
+    "option_modified": "<code class='fn__code'>Option Modified</code>",
     "open_doc_first": "Please open a document first. --HierarchyNavigate",
     "default_performance": "[HierarchyNavigate Plugin]: You have a large number of documents, the plugin will enter performance mode to avoid potential lag issues (Settings - Test Area - Performance Mode)."
 }
