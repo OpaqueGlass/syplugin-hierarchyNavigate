@@ -420,7 +420,8 @@ class MoveAreaContentPrinter extends BasicContentPrinter {
         result.appendChild(moreOrLess);
         // result.classList.add("og-hn-more-less");
         let offsetX, offsetY, x, y;
-        result.addEventListener("mousedown", (e)=>{
+        let restricArea = protyleEnvInfo.originProtyle.element; // 获取禁区元素
+        result.addEventListener("mousedown", (e) => {
             const styleElem = document.getElementById(CONSTANTS.HIDE_COULD_FOLD_STYLE_ID);
             
             const moveElem = document.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top.og-hn-container-to-top");
@@ -431,35 +432,43 @@ class MoveAreaContentPrinter extends BasicContentPrinter {
             offsetX = e.clientX - rect.left - result.offsetLeft;  // 计算鼠标相对于元素左边的偏移量
             offsetY = e.clientY - rect.top - result.offsetTop;   // 计算鼠标相对于元素顶部的偏移量
             let timeout = null;
+            // 获取限制区域的位置
+            const restrictedRect = restricArea.getBoundingClientRect();
             // 监听鼠标移动
             const onMouseMove = (e) => {
-                timeout = setTimeout(()=>{
-                    clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    clearTimeout(timeout);
+                    // 计算鼠标位置
                     x = e.clientX - offsetX;
                     y = e.clientY - offsetY;
-                    x = Math.max(x, 65);
-                    x = Math.min(x, window.innerWidth - 100);
-                    y = Math.max(y, 65);
-                    y = Math.min(y, window.innerHeight - 100);
-                    
+                    // 限制拖拽框在 restricArea 区域内的范围
+                    x = Math.max(x, restrictedRect.left);
+                    x = Math.min(x, restrictedRect.right - moveElem.offsetWidth);
+                    y = Math.max(y, restrictedRect.top);
+                    y = Math.min(y, restrictedRect.bottom - moveElem.offsetHeight);
+                    // 更新元素位置
                     moveElem.style.left = `${x}px`;
                     moveElem.style.top = `${y}px`;
                 }, 10);
-                
             };
 
             // 监听鼠标释放
             const onMouseUp = () => {
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
+                
                 const g_settings = getGSettings();
                 g_settings.value["topMovePosition"] = {
                     applyLeft: x,
                     applyTop: y,
                     wndHeight: window.innerHeight,
                     wndWidth: window.innerWidth,
+                    protyleHeight: restrictedRect.height,
+                    protyleWidth: restrictedRect.width,
                     relativeLeft: x / window.innerWidth,
                     relativeTop: y / window.innerHeight,
+                    protyleRelativeLeft: (x - restrictedRect.left) / restrictedRect.width,
+                    protyleRelativeTop: (y - restrictedRect.top) / restrictedRect.height,
                 };
             };
 
@@ -467,6 +476,8 @@ class MoveAreaContentPrinter extends BasicContentPrinter {
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
         });
+
+
         result.dataset.ogContentType = PRINTER_NAME.MOVE_TOP_AREA;
         return result;
     }

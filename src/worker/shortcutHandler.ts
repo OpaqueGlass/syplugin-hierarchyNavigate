@@ -322,15 +322,19 @@ async function turnNavigationToTop() {
     navigationArea.parentNode.insertBefore(placeholder, navigationArea);
     // 调整位置
     const protyleContentEle = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-content");
+    const protyleEle = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none)");
+    const protyleRect = protyleEle.getBoundingClientRect();
     const rect = protyleContentEle.getBoundingClientRect();
     let left = rect.left;
     let top = rect.top;
     // 需要从缓存中读取位置信息
     const g_setting = getReadOnlyGSettings();
     if (g_setting["topMovePosition"]) {
-        left = Math.max(g_setting["topMovePosition"]["relativeLeft"] * window.innerWidth, 32);
-        left = Math.min(left, window.innerWidth - 32);
-        top = Math.max(g_setting["topMovePosition"]["relativeTop"] * window.innerHeight, 64);
+        // left = Math.max(g_setting["topMovePosition"]["relativeLeft"] * window.innerWidth, 32);
+        // left = Math.min(left, window.innerWidth - 32);
+        // top = Math.max(g_setting["topMovePosition"]["relativeTop"] * window.innerHeight, 64);
+        left = protyleRect.left + protyleRect.width * g_setting["topMovePosition"].protyleRelativeLeft;
+        top = protyleRect.top + protyleRect.height * g_setting["topMovePosition"].protyleRelativeTop;
     }
     navigationArea.style.left = `${left}px`;
     navigationArea.style.top = `${top}px`;
