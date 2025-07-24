@@ -120,6 +120,8 @@
     "setting_docNameCentering_desp": "This setting controls whether the name in document links is centered; turning it off will left-align the text.",
     "setting_endDocAreaPaddingTop_name": "The separator above the content area at the end of the document",
     "setting_endDocAreaPaddingTop_desp": "",
+    "setting_keepTempTop_name": "🧪Keep the temporary top navigation area",
+    "setting_keepTempTop_desp": "After clicking on a document or switching documents, turn to the navigation area of the corresponding document at the top",
     
     "setting_childOrder_option_FILE_NAME_ASC": "File Name Ascending",
     "setting_childOrder_option_FILE_NAME_DESC": "File Name Descending",
@@ -372,7 +374,7 @@
     "dialog_panel_switchDoc_search_plugin_not_found": "The \"Document Search\" plugin is not enabled, or the plugin version is not supported. --HierarchyNavigate",
 
     "move_temp_top_area": "Drug to move",
-    "option_modified": "<code class='fn__code'>Option Modified</code>",
+    "option_modified": "<code class='fn__code'>Modified (not default)</code>",
     "open_doc_first": "Please open a document first. --HierarchyNavigate",
     "default_performance": "[HierarchyNavigate Plugin]: You have a large number of documents, the plugin will enter performance mode to avoid potential lag issues (Settings - Test Area - Performance Mode)."
 }

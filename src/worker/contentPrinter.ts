@@ -475,8 +475,6 @@ class MoveAreaContentPrinter extends BasicContentPrinter {
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
         });
-
-
         result.dataset.ogContentType = PRINTER_NAME.MOVE_TOP_AREA;
         return result;
     }

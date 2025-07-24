@@ -12,6 +12,7 @@ import * as siyuan from "siyuan";
 import { useShowSwitchPanel } from "./pluginHelper";
 import { getNeighborDailyNoteDoc, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import { CONSTANTS } from "@/constants";
+import { removeTopExistCache, setTopExistCache } from "./menuHelper";
 
 export function bindCommand(pluginInstance: Plugin) {
     pluginInstance.addCommand({
@@ -278,7 +279,6 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
                 return null;
             }
         }
-        
         return null;
     }
     return null;
@@ -300,7 +300,7 @@ async function addWidgetShortcutHandler(protyle:any) {
     protyle.getInstance()?.insert(WIDGET_HTML, true)
 }
 
-async function turnNavigationToTop() {
+export async function turnNavigationToTop() {
     // 确认当前聚焦的是否是本文档内容
     const currentProtyle = window.document.querySelector(".layout__wnd--active .protyle.fn__flex-1:not(.fn__none)") as HTMLElement;
     if (!currentProtyle) {
@@ -349,6 +349,7 @@ async function turnNavigationToTop() {
     }
     navigationArea.style.left = `${left}px`;
     navigationArea.style.top = `${top}px`;
+    setTopExistCache(true);
     // 添加监听，有点击事件则清除之
     // window.document.addEventListener("click", removeToTheTop);
 }
@@ -381,6 +382,7 @@ export function removeToTheTop() {
             elem.style.left = '';
             elem.style.top = '';
         })
+        removeTopExistCache();
         return true;
     }
     return false;

@@ -5,13 +5,16 @@ import { isMobile } from "@/syapi";
 import { isPluginExist, openRefLinkByAPI } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
-import { removeToTheTop } from "./shortcutHandler";
+import { removeToTheTop, turnNavigationToTop } from "./shortcutHandler";
+import { checkTopExistCache } from "./menuHelper";
 
 // ContentApplyer是每次初始化的，remove的每次都不一样
 const clickEventHandler = (event)=>{
     const g_setting = getReadOnlyGSettings();
     openRefLinkByAPIWithConfig({mouseEvent: event, g_setting: g_setting});
-    removeToTheTop();
+    if (!g_setting.keepTempTop) {
+        removeToTheTop();
+    }
 };
 export default class ContentApplyer {
     private basicInfo: IBasicInfo;
@@ -157,6 +160,9 @@ export default class ContentApplyer {
                 }
             }
             existContentMainPart.setAttribute("data-exist-content-part", JSON.stringify(printerAllResults.relateContentKeys));
+        }
+        if (checkTopExistCache() && g_setting.keepTempTop) {
+            turnNavigationToTop();
         }
         // 重新挂载事件
         if (existContentMainPart) {

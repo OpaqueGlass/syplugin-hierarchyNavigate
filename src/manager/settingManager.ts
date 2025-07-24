@@ -137,6 +137,7 @@ const defaultSetting: any = {
     performanceMode: false,
     docNameCentering: true,
     endDocAreaPaddingTop: true,
+    keepTempTop: false,
 }
 
 let tabProperties: Array<TabProperty> = [
@@ -232,6 +233,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "requestAllDocIcon", "type": "SWITCH"}),
                 new ConfigProperty({"key": "immediatelyUpdate", "type": "SWITCH"}),
                 new ConfigProperty({"key": "performanceMode", "type": "SWITCH"}),
+                new ConfigProperty({"key": "keepTempTop", "type": "SWITCH"}),
             ],
             "stop": [
                 new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),

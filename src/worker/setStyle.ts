@@ -73,6 +73,8 @@ export function setStyle() {
     left: 10px;
     background: var(--b3-toolbar-background);
     border: 1px solid var(--b3-toolbar-blur-background);
+    max-height: 60vh;
+    max-width: 50vw;
 }
 
 .${CONSTANTS.TO_THE_TOP_CLASS_NAME} .og-hierachy-navigate-movetoparea-container {

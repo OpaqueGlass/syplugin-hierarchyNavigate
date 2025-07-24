@@ -15,17 +15,17 @@ export function testTempStorage() {
     return true;
 }
 
-export function setTop(topElement) {
+export function setTopExistCache(topElement) {
     testTempStorage();
     window["OGTempHN"]["topElement"] = topElement;
 }
-export function getTop() {
+export function checkTopExistCache() {
     if (testTempStorage()) {
         return window["OGTempHN"]["topElement"];
     }
     return null;
 }
-export function removeTop() {
+export function removeTopExistCache() {
     testTempStorage();
     window["OGTempHN"]["topElement"] = null;
 }

@@ -118,6 +118,8 @@
     "setting_docNameCentering_desp": "用于控制文档链接中名称是否居中，关闭则左对齐",
     "setting_endDocAreaPaddingTop_name": "文档末尾内容区上侧分隔线",
     "setting_endDocAreaPaddingTop_desp": "",
+    "setting_keepTempTop_name": "🧪保持临时置顶导航区",
+    "setting_keepTempTop_desp": "在下一个聚焦文档继续置顶状态，转为置顶对应文档的导航区。",
 
     "setting_childOrder_name": "同级文档、子文档部分排序方式",
     "setting_childOrder_desp": "此项仅影响显示顺序；使用快捷键或上一篇下一篇跳转时，仍按照文档树排序顺序。",
@@ -365,7 +367,7 @@
     "dialog_panel_switchDoc_shift": "切换到“基于文档搜索”插件并进行仅标题检索",
     "dialog_panel_switchDoc_search_plugin_not_found": "未启用“基于文档搜索”插件，或不支持的插件版本。——层级导航插件",
 
-    "option_modified": "<code class='fn__code'>选项已修改</code>",
+    "option_modified": "<code class='fn__code'>已修改（非默认值）</code>",
     "open_doc_first": "请先打开文档。——层级导航插件",
     "move_temp_top_area": "拖拽移动",
     "default_performance": "[文档层级导航插件]：您的文档数量较多，插件将进入性能模式以避免导致卡顿问题(设置-试验田-性能模式)"
