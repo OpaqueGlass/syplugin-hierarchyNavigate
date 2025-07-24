@@ -6,7 +6,7 @@ import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
 import { debugPush, errorPush, logPush, warnPush } from "@/logger";
 import { IProtyle, Menu } from "siyuan";
-import { fillOneDocRelationOfBasicInfo, getUserDemandSiblingDocuments } from "./commonProvider";
+import { fillOneDocRelationOfBasicInfo } from "./commonProvider";
 import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
@@ -655,11 +655,13 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         return result;
     }
     static async openRelativeMenu(event) {
-        clearMenuInstance();
         const g_setting = getReadOnlyGSettings();
         let id = event.currentTarget.getAttribute("data-parent-id");
         let nextId = event.currentTarget.getAttribute("data-next-id");
         let rect = event.currentTarget.getBoundingClientRect();
+        if (clearMenuInstance(id)) {
+            return;
+        }
         event.stopPropagation();
         event.preventDefault();
         let sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = '${id}'`);
@@ -671,7 +673,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         }
         let siblings = await getChildDocuments(sqlResult[0], g_setting);
         if (siblings.length <= 0) return;
-        const tempMenu = new Menu("newMenu");
+        const tempMenu = new Menu("og-hn-relative-menu");
         for (let i = 0; i < siblings.length; i++) {
             let currSibling = siblings[i];
             currSibling.name = currSibling.name.substring(0, currSibling.name.length - 3);
@@ -698,9 +700,21 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             // }
             tempMenu.addItem(tempMenuItemObj);
         }
-    
-        tempMenu.open({x: rect.left, y: rect.bottom, isLeft:false}); 
-        saveMenuInstance(tempMenu);
+        if (siblings.length * 30 > (window.innerHeight - rect.bottom) * 0.7) {
+            tempMenu.open({x: rect.right, y: rect.top, isLeft:false});
+        } else {
+            tempMenu.open({x: rect.left, y: rect.bottom, isLeft:false});
+        }
+        setTimeout(()=>{
+            if (g_setting.menuKeepCurrentVisible) {
+                tempMenu.element.querySelector('.b3-menu__item--selected')?.scrollIntoView({
+                    behavior: 'smooth',        // 平滑滚动（可选）
+                    block: 'nearest',          // 'start' | 'center' | 'end' | 'nearest'
+                    inline: 'nearest'
+                });
+            }
+        }, 3);
+        saveMenuInstance(tempMenu, id);
     }
     static getEmojiHtmlStrE2(iconString, hasChild) {
         const g_setting = getReadOnlyGSettings();
