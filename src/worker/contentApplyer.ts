@@ -26,15 +26,6 @@ export default class ContentApplyer {
         if (!marginValue || marginValue === '') {
             return '0px';
         }
-        const numericValue = parseFloat(marginValue);
-        if (numericValue > 500) {
-            debugPush(`检测到异常margin值: ${marginValue}，将其限制为500px`);
-            return '96px';
-        }
-        if (numericValue < 0) {
-            debugPush(`检测到负margin值: ${marginValue}，将其设为0px`);
-            return '0px';
-        }
         return marginValue;
     }
     
@@ -426,7 +417,7 @@ export default class ContentApplyer {
                             finalElement.style.marginRight = validatedMarginRight;
                             finalElement.style.marginLeft = validatedMarginLeft;
                         }
-                    }, 75);
+                    }, 100);
                 });
             });
         }

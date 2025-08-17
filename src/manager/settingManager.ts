@@ -335,6 +335,7 @@ export async function loadSettings() {
             updateTimeout = null;
         }, 400);
     }, {deep: true, immediate: saveItNowFlag});
+    changeDebug(setting.value);
 }
 
 function checkOutdatedSettings(loadSetting) {
