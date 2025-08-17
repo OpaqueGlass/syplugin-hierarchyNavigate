@@ -21,6 +21,23 @@ export default class ContentApplyer {
     private protyleEnvInfo: IProtyleEnvInfo;
     private protyleElement: HTMLElement;
     private clickEventHandler: (event)=>void;
+
+    private validateAndFixMargin(marginValue: string): string {
+        if (!marginValue || marginValue === '') {
+            return '0px';
+        }
+        const numericValue = parseFloat(marginValue);
+        if (numericValue > 500) {
+            debugPush(`检测到异常margin值: ${marginValue}，将其限制为500px`);
+            return '96px';
+        }
+        if (numericValue < 0) {
+            debugPush(`检测到负margin值: ${marginValue}，将其设为0px`);
+            return '0px';
+        }
+        return marginValue;
+    }
+    
     constructor(basicInfo, protyleEnvInfo, protyleElement: HTMLElement) {
         this.basicInfo = basicInfo;
         this.protyleEnvInfo = protyleEnvInfo;
@@ -339,6 +356,7 @@ export default class ContentApplyer {
         if (titleTarget) {
             const marginRight = window.getComputedStyle(titleTarget).getPropertyValue("margin-right");
             const marginLeft = window.getComputedStyle(titleTarget).getPropertyValue("margin-left");
+            logPush("betaApply", marginLeft);
             finalElement.style.marginRight = marginRight;
             finalElement.style.marginLeft = marginLeft;
             finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
@@ -387,7 +405,7 @@ export default class ContentApplyer {
             finalElement.style.transition = "";
             let timeout = null;
             observer = new ResizeObserver(function(entries) {
-                entries.forEach(function(entry) {
+                entries.forEach(function(_entry) {
                     if (timeout) {
                         clearTimeout(timeout);
                     }
@@ -398,8 +416,15 @@ export default class ContentApplyer {
                         const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top");
                         const computedStyle = window.getComputedStyle(targetNode);
                         if (insertedElement && computedStyle) {
-                            finalElement.style.marginRight = computedStyle.marginRight;
-                            finalElement.style.marginLeft = computedStyle.marginLeft;
+                            const marginRight = computedStyle.marginRight;
+                            const marginLeft = computedStyle.marginLeft;
+                            debugPush(`[兼容模式]observer - 检测到margin变化: right=${marginRight}, left=${marginLeft}`);
+                            
+                            const validatedMarginRight = that.validateAndFixMargin(marginRight);
+                            const validatedMarginLeft = that.validateAndFixMargin(marginLeft);
+                            
+                            finalElement.style.marginRight = validatedMarginRight;
+                            finalElement.style.marginLeft = validatedMarginLeft;
                         }
                     }, 75);
                 });
