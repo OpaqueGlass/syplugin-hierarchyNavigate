@@ -417,7 +417,7 @@ export default class ContentApplyer {
                             finalElement.style.marginRight = validatedMarginRight;
                             finalElement.style.marginLeft = validatedMarginLeft;
                         }
-                    }, 100);
+                    }, 0);
                 });
             });
         }
@@ -445,7 +445,11 @@ export default class ContentApplyer {
             config = null;
         }
         
-        observer.observe(targetNode, config);
+        if (observer instanceof ResizeObserver) {
+            observer.observe(this.protyleElement);
+        } else {
+            observer.observe(targetNode, config);
+        }
     }
 
     async defaultApply(finalElement: HTMLElement) {
