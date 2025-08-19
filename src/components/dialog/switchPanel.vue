@@ -53,7 +53,7 @@ import { BackLinkContentPrinter } from '@/worker/contentPrinter';
 import { Dialog, openTab, showMessage } from 'siyuan';
 import { getPluginInstance } from '@/utils/getInstance';
 import { emojiIconHandler, htmlTransferParser } from '@/utils/onlyThisUtil';
-import { sleep } from '@/utils/common';
+import { showPluginMessage, sleep } from '@/utils/common';
 import { createDocWithPath } from '@/syapi';
 import { isValidStr } from '@/utils/commonCheck';
 import { generateBlockId } from '@/syapi/custom';
@@ -289,7 +289,7 @@ const callSypluginDocumentSearch = async (query: string) => {
         await sleep(300);
     } else if (panelBtn == null) {
         debugPush("基于文档搜索插件dock按钮不存在");
-        showMessage(lang("dialog_panel_switchDoc_search_plugin_not_found"));
+        showPluginMessage(lang("dialog_panel_switchDoc_search_plugin_not_found"));
         return;
     }
     const searchInput = document.getElementById("documentSearchInput") as HTMLInputElement;
@@ -309,7 +309,7 @@ const callSypluginDocumentSearchOnlyTitle = async (query: string) => {
         panelBtn.click();
     } else if (panelBtn == null) {
         debugPush("基于文档搜索插件dock按钮不存在");
-        showMessage(lang("dialog_panel_switchDoc_search_plugin_not_found"));
+        showPluginMessage(lang("dialog_panel_switchDoc_search_plugin_not_found"));
         return;
     }
     const searchInput = document.querySelector(".layout__tab--active.sy__syplugin-document-searchflat_doc_tree_dock[data-id] .search__header input") as HTMLInputElement;

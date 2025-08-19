@@ -8,7 +8,7 @@ import { getProtyleInfo } from "@/utils/onlyThisUtil"
 import ContentApplyer from "./contentApplyer";
 import Mutex from "@/utils/mutex";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
-import { sleep } from "@/utils/common";
+import { showPluginMessage, sleep } from "@/utils/common";
 import { CONSTANTS } from "@/constants";
 import { getAllShowingDocId, getHPathById, isMobile } from "@/syapi";
 import { isCurrentVersionLessThan } from "@/utils/commonCheck";
@@ -154,7 +154,7 @@ export default class EventHandler {
             // 疯了的话可能加入判断使用什么内容顺序（预设模板）
             if (protyle.element.classList.contains("fn__none")) {
                 if (isDebugMode()) {
-                    showMessage(`触发更新的文档不可见, ${protyle.id}, ${docId}, ${protyle.element.children.length}——[syplugin-hierarchyNavigate]`);
+                    showPluginMessage(`触发更新的文档不可见, ${protyle.id}, ${docId}, ${protyle.element.children.length}`);
                 }
                 debugPush(`当前文档不可见, ${protyle.id}, ${docId}, ${protyle.element.children.length}`);
             }

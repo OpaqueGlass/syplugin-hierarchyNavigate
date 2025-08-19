@@ -1,6 +1,6 @@
 import { debugPush, isDebugMode, logPush } from "@/logger";
 import { getblockAttr, getCurrentDocIdF, getNotebookSortModeF, isMobile, queryAPI } from "@/syapi";
-import { generateUUID, getFocusedBlockId, replaceShortcutString } from "@/utils/common";
+import { generateUUID, getFocusedBlockId, replaceShortcutString, showPluginMessage } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { lang } from "@/utils/lang";
 import { showMessage, Plugin } from "siyuan";
@@ -101,7 +101,7 @@ async function showSwitchPanel() {
     const docId = getCurrentDocIdF();
     if (!isValidStr(docId)) {
         debugPush("未能获取到当前文档id");
-        showMessage(lang("open_doc_first"));
+        showPluginMessage(lang("open_doc_first"));
         return;
     }
     let app = null;
@@ -137,7 +137,7 @@ async function goUpShortcutHandler() {
     const g_setting = getReadOnlyGSettings();
     if (!isValidStr(docId)) {
         logPush("未能读取到打开文档的id");
-        showMessage(lang("open_doc_first"));
+        showPluginMessage(lang("open_doc_first"));
         return ;
     }
     // 通过正则判断IAL，匹配指定属性是否是禁止显示的文档
@@ -159,7 +159,7 @@ async function goUpShortcutHandler() {
             shiftKey: false,
             altKey: false}, g_setting});
     } else {
-        showMessage(lang("is_top_document"), 2000)
+        showPluginMessage(lang("is_top_document"), 2000)
     }
 }
 
@@ -178,10 +178,10 @@ async function goDownShortcutHandler() {
                 shiftKey: false,
                 altKey: false}, g_setting});
         } else {
-            showMessage(lang("no_child_document"), 2000);
+            showPluginMessage(lang("no_child_document"), 2000);
         }
     } else {
-        showMessage(lang("canot_open_child_doc"), 2000);
+        showPluginMessage(lang("canot_open_child_doc"), 2000);
     }
 }
 
@@ -200,7 +200,7 @@ async function goToPreviousDocShortcutHandler() {
         // });
     } else {
         // 提示
-        showMessage(lang("is_first_document"), 2000);
+        showPluginMessage(lang("is_first_document"), 2000);
     }
 }
 
@@ -218,7 +218,7 @@ async function goToNextDocShortcutHandler() {
         // });
     } else {
         // 提示
-        showMessage(lang("is_last_document"), 2000);
+        showPluginMessage(lang("is_last_document"), 2000);
     }
 }
 
@@ -227,7 +227,7 @@ async function getSiblingDocsForNeighborShortcut(isNext) {
     let docId;
     docId = getCurrentDocIdF();
     if (!isValidStr(docId)) {
-        showMessage(lang("open_doc_first"));
+        showPluginMessage(lang("open_doc_first"));
         return ;
     }
     let sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = "${docId}"`);
@@ -288,7 +288,7 @@ async function addWidgetShortcutHandler(protyle:any) {
     const docId = getCurrentDocIdF();
     if (docId == null) {
         logPush("未能读取到打开文档的id");
-        showMessage(lang("open_doc_first"));
+        showPluginMessage(lang("open_doc_first"));
         return ;
     }
     const focusedBlockId = getFocusedBlockId();

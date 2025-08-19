@@ -46,7 +46,7 @@ import EventHandler from "./worker/eventHandler";
 import { removeCouldHideStyle, removeStyle, setCouldHideStyle, setStyle } from "./worker/setStyle";
 import { bindCommand } from "./worker/shortcutHandler";
 import { CONSTANTS } from "./constants";
-import { generateUUID } from "./utils/common";
+import { generateUUID, showPluginMessage } from "./utils/common";
 // import "source-map-support/register";
 
 const STORAGE_NAME = "menu-config";
@@ -104,7 +104,7 @@ export default class OGPluginTemplate extends Plugin {
             logPush("绑定Handler结束");
             setStyle();
         }).catch((e)=>{
-            showMessage("文档层级导航插件载入设置项失败。Load plugin settings faild. syplugin-hierarchy-navigate");
+            showPluginMessage("载入设置项失败。Load plugin settings faild. syplugin-hierarchy-navigate");
             errorPush(e);
         });
     }

@@ -9,7 +9,7 @@ import { DOC_SORT_TYPES, getJSONFile, isMobile, queryAPI } from "@/syapi";
 import { isValidStr } from "@/utils/commonCheck";
 import * as siyuan from "siyuan";
 import outdatedSettingVue from "@/components/dialog/outdatedSetting.vue";
-import { generateUUID } from "@/utils/common";
+import { generateUUID, showPluginMessage } from "@/utils/common";
 import { lang } from "@/utils/lang";
 
 // const pluginInstance = getPluginInstance();
@@ -299,7 +299,7 @@ export async function loadSettings() {
                 if (count > 150000) {
                     loadResult["performanceMode"] = true;
                     warnPush("[文档层级导航 HierarchyNavigate]: You have a large number of documents, the plugin will enter performance mode to avoid potential slowdowns.")
-                    siyuan.showMessage(lang("default_performance"), 5000);
+                    showPluginMessage(lang("default_performance"), 5000);
                     saveItNowFlag = true;
                 }
                 
