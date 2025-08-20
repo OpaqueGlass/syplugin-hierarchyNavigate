@@ -379,8 +379,8 @@ export function removeToTheTop() {
         window.document.querySelectorAll(`.${CONSTANTS.PLACEHOLDER_FOR_POP_OUT_CLASS_NAME}`).forEach(elem=>elem.remove());
         navigationAreaList.forEach((elem)=>{
             elem.classList.remove(CONSTANTS.TO_THE_TOP_CLASS_NAME);
-            elem.style.left = '';
-            elem.style.top = '';
+            (elem as HTMLElement).style.left = '';
+            (elem as HTMLElement).style.top = '';
         })
         removeTopExistCache();
         return true;

@@ -417,7 +417,7 @@ export default class ContentApplyer {
                             finalElement.style.marginRight = validatedMarginRight;
                             finalElement.style.marginLeft = validatedMarginLeft;
                         }
-                    }, 0);
+                    }, 30);
                 });
             });
         }
@@ -444,7 +444,7 @@ export default class ContentApplyer {
         if (observer instanceof ResizeObserver) {
             config = null;
         }
-        
+        // #73 ResizeObserver绑定.title的情况下，有时获得了旧margin数据
         if (observer instanceof ResizeObserver) {
             observer.observe(this.protyleElement);
         } else {
