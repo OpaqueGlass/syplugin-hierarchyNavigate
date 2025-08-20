@@ -4,9 +4,9 @@
 
 > 在文档标题下添加上下层文档导航的[思源笔记](https://github.com/siyuan-note/siyuan)插件。
 
-> 当前版本：v1.7.2
+> 当前版本：v1.7.3
 >
-> 改进：优化面包屑内容区菜单显示位置和显示逻辑；改进：调整临时置顶内容区的功能逻辑；
+> 修复：同时使用编辑器宽度插件、savor，有时在分屏后导航区显示错位的问题；
 > 
 > 其他详见 [更新日志](CHANGELOG.md)。
 
@@ -65,5 +65,5 @@
 | [zuoez02](https://github.com/zuoez02)/[siyuan-plugin-system](https://github.com/zuoez02/siyuan-plugin-system) | 插件系统                                                     |                              |
 | [zxhd863943427](https://github.com/zxhd863943427)&[mozhux (赐我一胖) (github.com)](https://github.com/mozhux) |                                                              | 样式建议等                   |
 |[wetoria](https://github.com/Wetoria)/[DailyNotesWalker](https://github.com/Wetoria/siyuan-plugin-DailyNotesWalker)|快捷键快速查看上下一篇日记|参考其idea和快捷键绑定方式|
-| (qq) 八面风, 与路同飞, (Github) [QQQOrange](https://github.com/QQQOrange) |  | 帮助定位问题 |
+| (qq) 八面风, 与路同飞, (Github) [QQQOrange](https://github.com/QQQOrange),[zhoutaosheng](https://github.com/zhoutaosheng) |  | 帮助定位问题 |
 |[Trilium](https://github.com/zadam/trilium) / note-list-widget |                                                              | 预览方格内容区css样式，和功能设计 |
