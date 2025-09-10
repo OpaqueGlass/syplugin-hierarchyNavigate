@@ -295,9 +295,11 @@ async function addWidgetShortcutHandler(protyle:any) {
     if (!isValidStr(focusedBlockId)) {
         return;
     }
+    const NEW_NODE_ID = window.Lute.NewNodeID();
     const WIDGET_HTML = `<iframe src="/widgets/listChildDocs" data-src="/widgets/listChildDocs" data-subtype="widget" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 1500px; height: 350px;"></iframe>`;
     debugPush("shortCut,PROTYLE", protyle);
-    protyle.getInstance()?.insert(WIDGET_HTML, true)
+    const WIDGET_HTML_V2 = `<div data-node-id=\"${NEW_NODE_ID}\" data-node-index=\"1\" data-type=\"NodeWidget\" class=\"iframe\" updated=\"${NEW_NODE_ID.split("-")[0]}\" data-subtype=\"widget\"><div class=\"iframe-content\">${WIDGET_HTML}<span class=\"protyle-action__drag\" contenteditable=\"false\"></span></div><div class=\"protyle-attr\" contenteditable=\"false\">​</div></div>`
+    protyle.getInstance()?.insert(WIDGET_HTML_V2, true)
 }
 
 export async function turnNavigationToTop() {

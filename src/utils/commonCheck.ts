@@ -52,48 +52,38 @@ export function isEventCtrlKey(event) {
 }
 
 /**
- * 是否小于输入的版本号
- * @param version 输入的版本号，形如"3.1.23"
- * @returns boolean 表示是否小于，等于也false
+ * 解析版本号字符串，移除除数字和点之外的所有字符，并将其分割成数字数组。
+ * 例如 "v3.1.2-beta" -> [3, 1, 2]
+ * @param version - 版本号字符串
+ * @returns - 由版本号各部分组成的数字数组
  */
-export function isCurrentVersionLessThan(version:string) {
-    const parsedInputVersion = parseVersion(version);
-    const parsedCurrentVersion = parseVersion(window.siyuan.config.system.kernelVersion);
-
-    // 比较每个部分
-    for (let i = 0; i < 3; i++) {
-        if ((parsedCurrentVersion[i] || 0) < (parsedInputVersion[i] || 0)) {
-            return true;
-        } else if ((parsedCurrentVersion[i] || 0) > (parsedInputVersion[i] || 0)) {
-            return false;
-        }
+const parseVersion = (version: string): number[] => {
+    if (!version || typeof version !== 'string') {
+        return [];
     }
-    // 版本号相同
-    return false;
-}
-
-/**
- * 是否大于输入的版本号
- * @param version 输入的版本号，形如"3.1.23"
- * @returns boolean 表示是否大于，等于也false
- */
-export function isCurrentVersionGreaterThan(version:string) {
-    const currentVersion = window.siyuan.config.system.kernelVersion;
-
-    const parsedInputVersion = parseVersion(version);
-    const parsedCurrentVersion = parseVersion(currentVersion);
-
-    for (let i = 0; i < 3; i++) {
-        if ((parsedCurrentVersion[i] || 0) > (parsedInputVersion[i] || 0)) {
-            return true;
-        } else if ((parsedCurrentVersion[i] || 0) < (parsedInputVersion[i] || 0)) {
-            return false;
-        }
-    }
-    return false;
-}
-
-// 移除除了.数字的部分，分组
-const parseVersion = (version: string) => {
     return version.replace(/[^0-9.]/g, '').split('.').map(Number);
 };
+
+/**
+ * 比较当前内核版本是否小于输入的版本号。
+ * @param version - 要比较的版本号字符串，例如 "3.1.23" 或 "3.2.1.1"
+ * @returns boolean - 如果当前版本小于输入版本，则返回 true；否则（大于或等于）返回 false。
+ */
+export function isCurrentVersionLessThan(version: string): boolean {
+    const parsedInputVersion = parseVersion(version);
+    const parsedCurrentVersion = parseVersion(window.siyuan.config.system.kernelVersion);
+    const len = Math.max(parsedCurrentVersion.length, parsedInputVersion.length);
+    for (let i = 0; i < len; i++) {
+        const currentPart = parsedCurrentVersion[i] || 0;
+        const inputPart = parsedInputVersion[i] || 0;
+
+        if (currentPart < inputPart) {
+            return true;
+        }
+        
+        if (currentPart > inputPart) {
+            return false;
+        }
+    }
+    return false;
+}

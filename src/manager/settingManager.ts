@@ -370,14 +370,14 @@ function showOutdatedSettingWarnDialog(outdatedSettingKeys, defaultSettings) {
 }
 
 function changeDebug(newVal) {
-    if (newVal.debugMode) {
+    if (newVal.debugMode === true) {
         debugPush("调试模式已开启");
         window.top["OpaqueGlassDebug"] = true;
         if (!window.top["OpaqueGlassDebugV2"]) {
             window.top["OpaqueGlassDebugV2"] = {};
         }
         window.top["OpaqueGlassDebugV2"]["hn"] = 5;
-    } else {
+    } else if (newVal.debugMode === false) {
         debugPush("调试模式已关闭");
         if (window.top["OpaqueGlassDebugV2"] && window.top["OpaqueGlassDebugV2"]["hn"]) {
             delete window.top["OpaqueGlassDebugV2"]["hn"];
