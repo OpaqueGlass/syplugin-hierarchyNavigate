@@ -4,9 +4,9 @@
 
 > 在文档标题下添加上下层文档导航的[思源笔记](https://github.com/siyuan-note/siyuan)插件。
 
-> 当前版本：v1.7.3
+> 当前版本：v1.7.4
 >
-> 修复：同时使用编辑器宽度插件、savor，有时在分屏后导航区显示错位的问题；
+> 修复：快捷键插入listChildDocs挂件变为html块的问题；
 > 
 > 其他详见 [更新日志](CHANGELOG.md)。
 
