@@ -74,6 +74,7 @@ export function getFocusedBlock() {
  * @deprecated 请使用openRefLinkByAPI
  */
 export function openRefLink(event: MouseEvent, paramId = "", keyParam = undefined, protyleElem = undefined, openInFocus = false){
+    throw new Error("请使用openRefLinkByAPI函数");
     let syMainWndDocument= window.parent.document
     let id;
     if (event && (event.currentTarget as HTMLElement)?.getAttribute("data-node-id")) {

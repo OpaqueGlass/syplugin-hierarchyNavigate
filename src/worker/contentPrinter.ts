@@ -144,6 +144,7 @@ export default class ContentPrinter {
                 relateContentKey: PRINTER_NAME.MORE_OR_LESS
             });
         }
+        // 添加置顶拖拽移动区域
         results.unshift({
             element: await MoveAreaContentPrinter.getBindedElement(this.basicInfo, this.protyleBasicInfo),
             onlyOnce: await MoveAreaContentPrinter.isOnlyOnce(this.basicInfo),

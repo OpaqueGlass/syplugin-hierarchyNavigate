@@ -1,4 +1,4 @@
-import { CONSTANTS } from "@/constants";
+import { CONSTANTS, PRINTER_NAME } from "@/constants";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
@@ -63,6 +63,13 @@ export default class ContentApplyer {
         const allExistMainPart = this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.HEADING_CLASS_NAME}`);
         const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
 
+        if (this._isBlankAllPrinterResult(printerAllResults)) {
+            if (existContentMainPart) {
+                existContentMainPart.remove();
+            }
+            logPush("顶部内容区无有效内容");
+            return;
+        }
         if (!existContentMainPart) {
             debugPush("未找到已经存在的，插入新的区域");
             for (const elem of printerAllResults.elements) {
@@ -207,7 +214,13 @@ export default class ContentApplyer {
         }
         const allExistMainPart = this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.FOOTER_CLASS_NAME}`);
         const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
-
+        if (this._isBlankAllPrinterResult(printerAllResults)) {
+            if (existContentMainPart) {
+                existContentMainPart.remove();
+            }
+            logPush("结尾内容区无有效内容");
+            return;
+        }
         if (!existContentMainPart) {
             debugPush("未找到已经存在的，插入新的区域");
             if (printerAllResults.relateContentKeys == null || printerAllResults.relateContentKeys.length == 0) {
@@ -325,6 +338,10 @@ export default class ContentApplyer {
             this.bindBasicClickEvent(finalElement);
             return finalElement;
         }
+    }
+
+    _isBlankAllPrinterResult(printerAllResults: IAllPrinterResult): boolean {
+        return printerAllResults.relateContentKeys.length == 0 || (printerAllResults.relateContentKeys.length == 1 && printerAllResults.relateContentKeys[0] == PRINTER_NAME.MOVE_TOP_AREA);
     }
 
     removeExistElementByOGType(typeKey:string) {

@@ -140,7 +140,7 @@ export default class OGPluginTemplate extends Plugin {
             <div id="og_plugintemplate_${uid}" style="overflow: hidden; position: relative;height: 100%;"></div>
             `,
             "width": isMobile() ? "92vw":"1040px",
-            "height": isMobile() ? "50vw":"80vh",
+            "height": isMobile() ? "70vh":"80vh",
             "destroyCallback": ()=>{app.unmount(); },
         });
         app.mount(`#og_plugintemplate_${uid}`);
