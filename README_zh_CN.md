@@ -4,9 +4,9 @@
 
 > 在文档标题下添加上下层文档导航的[思源笔记](https://github.com/siyuan-note/siyuan)插件。
 
-> 当前版本：v1.7.4
+> 当前版本：v1.7.5
 >
-> 修复：快捷键插入listChildDocs挂件变为html块的问题；
+> 修复：一些小问题；
 > 
 > 其他详见 [更新日志](CHANGELOG.md)。
 
