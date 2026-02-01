@@ -117,7 +117,7 @@ const defaultSetting: any = {
     // previousAndNextHiddenDoc: true, // 同级文档显示隐藏文档 v1.4.0+弃用
     hideBlockBreadcrumbInDesktop: true,
     sameWidthColumn: 6,
-    sameWidthColumnMobile: 3,
+    sameWidthColumnMobile: 2,
     previousAndNextFollowDailynote: false,
     mobileBackReplace: false,
     mobileRemoveAllArea: false,

@@ -531,7 +531,8 @@ class DocInfoContentPrinter extends BasicContentPrinter {
         result.classList.add(CONSTANTS.INFO_CONTAINER_CLASS);
         // firstLineElem.style.cssText = CONTAINER_STYLE;
         let box = getNotebookInfoLocallyF(basicInfo.docBasicInfo.box);
-        
+        let dividerHtml = isMobile() ? "<br/>" : "";
+
         let infoWordsHtml = totalWords ? `<span class="og-hn-child-word-count-wrapper">
             <span class="og-hn-child-word-count-indicator">${lang("child_word_count")}</span> 
             <span class="og-hn-child-word-count-content">${totalWords}</span>
@@ -541,10 +542,12 @@ class DocInfoContentPrinter extends BasicContentPrinter {
             <span class="og-hn-create-at-indicator">${lang("create_at")}</span> 
             <span class="og-hn-create-at-content">${thisDocInfos["hCtime"]}</span>
         </span>
+        ${dividerHtml}
         <span class="og-hn-modify-at-wrapper">
             <span class="og-hn-modify-at-indicator">${lang("update_at")}</span> 
             <span class="og-hn-create-at-content">${thisDocInfos["hMtime"]}</span>
         </span>
+        ${dividerHtml}
         <span class="og-hn-child-doc-count-wrapper">
         ${lang("child_count").replace("%NUM%", `<span class="og-hn-child-doc-count-content">${directChildDocsNum}</span>`).replace("%TOTAL%", totalChildDocsNum == -1 ? "":`<span class="og-hn-total-child-doc-count-content">(${totalChildDocsNum})</span>`)} 
         </span>

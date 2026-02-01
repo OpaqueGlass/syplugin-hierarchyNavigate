@@ -104,6 +104,11 @@ export function setStyle() {
     }
     `: ``;
 
+    const mobileLinkColumnOfNextStyle = isMobile() ? `.og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
+        width: 100%;
+        margin-right: 0px;
+    }` : "";
+
     const defaultLinkStyle = `
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
         background-color: var(--b3-protyle-code-background);/*var(--b3-protyle-inline-code-background); --b3-protyle-code-background  --b3-theme-surface-light*/
@@ -448,6 +453,8 @@ export function setStyle() {
     ${g_setting.hideIndicator ? "" : alignStyle}
 
     ${linkColumnStyle}
+
+    ${mobileLinkColumnOfNextStyle} /* 移动端下一篇强制一列 */
 
     ${borderDisplayStyle}
 
