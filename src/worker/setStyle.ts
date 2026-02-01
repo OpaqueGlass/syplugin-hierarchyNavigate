@@ -127,6 +127,7 @@ export function setStyle() {
         white-space: nowrap;
         overflow: hidden;
         max-width: calc(100% - 10px); /*需要排除margin-right: 10px的影响*/
+        ${isMobile() ? "margin-top: 6px;": ""}
     }
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper.og-hn-docLinksWrapper-hl {
         background-color: color-mix(in srgb, var(--b3-protyle-code-background) 95%, var(--b3-theme-on-background));
