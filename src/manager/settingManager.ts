@@ -20,6 +20,7 @@ let setting: any = ref({});
 
 interface IPluginSettings {
     fontSize: number,
+    relativeFontSize: number,
     parentBoxCSS: string,
     siblingBoxCSS: string,
     childBoxCSS: string,
@@ -78,6 +79,7 @@ interface IPluginSettings {
 };
 const defaultSetting: any = {
     fontSize: 12,
+    relativeFontSize: 0,
     parentBoxCSS: "",
     siblingBoxCSS: "",
     childBoxCSS: "",
@@ -196,6 +198,7 @@ export function initSettingProperty() {
         new TabProperty({key: "general", "iconKey": "iconSettings", props: 
             [
                 new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),
+                new ConfigProperty({"key": "relativeFontSize", "type": "NUMBER", min: 0, max: 4}),
                 new ConfigProperty({"key": "popupWindow", "type": "SELECT", options: [CONSTANTS.POP_NONE, CONSTANTS.POP_LIMIT, CONSTANTS.POP_ALL]}),
                 new ConfigProperty({"key": "docMaxNum", "type": "NUMBER"}),
                 new ConfigProperty({"key": "nameMaxLength", "type": "NUMBER"}),
@@ -279,7 +282,7 @@ export async function loadSettings() {
             loadResult = defaultSetting;
         }
     }
-    const currentVersion = 20250609;
+    const currentVersion = 20260201;
     let saveItNowFlag = false;
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
@@ -293,7 +296,7 @@ export async function loadSettings() {
         // 调整性能模式
         if (loadResult["performanceMode"] == false) {
             const queryResult = await queryAPI(`SELECT COUNT(*) as count FROM blocks limit 999999999`);
-            logPush("快数量统计", queryResult);
+            logPush("块数量统计", queryResult);
             if (queryResult && queryResult.length > 0) {
                 let count = queryResult[0]["count"];
                 if (count > 150000) {
@@ -305,6 +308,7 @@ export async function loadSettings() {
                 
             }
         }
+        loadResult["relativeFontSize"] = 0;
     }
     // showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
     // 检查选项类设置项，如果发现不在列表中的，重置为默认

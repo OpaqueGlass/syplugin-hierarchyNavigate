@@ -114,13 +114,13 @@ export function setStyle() {
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
         background-color: var(--b3-protyle-code-background);/*var(--b3-protyle-inline-code-background); --b3-protyle-code-background  --b3-theme-surface-light*/
         color: var(--b3-protyle-inline-code-color);
-        /*line-height: calc(${g_setting.fontSize}px + 0.2em);*/ /*此项导致连接上下可滚动*/
+        /*line-height: calc(1em + 2px);*/ /*此项导致连接上下可滚动*/
         font-weight: 400;
         display: inline-flex;
         align-items: center;
         box-sizing: border-box;
         padding: 4px 6px;
-        border-radius: ${(g_setting.fontSize + 2)}px;
+        border-radius: calc(1em + 2px);
         transition: var(--b3-transition);
         margin-bottom: 3px;
         text-overflow: ellipsis;
@@ -392,6 +392,8 @@ export function setStyle() {
 
     `;
 
+    const fontSize = g_setting.relativeFontSize && g_setting.relativeFontSize > 0 ? Math.round(g_setting.relativeFontSize * parseFloat(window.siyuan.config.editor.fontSize ?? 16)) : g_setting.fontSize;
+
     style.innerHTML = `
 
     .og-hn-doc-none-word {
@@ -400,13 +402,13 @@ export function setStyle() {
         text-align: center;
         display: inline-grid !important;
         color: var(--b3-theme-on-background);
-        line-height: ${g_setting.fontSize + 2}px;
+        line-height: calc(1em + 2px);
         font-weight: 400;
         align-items: center;
         box-sizing: border-box;
         /* #30 调整padding左右，尽量避免换行导致右侧大量留白 */
         padding: 4px 4px;
-        border-radius: ${(g_setting.fontSize + 2)}px;
+        border-radius: calc(1em + 2px);
         transition: var(--b3-transition);
         margin-bottom: 3px;
         text-overflow: ellipsis;
@@ -442,7 +444,7 @@ export function setStyle() {
     }
     .og-hn-heading-docs-container {
         padding: 0px 6px;
-        font-size: ${g_setting.fontSize}px;
+        font-size: ${fontSize}px;
     }
 
     ${linkWidthRestrict}

@@ -352,11 +352,11 @@ class BasicContentPrinter {
         let result = iconString;
         // emoji地址判断逻辑为出现.，但请注意之后的补全
         if (iconString.startsWith("api/icon/getDynamicIcon")) {
-            result = `<img class="iconpic" style="width: ${g_setting.fontSize}px" src="/${iconString}"/>`;
+            result = `<img class="iconpic" style="width: 1em" src="/${iconString}"/>`;
         } else if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
-            result = `<img class="iconpic" style="width: ${g_setting.fontSize}px" src="/emojis/${iconString}"/>`;
+            result = `<img class="iconpic" style="width: 1em" src="/emojis/${iconString}"/>`;
         } else if (iconString.match(new RegExp("http(s)?:\\/\\/"))) {
-            result = `<img class="iconpic" style="width: ${g_setting.fontSize}px" src="${iconString}"/>`;
+            result = `<img class="iconpic" style="width: 1em" src="${iconString}"/>`;
         } else {
             result = `<span class="emojitext">${emojiIconHandler(iconString, hasChild)}</span>`;
         }
