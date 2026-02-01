@@ -6,6 +6,7 @@
     "backlink_nodes": "🔗: ",
     "forwardlink_nodes": "📤: ",
     "on_this_day_nodes": "📅: ",
+    "parent_sibling_nodes": "⏫: ",
     "parent_area": "Parent Docs",
     "child_area": "Child Docs",
     "sibling_area": "Sibling Docs",
@@ -188,6 +189,8 @@
     "setting_openDocContentGroup_option_previewBox_desp": "Including a content grid with a simple preview of the direct sub-documents; for documents without content, links to their sub-documents will be displayed.",
     "setting_mobileContentGroup_option_previousAndNextPreview": "Neighbor Documents with Preview",
     "setting_mobileContentGroup_option_previousAndNextPreview_desp": "",
+    "setting_openDocContentGroup_option_parentSibling": "Parent Sibling Documents",
+    "setting_openDocContentGroup_option_parentSibling_desp": "Displays sibling documents of the parent document.",
 
     "setting_removeRegStrListForLinks_name": "Backlinks🛇: Exclude document names matching the regular expression",
     "setting_removeRegStrListForLinks_desp": "One regular expression per line; use options gm when matching.",
@@ -222,6 +225,8 @@
     "setting_mobileContentGroup_option_forwardlinks_desp": "",
     "setting_mobileContentGroup_option_previewBox": "🧪Preview Box",
     "setting_mobileContentGroup_option_previewBox_desp": "",
+    "setting_mobileContentGroup_option_parentSibling": "Parent Sibling Documents",
+    "setting_mobileContentGroup_option_parentSibling_desp": "",
 
     "setting_flashcardContentGroup_name": "Flashcard Page Content Display Order",
     "setting_flashcardContentGroup_desp": "You can control the order of content modules displayed during spaced repetition by dragging the ∷ on the left side of the items below",
@@ -245,6 +250,8 @@
     "setting_flashcardContentGroup_option_blockBreadcrumb_desp": "(🚅 Beta feature, may be unstable, please provide feedback if any bug exist) Show the current flashcard's block hierarchy information, including only the titles or list items, and excluding the current level.",
     "setting_flashcardContentGroup_option_previewBox": "🧪Preview Box",
     "setting_flashcardContentGroup_option_previewBox_desp": "",
+    "setting_flashcardContentGroup_option_parentSibling": "Parent Sibling Documents",
+    "setting_flashcardContentGroup_option_parentSibling_desp": "",
 
     "setting_normalEndContentGroup_name": "Document Footer Content Display Order",
     "setting_normalEndContentGroup_desp": "Control the sorting of the content area at the end of the document editing section.",
@@ -272,6 +279,8 @@
     "setting_normalEndContentGroup_option_previousAndNextPreview_desp": "",
     "setting_normalEndContentGroup_option_previewBox": "🧪Preview Box",
     "setting_normalEndContentGroup_option_previewBox_desp": "",
+    "setting_normalEndContentGroup_option_parentSibling": "Parent Sibling Documents",
+    "setting_normalEndContentGroup_option_parentSibling_desp": "",
 
     "setting_hideBlockBreadcrumbInDesktop_name": "The block breadcrumb content area is not displayed on the desktop version",
     "setting_hideBlockBreadcrumbInDesktop_desp": "",

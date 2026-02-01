@@ -1,12 +1,12 @@
 import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { lang } from "@/utils/lang";
-import { exportMdContent, getBackLink2T, getBlockBreadcrumb, getDocInfo, getDocPreview, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, listDocsByPathT, queryAPI } from "@/syapi"
+import { DOC_SORT_TYPES, exportMdContent, getBackLink2T, getBlockBreadcrumb, getDocInfo, getDocPreview, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, listDocsByPathT, queryAPI } from "@/syapi"
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
 import { getGSettings, getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
 import { debugPush, errorPush, logPush, warnPush } from "@/logger";
 import { IProtyle, Menu } from "siyuan";
-import { fillOneDocRelationOfBasicInfo } from "./commonProvider";
+import { fillOneDocRelationOfBasicInfo, getUserDemandSiblingDocuments } from "./commonProvider";
 import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
@@ -31,6 +31,7 @@ export default class ContentPrinter {
         [PRINTER_NAME.FORWARDLINK]: ForwardLinkPrinter,
         [PRINTER_NAME.PREV_NEXT_PREVIEW]: NeighborWithPreviewContentPrinter,
         [PRINTER_NAME.PREVIEW_BOX]: PreviewBoxContentPrinter,
+        [PRINTER_NAME.PARENT_SIBLING]: ParentSiblingContentPrinter,
     }
     
     constructor(basicInfo:IBasicInfo, protyleBasicInfo:IProtyleEnvInfo) {
@@ -269,7 +270,6 @@ class BasicContentPrinter {
             result.classList.add("ariaLabel");
         }
 
-        // result.style.fontSize = `${g_setting.fontSize}px`;
         const emojiAndName = document.createElement("span");
         emojiAndName.classList.add("og-hn-emoji-and-name");
 
@@ -1907,5 +1907,47 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
         inputs.forEach(input => input.remove());
         
         return tempDiv.innerHTML;
+    }
+}
+
+class ParentSiblingContentPrinter extends BasicContentPrinter {
+    static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const g_setting = getReadOnlyGSettings();
+        
+        // 1. 初始化容器，使用唯一的 ID（如 PARENT_SIBLING_CONTAINER_ID）和对应的多语言标签
+        const result = super.getBasicElement(
+            CONSTANTS.PARENT_SIBLING_CONTAINER_ID, 
+            null, 
+            lang("parent_sibling_nodes"), 
+            lang("parent_sibling_area")
+        );
+
+        // 2. 性能限制检查（如果你的数据结构中有对应的限制字段）
+        if (basicInfo.siblingDocLimited) {
+            logPush("出于性能考虑，父级文档的同级文档将不再显示");
+            return null;
+        }
+        if (basicInfo.docBasicInfo == null || basicInfo.parentDocBasicInfo == null) {
+            result.appendChild(super.getNoneElement());
+            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        } else {
+            logPush("ParentSiblingContentPrinter 基本信息", basicInfo);
+            const parentSiblings = await getUserDemandSiblingDocuments(basicInfo.parentDocBasicInfo.path, basicInfo.parentDocBasicInfo.box, DOC_SORT_TYPES[g_setting.childOrder], g_setting.showHiddenDoc);
+            const count = parentSiblings.length;
+            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", count.toString()));
+            // 循环生成文档链接
+            const list = parentSiblings;
+            for (let i = 0; i < list.length && (g_setting.docMaxNum === 0 || i < g_setting.docMaxNum); i++) {
+                const doc = list[i];
+                const oneLinkElem = this.docLinkGenerator(doc);
+
+                // 高亮当前文档的父级（如果需要，或者高亮与当前路径相关的节点）
+                if (doc.id === basicInfo.parentDocBasicInfo.id) {
+                    oneLinkElem.classList.add("og-hn-docLinksWrapper-hl");
+                }
+                result.appendChild(oneLinkElem);
+            }
+        }
+        return result;
     }
 }

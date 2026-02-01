@@ -15,6 +15,7 @@ export class CONSTANTS {
     public static readonly PARENT_CONTAINER_ID: string = "og-hierachy-navigate-parent-doc-container";
     public static readonly CHILD_CONTAINER_ID: string = "og-hierachy-navigate-children-doc-container";
     public static readonly SIBLING_CONTAINER_ID: string = "og-hierachy-navigate-sibling-doc-container";
+    public static readonly PARENT_SIBLING_CONTAINER_ID: string = "og-hierachy-navigate-parent-sibling-doc-container";
     public static readonly ON_THIS_DAY_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-onthisday-doc-container";
     public static readonly INDICATOR_CLASS_NAME: string = "og-hierachy-navigate-doc-indicator";
     public static readonly BREADCRUMB_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-breadcrumb-container";
@@ -76,5 +77,6 @@ export class PRINTER_NAME {
     public static readonly PREV_NEXT_PREVIEW: string = "previousAndNextPreview";
     public static readonly PREVIEW_BOX:string = "previewBox";
     public static readonly MOVE_TOP_AREA:string = "moveTopArea";
+    public static readonly PARENT_SIBLING:string = "parentSibling";
 }
   

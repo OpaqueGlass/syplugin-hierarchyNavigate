@@ -21,7 +21,7 @@ export async function getBasicInfo(docId:string, docPath: string, notebookId: st
     const parentDocId = getParentDocIdFromPath(docPath);
     // 笔记本的时候就没有上层,也导致下面没有统计
     if (isValidStr(parentDocId)) {
-        result.parentDocBasicInfo = await getSimpleDocInfo(parentDocId, getParentPath(docPath));
+        result.parentDocBasicInfo = await getSimpleDocInfo(parentDocId, getParentPath(docPath), notebookId);
     }
     // TODO: 这个失败怎么判断？
     // if (currentDocSqlResponse.length == 0) {
@@ -81,6 +81,7 @@ async function getDocumentRelations(docBasicInfo:ISimpleDocInfoResult) {
     let getSiblingFlag = true;
     if (parentDocId) {
         let parentDocInfo = await getDocInfo(parentDocId);
+        parentDocId["box"] = docBasicInfo.box;
         getSiblingFlag = !isTooMuchSubDoc(parentDocInfo.subFileCount);
     }
     // 获取同级文档
