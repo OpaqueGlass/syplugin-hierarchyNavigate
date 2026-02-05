@@ -1,5 +1,5 @@
 name: 问题反馈
-description: 提交非预期行为、错误或缺陷报告
+description: 提交非预期行为、错误或缺陷报告。此模板不适用于需求/改进建议。
 assignees: []
 body:
   - type: markdown
