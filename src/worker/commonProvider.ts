@@ -139,7 +139,7 @@ export function isTooMuchSubDoc(count: number) {
         return false;
     }
     const g_setting = getReadOnlyGSettings();
-    if (g_setting.performanceMode && count > 512) {
+    if (count > 1024) {
         logPush("[性能]性能模式限制", count);
         return true;
     }

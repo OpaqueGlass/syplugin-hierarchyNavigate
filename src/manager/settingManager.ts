@@ -200,7 +200,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),
                 new ConfigProperty({"key": "relativeFontSize", "type": "NUMBER", min: 0, max: 4}),
                 new ConfigProperty({"key": "popupWindow", "type": "SELECT", options: [CONSTANTS.POP_NONE, CONSTANTS.POP_LIMIT, CONSTANTS.POP_ALL]}),
-                new ConfigProperty({"key": "docMaxNum", "type": "NUMBER"}),
+                new ConfigProperty({"key": "docMaxNum", "type": "NUMBER", min: 1, max: 1024}),
                 new ConfigProperty({"key": "nameMaxLength", "type": "NUMBER"}),
                 new ConfigProperty({"key": "icon", "type": "SELECT", options: [CONSTANTS.ICON_NONE, CONSTANTS.ICON_CUSTOM_ONLY, CONSTANTS.ICON_ALL]}),
                 new ConfigProperty({"key": "linkDivider", "type": "TEXT"}),
@@ -282,7 +282,7 @@ export async function loadSettings() {
             loadResult = defaultSetting;
         }
     }
-    const currentVersion = 20260201;
+    const currentVersion = 20260301;
     let saveItNowFlag = false;
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
@@ -295,7 +295,7 @@ export async function loadSettings() {
         showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
         // 调整性能模式
         if (loadResult["performanceMode"] == false) {
-            const queryResult = await queryAPI(`SELECT COUNT(*) as count FROM blocks limit 999999999`);
+            const queryResult = await queryAPI(`SELECT COUNT(*) as count FROM blocks limit 9990000`);
             logPush("块数量统计", queryResult);
             if (queryResult && queryResult.length > 0) {
                 let count = queryResult[0]["count"];
@@ -332,10 +332,11 @@ export async function loadSettings() {
         logPush("检查到变化");
         updateTimeout = setTimeout(() => {
             // updateSingleSetting(key, newVal);
-            saveSettings(newVal);
+            let checkedData = checkSettingType(newVal)
+            saveSettings(checkedData);
             // logPush("保存设置项", newVal);
             setStyle();
-            changeDebug(newVal);
+            changeDebug(checkedData);
             updateTimeout = null;
         }, 400);
     }, {deep: true, immediate: saveItNowFlag});
@@ -412,6 +413,15 @@ function checkSettingType(input:any) {
         } else if (prop.type == "NUMBER") {
             if (isValidStr(input[prop.key])) {
                 input[prop.key] = parseFloat(input[prop.key]);
+                if (prop.key === "docMaxNum" && input[prop.key] === 0) {
+                    input[prop.key] = prop.max;
+                }
+                if (prop.min != undefined && input[prop.key] < prop.min) {
+                    input[prop.key] = prop.min;
+                }
+                if (prop.max != undefined && input[prop.key] > prop.max) {
+                    input[prop.key] = prop.max;
+                }
             }
         }
     }

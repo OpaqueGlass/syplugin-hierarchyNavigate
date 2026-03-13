@@ -924,8 +924,9 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
     }
     static async getDocOnlyBackLinks(docId: string, sortType: string) {
         // 处理不同排序方式
+        const g_setting = getReadOnlyGSettings();
         let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
-            SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${docId}"
+            SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${docId}" LIMIT ${CONSTANTS.LINKS_LIMIT}
             ) AND type = "d" ` + this.linkSortTypeToFowardLinkSortSql(sortType);
         let backlinkDocSqlResponse = await queryAPI(sqlStmt);
         if (backlinkDocSqlResponse != null && backlinkDocSqlResponse.length > 0) {
@@ -956,7 +957,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
         // 处理不同排序方式
         const g_setting = getReadOnlyGSettings();
         let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
-            SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${basicInfo.currentDocId}"
+            SELECT DISTINCT root_id FROM refs WHERE def_block_id = "${basicInfo.currentDocId}" LIMIT ${CONSTANTS.LINKS_LIMIT}
             ) AND type = "d" ` + this.linkSortTypeToFowardLinkSortSql(g_setting.sortForBackLink);
         let backlinkDocSqlResponse = await queryAPI(sqlStmt);
         debugPush("backlinkSQLResponse", backlinkDocSqlResponse);
@@ -1379,7 +1380,7 @@ class ForwardLinkPrinter extends BasicContentPrinter {
         // 处理不同排序方式
         const g_setting = getReadOnlyGSettings();
         let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
-            SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}"
+            SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}" LIMIT ${CONSTANTS.LINKS_LIMIT}
             ) AND type = "d" ` + this.linkSortTypeToFowardLinkSortSql(g_setting.sortForBackLink);
         let backlinkDocSqlResponse = await queryAPI(sqlStmt);
         debugPush("backlinkSQLResponse", backlinkDocSqlResponse);
@@ -1410,7 +1411,7 @@ class ForwardLinkPrinter extends BasicContentPrinter {
         // 处理不同排序方式
         const g_setting = getReadOnlyGSettings();
         let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
-            SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}" AND def_block_root_id = def_block_id
+            SELECT DISTINCT def_block_root_id FROM refs WHERE root_id = "${basicInfo.currentDocId}" AND def_block_root_id = def_block_id LIMIT ${CONSTANTS.LINKS_LIMIT}
             )  AND type = "d" ` + this.linkSortTypeToFowardLinkSortSql(g_setting.sortForBackLink);
         let backlinkDocSqlResponse = await queryAPI(sqlStmt);
         debugPush("forwardlinkSQLResponse", backlinkDocSqlResponse);

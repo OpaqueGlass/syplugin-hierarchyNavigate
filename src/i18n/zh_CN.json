@@ -32,7 +32,7 @@
     "setting_nameMaxLength_name": "文档名最大显示长度",
     "setting_nameMaxLength_desp": "限制子文档菜单中文档名的长度，设置为0则不限制。（单位：字符）",
     "setting_docMaxNum_name": "文档最大数量",
-    "setting_docMaxNum_desp": "当子文档或同级文档或上层文档超过该值时，后续文档将不再显示。设置为0则不限制。文档较多时，“性能模式”会阻止部分内容区的显示。",
+    "setting_docMaxNum_desp": "当子文档或同级文档或上层文档超过该值时，后续文档将不再显示。文档较多时，“性能模式”会阻止部分内容区的显示。最小值1, 最大值1024",
     "setting_icon_name": "文档图标",
     "setting_icon_desp": "控制文档图标显示与否",
     "setting_sibling_name": "文档上级为笔记本时，父文档区域显示同级文档",

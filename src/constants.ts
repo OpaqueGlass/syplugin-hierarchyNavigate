@@ -48,6 +48,8 @@ export class CONSTANTS {
     public static readonly REMOVE_CURRENT_TAB_DEFAULT: string = "default"; // 2
     public static readonly REMOVE_CURRENT_TAB_TRUE: string = "true"; // 2
     public static readonly REMOVE_CURRENT_TAB_FALSE: string = "false"; // 2
+
+    public static readonly LINKS_LIMIT: number = 1024;
 }
 
 export class LINK_SORT_TYPES {

@@ -32,7 +32,7 @@
     "setting_nameMaxLength_name": "Maximum length of the document name",
     "setting_nameMaxLength_desp": "The excess part of the document name will be hided. Only available in sub-doc menu.  If set to 0, there is no limit. Unit: Character",
     "setting_docMaxNum_name": "Maximum number of documents",
-    "setting_docMaxNum_desp": "When a subdocument, parent sibling document or sibling document exceeds this value, subsequent documents are not displayed. If set to 0, there is no limit.",
+    "setting_docMaxNum_desp": "When a subdocument, parent sibling document or sibling document exceeds this value, subsequent documents are not displayed. [1, 1024]",
     "setting_icon_name": "Document Icon",
     "setting_icon_desp": "Controls whether the document icon is displayed",
     "setting_icon_option_none": "Disable",
