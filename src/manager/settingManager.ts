@@ -1,5 +1,5 @@
 import { TabProperty, ConfigProperty, loadAllConfigPropertyFromTabProperty } from "../utils/settings";
-import { createApp, ref, watch } from "vue";
+import { createApp, nextTick, ref, watch } from "vue";
 import settingVue from "../components/settings/setting.vue";
 import { getPluginInstance } from "@/utils/getInstance";
 import { debugPush, logPush, warnPush } from "@/logger";
@@ -323,20 +323,35 @@ export async function loadSettings() {
     // TODO: switch旧版需要迁移，另外引出迁移逻辑
     setting.value = Object.assign(Object.assign({}, defaultSetting), loadResult);
     logPush("载入设置项", setting.value);
+    let isInternalUpdating = false;
     // return loadResult;
     watch(setting, (newVal) => {
+        if (isInternalUpdating) {
+            debugPush("内部更新设置项，不保存", newVal);
+            return;
+        }
         // 延迟更新
         if (updateTimeout) {
             clearTimeout(updateTimeout);
         }
         logPush("检查到变化");
         updateTimeout = setTimeout(() => {
+            isInternalUpdating = true;
+            try {
+                let checkedData = checkSettingType(newVal)
+                saveSettings(checkedData);
+                // logPush("保存设置项", newVal);
+                setStyle();
+                changeDebug(checkedData);
+            } catch(err) {
+                logPush("设置项检查时发生错误", err);
+            } finally {
+                nextTick(() => {
+                    isInternalUpdating = false;
+                });
+            }
             // updateSingleSetting(key, newVal);
-            let checkedData = checkSettingType(newVal)
-            saveSettings(checkedData);
-            // logPush("保存设置项", newVal);
-            setStyle();
-            changeDebug(checkedData);
+            
             updateTimeout = null;
         }, 400);
     }, {deep: true, immediate: saveItNowFlag});
@@ -389,40 +404,62 @@ function changeDebug(newVal) {
         }
     }
 }
+/**
+ * 校验并修正设置项
+ * @param input 响应式的 setting 对象
+ */
+function checkSettingType(input: any) {
+    const propertyMap = loadAllConfigPropertyFromTabProperty(tabProperties);
 
-function checkSettingType(input:any) {
-    const propertyMap = loadAllConfigPropertyFromTabProperty(tabProperties)
     for (const prop of Object.values(propertyMap)) {
-        if (prop.type == "SELECT") {
-            if (!prop.options.includes(input[prop.key])) {
-                input[prop.key] = defaultSetting[prop.key];
+        const key = prop.key;
+        const currentValue = input[key];
+        let targetValue = currentValue; // 默认目标值等于当前值
+
+        // --- 分类型校验逻辑 ---
+        if (prop.type === "SELECT") {
+            if (!prop.options.includes(currentValue)) {
+                targetValue = defaultSetting[key];
             }
-            // input[prop.key] = String(input[prop.key]);
-        } else if (prop.type == "ORDER") {
-            const newOrder = [];
-            for (const item of input[prop.key]) {
-                if (Object.values(PRINTER_NAME).includes(item)) {
-                    newOrder.push(item);
+        } 
+        else if (prop.type === "ORDER") {
+            // 过滤无效的打印机名称
+            if (Array.isArray(currentValue)) {
+                const filteredOrder = currentValue.filter(item => 
+                    Object.values(PRINTER_NAME).includes(item)
+                );
+                // 数组需要通过 JSON 字符串化对比，或者判断长度/内容是否变化
+                if (JSON.stringify(filteredOrder) !== JSON.stringify(currentValue)) {
+                    targetValue = filteredOrder;
                 }
             }
-            input[prop.key] = newOrder;
-        } else if (prop.type == "SWITCH") {
-            if (input[prop.key] == undefined) {
-                input[prop.key] = defaultSetting[prop.key];
+        } 
+        else if (prop.type === "SWITCH") {
+            if (currentValue === undefined) {
+                targetValue = defaultSetting[key];
             }
-        } else if (prop.type == "NUMBER") {
-            if (isValidStr(input[prop.key])) {
-                input[prop.key] = parseFloat(input[prop.key]);
-                if (prop.key === "docMaxNum" && input[prop.key] === 0) {
-                    input[prop.key] = prop.max;
+        } 
+        else if (prop.type === "NUMBER") {
+            if (isValidStr(currentValue)) {
+                let num = parseFloat(currentValue);
+                // 边界逻辑修正
+                if (key === "docMaxNum" && num === 0) {
+                    num = prop.max;
                 }
-                if (prop.min != undefined && input[prop.key] < prop.min) {
-                    input[prop.key] = prop.min;
+                if (prop.min !== undefined && num < prop.min) {
+                    num = prop.min;
                 }
-                if (prop.max != undefined && input[prop.key] > prop.max) {
-                    input[prop.key] = prop.max;
+                if (prop.max !== undefined && num > prop.max) {
+                    num = prop.max;
                 }
+                targetValue = num;
             }
+        }
+
+        // --- 关键：只有当值真正发生变化时，才触发赋值 ---
+        // 这样当第二次 watch 触发时，由于 targetValue 等于 currentValue，赋值不会执行，从而打破循环
+        if (input[key] !== targetValue) {
+            input[key] = targetValue;
         }
     }
     return input;
