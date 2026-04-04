@@ -41,7 +41,9 @@ interface IProtyleEnvInfo {
     mobile: boolean,
     flashCard: boolean,
     notTraditional: boolean,
-    originProtyle: any
+    originProtyle: any,
+    showAll: boolean,
+    popOver: boolean,
 }
 
 interface IDocLinkGenerateInfo {

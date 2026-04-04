@@ -277,8 +277,8 @@
     "setting_normalEndContentGroup_option_parentSibling": "上层文档",
     "setting_normalEndContentGroup_option_parentSibling_desp": "",
 
-    "setting_enableForOtherCircumstance_name": "❌🧪在其他情况也显示层级导航",
-    "setting_enableForOtherCircumstance_desp": "可能与其他插件和（或）其他文档预览区域（或编辑区域）等冲突，请谨慎启用",
+    "setting_enableForPopOverCircumstance_name": "🧪在文档浮窗中显示层级导航",
+    "setting_enableForPopOverCircumstance_desp": "启用此项，可在文档浮窗等场景下显示层级导航（非文档块的引用/链接浮窗不显示）。插件已尽力区分浮窗和其他插件创建的编辑区，但仍可能导致插件间冲突，请谨慎启用。",
 
     "===========笔记本独立选项卡===========": null,
     "setting_selectOneNotebookFirst_name": "请先选择一个笔记本",

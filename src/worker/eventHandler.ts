@@ -123,10 +123,10 @@ export default class EventHandler {
         // 我也忘了为什么要绑定load-了（目前主要是其他载入情况使用，例如闪卡）；只是打开文档的话，switch-protyle事件就够了
         // 下面主要是避免两个事件同时触发造成的反复更新
         const originBlockId = event?.detail?.protyle?.block?.id ?? "undefined";
-        const uuid = event?.detail?.protyle.element.getAttribute("data-id");
+        const uuid = event?.detail?.protyle.element.getAttribute("data-id") ?? "undefined";
         if (this.docIdMutex[uuid] > 0) {
             const path = await getHPathById(event.detail.protyle.block.id);
-            logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, path);
+            logPush("由于正在运行，部分刷新被停止", event.detail.protyle.block.id, path, uuid);
             return true;
         } else if (!this.docIdMutex[uuid]) {
             this.docIdMutex[uuid] = 0;
@@ -160,8 +160,20 @@ export default class EventHandler {
             }
             const protyleEnvInfo:IProtyleEnvInfo = getProtyleInfo(protyle);
             logPush("protyleInfo", protyleEnvInfo);
-            if (protyleEnvInfo.notTraditional && !protyleEnvInfo.flashCard && !protyleEnvInfo.mobile) { // 其他情况也显示层级导航：（弃用） && getReadOnlyGSettings().enableForOtherCircumstance == false
-                debugPush("非常规情况，且设置不允许，跳过");
+            if (protyleEnvInfo.notTraditional && !protyleEnvInfo.flashCard && !protyleEnvInfo.mobile) { // 其他情况也显示层级导航判定
+                if (protyleEnvInfo.popOver && getReadOnlyGSettings().enableForPopOverCircumstance === true) {
+                    debugPush("在文档浮窗中且用户允许");
+                } else if (uuid === "undefined") {
+                    debugPush("非常规情况，且没有唯一id，更可能为其他插件创建，跳过");
+                    return true;
+                } else {
+                    debugPush("其他未识别的非常规情况，跳过");
+                    return false;
+                }
+            }
+
+            if (protyle.block.id !== protyle.block.rootID) {
+                debugPush("id不一致，应该是文档中部分块的预览，跳过");
                 return true;
             }
             // 移动端且非闪卡，需要使用全局编辑器对象

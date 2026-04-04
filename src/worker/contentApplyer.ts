@@ -450,13 +450,14 @@ export default class ContentApplyer {
                 delete window["og_hn_observe"][key];
             }
         }
-
-        if (!isValidStr(this.protyleElement.dataset.id)) {
-            warnPush("设置observer时没有唯一id，可能无法及时销毁，请@开发者检查此问题", this.protyleElement.dataset.id);
+        let observerId = this.protyleElement.dataset.id;
+        if (!isValidStr(observerId)) {
+            logPush("设置observer时没有唯一id，将赋予临时id，下个监视器设定时将自动移除", observerId);
+            observerId = `temp_id_${Date.now()}`;
         } else {
             debugPush("observer set at ", this.protyleElement.dataset.id);
         }
-        window["og_hn_observe"][this.protyleElement.dataset.id] = observer;
+        window["og_hn_observe"][observerId] = observer;
         let config = { attributes: true, attributeFilter: ['style'] };
         if (observer instanceof ResizeObserver) {
             config = null;

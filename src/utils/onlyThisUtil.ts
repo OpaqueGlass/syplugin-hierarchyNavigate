@@ -10,10 +10,18 @@ export function getProtyleInfo(protyle: IProtyle):IProtyleEnvInfo {
         mobile: false,
         flashCard: false,
         notTraditional: false,
-        originProtyle: protyle
+        originProtyle: protyle,
+        showAll: true,
+        popOver: false,
     };
     if (protyle.model == null) {
         result["notTraditional"] = true;
+    }
+    if (protyle?.block?.showAll === false) {
+        result["showAll"] = false;
+    }
+    if (protyle.element.parentElement?.parentElement?.classList.contains("block__popover")) {
+        result["popOver"] = true;
     }
     if (isMobile()) {
         result["mobile"] = true;
