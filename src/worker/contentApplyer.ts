@@ -60,7 +60,13 @@ export default class ContentApplyer {
             }
             
         }
-        const allExistMainPart = this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.HEADING_CLASS_NAME}`);
+        // 兼容预览模式
+        const contentElement = this.protyleElement.querySelector(`.protyle-content`);
+        const previewElement = this.protyleElement.querySelector(`.protyle-preview`);
+        let allExistMainPart = contentElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.HEADING_CLASS_NAME}`);
+        if (previewElement && !previewElement.classList.contains("fn__none") && g_setting.enableForPreview) {
+            allExistMainPart = previewElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.HEADING_CLASS_NAME}`);
+        }
         const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
 
         if (this._isBlankAllPrinterResult(printerAllResults)) {
@@ -212,7 +218,12 @@ export default class ContentApplyer {
             }
             
         }
-        const allExistMainPart = this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.FOOTER_CLASS_NAME}`);
+        // 兼容预览模式
+        const previewElement = this.protyleElement.querySelector(`.protyle-preview`);
+        let allExistMainPart = this.protyleElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.FOOTER_CLASS_NAME}`);
+        if (previewElement && !previewElement.classList.contains("fn__none") && g_setting.enableForPreview) {
+            allExistMainPart = previewElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.FOOTER_CLASS_NAME}`);
+        }
         const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
         if (this._isBlankAllPrinterResult(printerAllResults)) {
             if (existContentMainPart) {
@@ -361,7 +372,8 @@ export default class ContentApplyer {
     async betaApply(finalElement: HTMLElement) {
         this.protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top")?.remove();
         const titleTarget = this.protyleElement.querySelector(`.protyle-title`); //  .protyle-title__input
-        if (titleTarget) {
+        const g_setting = getReadOnlyGSettings();
+        if (titleTarget && !this.protyleElement.querySelector(`.protyle-content`).classList.contains("fn__none")) {
             const marginRight = window.getComputedStyle(titleTarget).getPropertyValue("margin-right");
             const marginLeft = window.getComputedStyle(titleTarget).getPropertyValue("margin-left");
             logPush("betaApply", marginLeft);
@@ -369,6 +381,14 @@ export default class ContentApplyer {
             finalElement.style.marginLeft = marginLeft;
             finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
             titleTarget.insertAdjacentElement("afterend", finalElement);
+        } else if ((this.protyleEnvInfo.originProtyle?.options?.mode == "preview" || !this.protyleElement.querySelector(`.protyle-preview`).classList.contains("fn__none")) && g_setting.enableForPreview) { // 预览模式
+            const previewTarget = this.protyleElement.querySelector(`.protyle-preview`) as HTMLElement;
+            const containerTarget = previewTarget.querySelector(`.b3-typography`) as HTMLElement;
+            if (containerTarget) {
+                containerTarget.firstChild?.insertAdjacentElement("afterend", finalElement);
+            }
+        } else {
+            logPush("betaApply - 其他情况，插入到content内");
         }
     }
 
@@ -488,19 +508,30 @@ export default class ContentApplyer {
         this.protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-end")?.remove();
         // 插入新的
         const contentTarget = this.protyleElement.querySelector(`.protyle-content`) as HTMLElement;
-        // 初始宽度设定
-        const titleTarget = this.protyleElement.querySelector(`.protyle-title`); //  .protyle-title__input
-        if (titleTarget) {
-            const marginRight = window.getComputedStyle(titleTarget).getPropertyValue("margin-right");
-            const marginLeft = window.getComputedStyle(titleTarget).getPropertyValue("margin-left");
-            finalElement.style.marginRight = marginRight;
-            finalElement.style.marginLeft = marginLeft;
-            finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
+        const g_setting = getReadOnlyGSettings();
+        if (contentTarget.classList.contains("fn__none") && g_setting.enableForPreview) {
+            const previewTarget = this.protyleElement.querySelector(`.protyle-preview`) as HTMLElement;
+            const containerTarget = previewTarget.querySelector(`.b3-typography`) as HTMLElement;
+            if (containerTarget) {
+                containerTarget.insertAdjacentElement("beforeend", finalElement);
+            }
+        } else {
+            // 非预览模式
+            // 初始宽度设定
+            const titleTarget = this.protyleElement.querySelector(`.protyle-title`); //  .protyle-title__input
+            if (titleTarget) {
+                const marginRight = window.getComputedStyle(titleTarget).getPropertyValue("margin-right");
+                const marginLeft = window.getComputedStyle(titleTarget).getPropertyValue("margin-left");
+                finalElement.style.marginRight = marginRight;
+                finalElement.style.marginLeft = marginLeft;
+                finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
+            }
+            if (contentTarget) {
+                contentTarget.insertAdjacentElement("beforeend", finalElement);
+            }
+            // this.adjustWysiwygPaddingBottom();
         }
-        if (contentTarget) {
-            contentTarget.insertAdjacentElement("beforeend", finalElement);
-        }
-        // this.adjustWysiwygPaddingBottom();
+        
     }
 
     adjustWysiwygPaddingBottom() {

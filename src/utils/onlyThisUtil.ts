@@ -1,4 +1,4 @@
-import { debugPush, errorPush } from "@/logger";
+import { debugPush, errorPush, logPush } from "@/logger";
 import { DOC_SORT_TYPES, getblockAttr, getCurrentDocIdF, isMobile, queryAPI } from "@/syapi";
 import { IProtyle } from "siyuan";
 import * as siyuanAPIs from "siyuan";
@@ -122,13 +122,33 @@ export function openRefLinkByAPIWithConfig({mouseEvent, paramDocId = "", keyPara
     if (g_setting.autoRemoveOldTabJudgeMiliseconds != 0 && Number.isInteger(g_setting.autoRemoveOldTabJudgeMiliseconds)) {
         autoRemoveJudgeMiliseconds = g_setting.autoRemoveOldTabJudgeMiliseconds;
     }
+    let openDocMode = undefined;
+    if (mouseEvent && mouseEvent.target) {
+        // 向上寻找最多10层，如果.class中有预览相关的，则调整Mode为preview
+        let currentElement = mouseEvent.target as HTMLElement;
+        let findPreview = false;
+        for (let i = 0; i < 10; i++) {
+            if (currentElement.classList.contains("protyle-preview")) {
+                findPreview = true;
+                break;
+            }
+            if (currentElement.parentElement) {
+                currentElement = currentElement.parentElement;
+            } else {
+                break;
+            }
+        }
+        if (findPreview) {
+            openDocMode = "preview";
+        }
+    }
     // TODO: 集中处理，以防止嵌套触发；不stopProp是为了分屏情况在正确的分屏区打开
     // if (mouseEvent.currentTarget != mouseEvent.target && mouseEvent.currentTarget.classList.contains("refLinks") && mouseEvent.target.classList.contains("refLinks")) {
     //     debugPush("WARN");
     // } else {
     //     debugPush("WARNCliked", mouseEvent.currentTarget, mouseEvent.target);
     // }
-    openRefLinkByAPI({mouseEvent, paramDocId, keyParam, openInFocus, removeCurrentTab, autoRemoveJudgeMiliseconds});
+    openRefLinkByAPI({mouseEvent, paramDocId, keyParam, openInFocus, removeCurrentTab, autoRemoveJudgeMiliseconds, "mode": openDocMode});
 }
 
 export function removeCurrentTabF(docId?:string) {

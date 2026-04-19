@@ -17,12 +17,14 @@ export default class EventHandler {
         "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性
         "switch-protyle": this.loadedProtyleRetryEntry.bind(this),
         "ws-main": this.wsMainHandler.bind(this),
+        "switch-protyle-mode": this.switchProtyleMode.bind(this),
     };
     // 关联的设置项，如果设置项对应为true，则才执行绑定
     private relateGsettingKeyStr: Record<string, string> = {
         "loaded-protyle-static": null, // mutex需要访问EventHandler的属性
         "switch-protyle": null,
         "ws-main": "immediatelyUpdate",
+        "switch-protyle-mode": "enableForPreview",
     };
 
     private loadAndSwitchMutex: Mutex;
@@ -149,6 +151,10 @@ export default class EventHandler {
             // 获取当前文档id
             logPush("loadedProtyleHandler", protyle);
             logPush("currentDoc", JSON.stringify(protyle?.block));
+            if (!protyle.block || !protyle.block.rootID) {
+                logPush("没有获取到文档信息，可能是非常规情况，停止执行");
+                return false;
+            }
             const docId:string = protyle.block.rootID;
             // 区分工作环境 也就是区分个移动端、闪卡页面、桌面端（网页端通用）；判断优先顺序闪卡页面>移动端>桌面端；
             // 疯了的话可能加入判断使用什么内容顺序（预设模板）
@@ -243,6 +249,15 @@ export default class EventHandler {
         } while(retryCount < 2 && !doNotRetry);
         if (!doNotRetry) {
             infoPush("多次重试仍然存在异常，请查看Log日志");
+        }
+    }
+
+    async switchProtyleMode(event: CustomEvent<IEventBusMap["switch-protyle-mode"]>) {
+        if (event.detail?.protyle.block?.rootID) {
+            logPush("由切换编辑器模式，触发更新");
+            this.loadedProtyleRetryEntry(event);
+        } else {
+            logPush("切换编辑器模式：没有获取到文档信息，停止执行");
         }
     }
 

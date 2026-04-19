@@ -293,6 +293,8 @@
 
     "setting_enableForPopOverCircumstance_name": "🧪Display Hierarchical Navigation in Pop-up Situations",
     "setting_enableForPopOverCircumstance_desp": "Enable this option to display hierarchical navigation in floating windows such as document pop-ups (pop-ups for non-document block references/links will not be displayed). The plugin attempts to distinguish between pop-ups and editing areas created by other plugins, but conflicts may still occur. Please enable with caution.",
+    "setting_enableForPreview_name": "🧪Display Hierarchical Navigation in Preview Mode",
+    "setting_enableForPreview_desp": "Enable this option to display hierarchical navigation in preview mode. In SiYuan v3.6.4 and earlier versions, clicking on the hierarchical navigation in preview mode will still open the document in WYSIWYG mode.",
 
     "===========笔记本独立选项卡===========": null,
     "setting_selectOneNotebookFirst_name": "Please select a notebook first",

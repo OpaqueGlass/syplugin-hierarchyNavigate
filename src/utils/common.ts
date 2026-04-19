@@ -152,9 +152,10 @@ let lastClickTime_openRefLinkByAPI = 0;
  * @param openInFocus 是否以聚焦块的方式打开（此参数有变动）
  * @param removeCurrentTab 是否移除当前Tab
  * @param autoRemoveJudgeMiliseconds 自动判断是否移除当前Tab的时间间隔（0则 不自动判断）
+ * @param mode 打开模式，preview或wysiwyg
  * @returns 
  */
-export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, openInFocus = undefined, removeCurrentTab = undefined, autoRemoveJudgeMiliseconds = 0}: {mouseEvent?: MouseEvent, paramDocId?: string, keyParam?: any, openInFocus?: boolean, removeCurrentTab?: boolean, autoRemoveJudgeMiliseconds?: number}) {
+export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, openInFocus = undefined, removeCurrentTab = undefined, autoRemoveJudgeMiliseconds = 0, mode = undefined}: {mouseEvent?: MouseEvent, paramDocId?: string, keyParam?: any, openInFocus?: boolean, removeCurrentTab?: boolean, autoRemoveJudgeMiliseconds?: number, mode?: "preview" | "wysiwyg"}) {
     let docId: string;
     if (mouseEvent && (mouseEvent.currentTarget as HTMLElement)?.getAttribute("data-node-id")) {
         docId = (mouseEvent.currentTarget as HTMLElement)?.getAttribute("data-node-id");
@@ -202,7 +203,8 @@ export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, op
         app: getPluginInstance().app,
         doc: {
             id: docId,
-            zoomIn: openInFocus
+            zoomIn: openInFocus,
+            mode: mode
         },
         position: positionKey,
         keepCursor: isEventCtrlKey(keyParam) ? true : undefined,

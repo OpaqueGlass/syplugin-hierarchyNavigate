@@ -113,7 +113,8 @@ const defaultSetting: any = {
     mobileContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.CHILD],
     flashcardContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.BLOCK_BREADCRUMB],
     normalEndContentGroup: [],
-    enableForPopOverCircumstance: false, // 在其他情况也显示导航
+    enableForPopOverCircumstance: true, // 在其他情况也显示导航
+    enableForPreview: true, // 在预览时也显示导航
     childOrder: "FOLLOW_DOC_TREE", // 子文档部分排序方式
     showHiddenDoc: false,
     // previousAndNextHiddenDoc: true, // 同级文档显示隐藏文档 v1.4.0+弃用
@@ -209,6 +210,7 @@ export function initSettingProperty() {
                 // new ConfigProperty({"key": "mainRetry", "type": "NUMBER", "max": 3}),
                 new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
                 new ConfigProperty({"key": "enableForPopOverCircumstance", "type": "SWITCH"}),
+                new ConfigProperty({"key": "enableForPreview", "type": "SWITCH"}),
             ],
             // "extend": [
             //     new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
@@ -238,7 +240,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "immediatelyUpdate", "type": "SWITCH"}),
                 new ConfigProperty({"key": "performanceMode", "type": "SWITCH"}),
                 new ConfigProperty({"key": "keepTempTop", "type": "SWITCH"}),
-                new ConfigProperty({"key": "enableForPopOverCircumstance", "type": "SWITCH"})
+                new ConfigProperty({"key": "enableForPreview", "type": "SWITCH"}),
             ],
             "stop": [
                 new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
