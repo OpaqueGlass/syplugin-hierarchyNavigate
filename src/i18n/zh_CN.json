@@ -280,7 +280,7 @@
     "setting_enableForPopOverCircumstance_name": "在文档浮窗中显示层级导航",
     "setting_enableForPopOverCircumstance_desp": "启用此项，可在文档浮窗等场景下显示层级导航（非文档块的引用/链接浮窗不显示）。插件已尽力区分浮窗和其他插件创建的编辑区，但仍可能导致插件间冲突，请谨慎启用。",
     "setting_enableForPreview_name": "🧪在预览模式下显示层级导航",
-    "setting_enableForPreview_desp": "启用此项后，可在预览模式下显示层级导航。在思源 v3.6.4 及以下版本中，即使在预览模式下点击层级导航，文档仍会以所见即所得模式打开。",
+    "setting_enableForPreview_desp": "启用此项后，可在预览模式下显示层级导航。在思源 v3.6.4 及以下版本中，即使在预览模式下点击层级导航，文档仍会以所见即所得模式打开。修改此项后需要重启思源方可完全生效。",
 
     "===========笔记本独立选项卡===========": null,
     "setting_selectOneNotebookFirst_name": "请先选择一个笔记本",

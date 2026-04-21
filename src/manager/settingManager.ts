@@ -114,7 +114,7 @@ const defaultSetting: any = {
     flashcardContentGroup: [PRINTER_NAME.BREADCRUMB, PRINTER_NAME.BLOCK_BREADCRUMB],
     normalEndContentGroup: [],
     enableForPopOverCircumstance: true, // 在其他情况也显示导航
-    enableForPreview: true, // 在预览时也显示导航
+    enableForPreview: false, // 在预览时也显示导航
     childOrder: "FOLLOW_DOC_TREE", // 子文档部分排序方式
     showHiddenDoc: false,
     // previousAndNextHiddenDoc: true, // 同级文档显示隐藏文档 v1.4.0+弃用
