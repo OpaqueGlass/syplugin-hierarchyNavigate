@@ -2,7 +2,7 @@ import { debugPush, errorPush, logPush } from "@/logger";
 import { DOC_SORT_TYPES, getblockAttr, getCurrentDocIdF, isMobile, queryAPI } from "@/syapi";
 import { IProtyle } from "siyuan";
 import * as siyuanAPIs from "siyuan";
-import { isValidStr } from "./commonCheck";
+import { isCurrentVersionLessThan, isValidStr } from "./commonCheck";
 import { openRefLinkByAPI } from "./common";
 
 export function getProtyleInfo(protyle: IProtyle):IProtyleEnvInfo {
@@ -40,6 +40,7 @@ export function getProtyleInfo(protyle: IProtyle):IProtyleEnvInfo {
  * @returns 
  */
 export function htmlTransferParser(inputStr:string): string {
+    return decodeHTML(inputStr);
     if (inputStr == null || inputStr == "") return "";
     let transfer = ["&lt;", "&gt;", "&nbsp;", "&quot;", "&amp;"];
     let original = ["<", ">", " ", `"`, "&"];
@@ -47,6 +48,24 @@ export function htmlTransferParser(inputStr:string): string {
         inputStr = inputStr.replace(new RegExp(transfer[i], "g"), original[i]);
     }
     return inputStr;
+}
+
+/**
+ * 原始字符串 -> 转义为含有字符实体的字符串
+ * 例如: "<div>" -> "&lt;div&gt;"
+ */
+export function encodeHTML(str: string): string {
+    if (!str) return "";
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+export function decodeHTML(str: string): string {
+    if (!str) return "";
+    const div = document.createElement('div');
+    div.innerHTML = str;
+    return div.textContent || "";
 }
 
 
@@ -149,6 +168,14 @@ export function openRefLinkByAPIWithConfig({mouseEvent, paramDocId = "", keyPara
     //     debugPush("WARNCliked", mouseEvent.currentTarget, mouseEvent.target);
     // }
     openRefLinkByAPI({mouseEvent, paramDocId, keyParam, openInFocus, removeCurrentTab, autoRemoveJudgeMiliseconds, "mode": openDocMode});
+}
+
+export function trimListDocsByPathAPIReturnedDocName(docName: string) {
+    if (isCurrentVersionLessThan("3.6.5") && docName.endsWith(".sy")) {
+        return  docName.substring(0, docName.length - 3);
+    } else {
+        return docName;
+    }
 }
 
 export function removeCurrentTabF(docId?:string) {

@@ -52,7 +52,7 @@ import { getAllChildDocuments, getAllDescendantDocuments, getAllSiblingDocuments
 import { BackLinkContentPrinter } from '@/worker/contentPrinter';
 import { Dialog, openTab, showMessage } from 'siyuan';
 import { getPluginInstance } from '@/utils/getInstance';
-import { emojiIconHandler, htmlTransferParser } from '@/utils/onlyThisUtil';
+import { emojiIconHandler, htmlTransferParser, trimListDocsByPathAPIReturnedDocName } from '@/utils/onlyThisUtil';
 import { showPluginMessage, sleep } from '@/utils/common';
 import { createDocWithPath } from '@/syapi';
 import { isValidStr } from '@/utils/commonCheck';
@@ -93,11 +93,11 @@ const __init__ = async () => {
     const descendants = await getAllDescendantDocuments(currentDoc.path, currentDoc.box);
 
     categories.value[0].items = siblings.map((item) => {
-        item["ogSimpleName"] = htmlTransferParser(item.name.substring(0, item.name.length - 3));
+        item["ogSimpleName"] = htmlTransferParser(trimListDocsByPathAPIReturnedDocName(item.name));
         return item;
     });
     categories.value[1].items = childrens.map((item) => {
-        item["ogSimpleName"] = htmlTransferParser(item.name.substring(0, item.name.length - 3));
+        item["ogSimpleName"] = htmlTransferParser(trimListDocsByPathAPIReturnedDocName(item.name));
         return item;
     });
     // 在categories.value[1] 中追加所有子孙文档

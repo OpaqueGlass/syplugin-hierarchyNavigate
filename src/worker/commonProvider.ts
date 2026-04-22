@@ -56,7 +56,7 @@ async function getSimpleDocInfo(docId:string, docPath?:string, notebookId?: stri
     Object.assign(result, docInfoResponse);
     // 新旧api文档图标字段不一致
     result.icon = result.ial?.icon ?? result.icon;
-    result.name = result.name + ".sy";
+    result.name = result.name;
     result.createTime = parseDateString(result.id.substring(0, 14));
     result.updateTime = parseDateString(result.ial.updated ?? result.id.substring(0, 14));
     return result;

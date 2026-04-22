@@ -4,10 +4,10 @@ import { DOC_SORT_TYPES, exportMdContent, getBackLink2T, getBlockBreadcrumb, get
 import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
 import { getGSettings, getReadOnlyGSettings } from "@/manager/settingManager";
 import { isValidStr } from "@/utils/commonCheck";
-import { debugPush, errorPush, logPush, warnPush } from "@/logger";
+import { debugPush, errorPush, isDebugMode, logPush, warnPush } from "@/logger";
 import { IProtyle, Menu } from "siyuan";
 import { fillOneDocRelationOfBasicInfo, getUserDemandSiblingDocuments } from "./commonProvider";
-import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
+import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig, trimListDocsByPathAPIReturnedDocName } from "@/utils/onlyThisUtil";
 import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
 import { formatDateStringLikeFileTree, parseDateString } from "@/utils/common";
@@ -239,12 +239,7 @@ class BasicContentPrinter {
         // 这里需要区分doc.content 和 doc.name，或者，传入前就将doc.name加入.sy后缀
         let docName = "";
         if (isValidStr(doc.name)) {
-            if (doc.name.endsWith(".sy")) {
-                docName = doc.name.substring(0, doc.name.length - 3);
-            } else {
-                docName = doc.name;
-                warnPush("DEV_WARN: doc.name必须以.sy结尾");
-            }
+            docName = trimListDocsByPathAPIReturnedDocName(doc.name);
         } else {
             docName = doc.content;
         }
@@ -680,7 +675,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         let resultArray = [];
         let box = getNotebookInfoLocallyF(docDetail.box);
         let temp = {
-            "name": box.name + ".sy",
+            "name": box.name,
             "id": box.id,
             "icon": box.icon,
             "box": box.id,
@@ -696,7 +691,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             docInfoResult["box"] = box.id;
             docInfoResult["path"] = `${tempPath}/${pathSegment}.sy`;
             docInfoResult["type"] = "FILE";
-            docInfoResult["name"] = `${docInfoResult["name"]}.sy`;
+            docInfoResult["name"] = `${docInfoResult["name"]}`;
             tempPath += `/${pathSegment}`;
             return docInfoResult;
         });
@@ -756,7 +751,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         const tempMenu = new Menu("og-hn-relative-menu");
         for (let i = 0; i < siblings.length; i++) {
             let currSibling = siblings[i];
-            currSibling.name = currSibling.name.substring(0, currSibling.name.length - 3);
+            currSibling.name = trimListDocsByPathAPIReturnedDocName(currSibling.name);
             let trimedName = currSibling.name.length > g_setting.nameMaxLength ? 
                 currSibling.name.substring(0, g_setting.nameMaxLength) + "..."
                 : currSibling.name;
@@ -877,7 +872,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
             if (oneBacklinkItem.nodeType === "NodeDocument") {
                 let tempDocItem = {
                     "ogSimpleName": oneBacklinkItem.name,
-                    "name": oneBacklinkItem.name + ".sy",
+                    "name": oneBacklinkItem.name,
                     "icon": "",
                     "id": oneBacklinkItem.id,
                     "alias": "",
@@ -903,7 +898,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
             if (oneBacklinkItem.nodeType === "NodeDocument") {
                 let tempDocItem = {
                     "ogSimpleName": oneBacklinkItem.name,
-                    "name": oneBacklinkItem.name + ".sy",
+                    "name": oneBacklinkItem.name,
                     "icon": "",
                     "id": oneBacklinkItem.id,
                     "alias": "",
@@ -939,7 +934,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
                 const oneBacklinkItem = backlinkDocSqlResponse[i];
                 let tempDocItem = {
                     "ogSimpleName": oneBacklinkItem.content,
-                    "name": oneBacklinkItem.content + ".sy",
+                    "name": oneBacklinkItem.content,
                     "icon": "",
                     "id": oneBacklinkItem.id,
                     "alias": "",
@@ -971,7 +966,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
                 const oneBacklinkItem = backlinkDocSqlResponse[i];
                 let tempDocItem = {
                     "ogSimpleName": oneBacklinkItem.content,
-                    "name": oneBacklinkItem.content + ".sy",
+                    "name": oneBacklinkItem.content,
                     "icon": "",
                     "id": oneBacklinkItem.id,
                     "alias": "",
@@ -1050,7 +1045,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 debugPush("日记组-上一篇", thisDocInfo);
                 if (thisDocInfo) {
                     thisDocInfo["ogSimpleName"] = lang("previous_doc") + htmlTransferParser(thisDocInfo.name);
-                    thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    thisDocInfo["name"] = thisDocInfo.name;
                     if (g_setting.requestAllDocIcon && !isMobile()) {
                         const fullDocInfo = await getDocInfo(thisDocInfo.id);
                         thisDocInfo["icon"] = fullDocInfo.icon;
@@ -1063,7 +1058,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
             } else if (iCurrentDoc > 0) {
                 let simpleName = lang("previous_doc") + htmlTransferParser(siblingDocs[iCurrentDoc - 1]["name"]);
                 let docInfo = Object.assign({}, siblingDocs[iCurrentDoc - 1]);
-                docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
+                docInfo["ogSimpleName"] = trimListDocsByPathAPIReturnedDocName(simpleName);
                 previousElem = this.docLinkGenerator(docInfo);
                 flag = true;
             }
@@ -1080,7 +1075,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
                 debugPush("日记组-下一篇", thisDocInfo);
                 if (thisDocInfo) {
                     thisDocInfo["ogSimpleName"] = lang("next_doc") + htmlTransferParser(thisDocInfo.name);
-                    thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    thisDocInfo["name"] = thisDocInfo.name;
                     if (g_setting.requestAllDocIcon && !isMobile()) {
                         const fullDocInfo = await getDocInfo(thisDocInfo.id);
                         thisDocInfo["icon"] = fullDocInfo.icon;
@@ -1093,7 +1088,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
             } else if (iCurrentDoc + 1 < siblingDocs.length) {
                 let simpleName = lang("next_doc") + htmlTransferParser(siblingDocs[iCurrentDoc + 1]["name"]);
                 let docInfo = Object.assign({}, siblingDocs[iCurrentDoc + 1]);
-                docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
+                docInfo["ogSimpleName"] = trimListDocsByPathAPIReturnedDocName(simpleName);
                 nextElem = this.docLinkGenerator(docInfo);
                 flag = true;
             }
@@ -1115,7 +1110,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
             //     if (response && response.length > 0) {
             //         const thisDocInfo = response[0];
             //         thisDocInfo["ogSimpleName"] = lang("previous_doc") + htmlTransferParser(thisDocInfo.name);
-            //         thisDocInfo["name"] = thisDocInfo.name + ".sy";
+            //         thisDocInfo["name"] = thisDocInfo.name;
             //         const oneLinkElem = super.docLinkGenerator(thisDocInfo);
             //         previousElem = oneLinkElem;
             //         flag = true;
@@ -1124,7 +1119,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
             // if (iCurrentDoc + 1 < siblingDocs.length) {
             //     let simpleName = lang("next_doc") + htmlTransferParser(siblingDocs[iCurrentDoc + 1]["name"]);
             //     let docInfo = Object.assign({}, siblingDocs[iCurrentDoc + 1]);
-            //     docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
+            //     docInfo["ogSimpleName"] = trimListDocsByPathAPIReturnedDocName(simpleName);
             //     nextElem = this.docLinkGenerator(docInfo);
             //     flag = true;
             // } else if (isValidStr(maxCurrentDate) && maxCurrentDate != "0" && g_setting.previousAndNextFollowDailynote) {
@@ -1142,7 +1137,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
             //     if (response && response.length > 0) {
                     // const thisDocInfo = response[0];
                     // thisDocInfo["ogSimpleName"] = lang("next_doc") + htmlTransferParser(thisDocInfo.name);
-                    // thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    // thisDocInfo["name"] = thisDocInfo.name;
                     // const oneLinkElem = super.docLinkGenerator(thisDocInfo);
                     // nextElem = oneLinkElem;
                     // flag = true;
@@ -1251,7 +1246,7 @@ class BlockTitleBreadcrumbContentPrinter extends BasicContentPrinter {
         const lastBlock = blockBreadcrumbs[blockBreadcrumbs.length - 1];
         const resultArray = blockBreadcrumbs.slice(1).map((block) => {
             return {
-                "name": block.name + ".sy",
+                "name": block.name,
                 "id": block.id,
                 "icon": blockIconProvider(block.type, block.subType),
                 "box": "",
@@ -1336,7 +1331,7 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
             if (thisDocInfo.id == basicInfo.docBasicInfo.id) {
                 continue;
             }
-            thisDocInfo.name = thisDocInfo.name + ".sy";
+            thisDocInfo.name = thisDocInfo.name;
             const oneLinkElem = super.docLinkGenerator(thisDocInfo);
             result.appendChild(oneLinkElem);
         }
@@ -1393,7 +1388,7 @@ class ForwardLinkPrinter extends BasicContentPrinter {
                 const oneBacklinkItem = backlinkDocSqlResponse[i];
                 let tempDocItem = {
                     "ogSimpleName": oneBacklinkItem.content,
-                    "name": oneBacklinkItem.content + ".sy",
+                    "name": oneBacklinkItem.content,
                     "icon": "",
                     "id": oneBacklinkItem.id,
                     "alias": "",
@@ -1424,7 +1419,7 @@ class ForwardLinkPrinter extends BasicContentPrinter {
                 const oneBacklinkItem = backlinkDocSqlResponse[i];
                 let tempDocItem = {
                     "ogSimpleName": oneBacklinkItem.content,
-                    "name": oneBacklinkItem.content + ".sy",
+                    "name": oneBacklinkItem.content,
                     "icon": "",
                     "id": oneBacklinkItem.id,
                     "alias": "",
@@ -1566,7 +1561,7 @@ class NeighborWithPreviewContentPrinter extends BasicContentPrinter {
                 debugPush("日记组-上一篇", thisDocInfo);
                 if (thisDocInfo) {
                     thisDocInfo["ogSimpleName"] = htmlTransferParser(thisDocInfo.name);
-                    thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    thisDocInfo["name"] = thisDocInfo.name;
                     if (g_setting.requestAllDocIcon && !isMobile()) {
                         const fullDocInfo = await getDocInfo(thisDocInfo.id);
                         thisDocInfo["icon"] = fullDocInfo.icon;
@@ -1579,7 +1574,7 @@ class NeighborWithPreviewContentPrinter extends BasicContentPrinter {
             } else if (iCurrentDoc > 0) {
                 let simpleName = htmlTransferParser(siblingDocs[iCurrentDoc - 1]["name"]);
                 let docInfo = Object.assign({}, siblingDocs[iCurrentDoc - 1]);
-                docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
+                docInfo["ogSimpleName"] = trimListDocsByPathAPIReturnedDocName(simpleName);
                 previousDocInfo = docInfo;
                 flag = true;
             }
@@ -1596,7 +1591,7 @@ class NeighborWithPreviewContentPrinter extends BasicContentPrinter {
                 debugPush("日记组-下一篇", thisDocInfo);
                 if (thisDocInfo) {
                     thisDocInfo["ogSimpleName"] = htmlTransferParser(thisDocInfo.name);
-                    thisDocInfo["name"] = thisDocInfo.name + ".sy";
+                    thisDocInfo["name"] = thisDocInfo.name;
                     if (g_setting.requestAllDocIcon && !isMobile()) {
                         const fullDocInfo = await getDocInfo(thisDocInfo.id);
                         thisDocInfo["icon"] = fullDocInfo.icon;
@@ -1609,7 +1604,7 @@ class NeighborWithPreviewContentPrinter extends BasicContentPrinter {
             } else if (iCurrentDoc + 1 < siblingDocs.length) {
                 let simpleName = htmlTransferParser(siblingDocs[iCurrentDoc + 1]["name"]);
                 let docInfo = Object.assign({}, siblingDocs[iCurrentDoc + 1]);
-                docInfo["ogSimpleName"] = simpleName.substring(0, simpleName.length - 3);
+                docInfo["ogSimpleName"] = trimListDocsByPathAPIReturnedDocName(simpleName);
                 nextDocInfo = docInfo;
                 flag = true;
             }
@@ -1747,7 +1742,7 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
             // 处理文档名
             let docName = childDoc.name;
             if (docName.endsWith('.sy')) {
-                docName = docName.slice(0, -3);
+                docName = trimListDocsByPathAPIReturnedDocName(docName);
             }
             
             // 添加emoji图标
@@ -1827,7 +1822,7 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
         for (const childDoc of childDocs) {
             let docName = childDoc.name;
             if (docName.endsWith('.sy')) {
-                docName = docName.slice(0, -3);
+                docName = trimListDocsByPathAPIReturnedDocName(docName);
             }
             
             const docItem = document.createElement('p');
