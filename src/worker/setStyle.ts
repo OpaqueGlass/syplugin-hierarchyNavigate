@@ -40,7 +40,7 @@ export function setStyle() {
     ` : "";
     let endDocAreaPaddingTop = g_setting.endDocAreaPaddingTop ? `/*文档结尾区域*/
     .og-hn-heading-docs-container.og-hn-at-doc-end{
-        border-top: 2px dotted var(--b3-table-border-color);
+        border-top: 2px dotted var(--b3-table-border-color, var(--b3-theme-surface-lighter, #e0e0e0));
     }` : "";
     // 第二行后对齐链接文本，（向内缩进： #21）
     let alignStyle = `
@@ -71,7 +71,7 @@ export function setStyle() {
     position: fixed;
     top: 10px;
     left: 10px;
-    background: var(--b3-toolbar-background);
+    background: var(--b3-toolbar-background, var(--b3-theme-background, #f5f5f530));
     border: 1px solid var(--b3-toolbar-blur-background);
     max-height: 60vh;
     max-width: 50vw;
@@ -184,7 +184,7 @@ export function setStyle() {
 }
 
 .og-hn-np-nav-preview-inner {
-    border: 1px solid var(--b3-table-border-color);
+    border: 1px solid var(--b3-table-border-color, var(--b3-theme-surface-lighter, #e0e0e0));
     border-radius: 8px;
     padding: 15px;
     height: 100%;
@@ -289,7 +289,7 @@ export function setStyle() {
 
 /* 单个文档方块 */
 .og-hn-pb-doc-box {
-    border: 1px solid var(--b3-table-border-color);
+    border: 1px solid var(--b3-table-border-color, var(--b3-theme-surface-lighter, #e0e0e0));
     flex: 1 0 250px;
     max-height: 200px;
     overflow: auto;

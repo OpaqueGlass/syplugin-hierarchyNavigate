@@ -1,16 +1,18 @@
 <template>
     <div class="fn__flex-1 fn__flex config__panel" style="width: auto; height: 100%; max-width: 1280px;">
-        <ul class="b3-tab-bar b3-list b3-list--background">
-            <!-- 这里可以插入设置项目，但是似乎没有必要 -->
-            <li v-for="(tab, index) in tabList" :key="index"
-                :class="{ 'b3-list-item--focus': activeTab === tab.key, 'b3-list-item': true }" @click="changeTab(tab.key)">
-                <svg class="b3-list-item__graphic">
-                    <use :xlink:href="'#' + tab.iconKey"></use>
-                </svg>
-                <!-- 这里是svg图标 -->
-                <span class="b3-list-item__text">{{ settingPageLang(tab.key)[0] }}</span>
-            </li>
-        </ul>
+        <div class="config__side b3-list b3-list--background">
+            <ul class="config__tab-scroll">
+                <!-- 这里可以插入设置项目，但是似乎没有必要 -->
+                <li v-for="(tab, index) in tabList" :key="index"
+                    :class="{ 'b3-list-item--focus': activeTab === tab.key, 'b3-list-item': true }" @click="changeTab(tab.key)">
+                    <svg class="b3-list-item__graphic">
+                        <use :xlink:href="'#' + tab.iconKey"></use>
+                    </svg>
+                    <!-- 这里是svg图标 -->
+                    <span class="b3-list-item__text">{{ settingPageLang(tab.key)[0] }}</span>
+                </li>
+            </ul>
+        </div>
         <div class="config__tab-wrap">
             <!-- TODO: 这里换成v-for根据列表生成，不再手动填充了 -->
             <!-- 在Page上通过当前显示的标签页名称key一致匹配确定是否显示这个标签页 -->
