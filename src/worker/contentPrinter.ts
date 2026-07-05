@@ -296,7 +296,7 @@ class BasicContentPrinter {
             result.classList.add("og-none-click");
             result.classList.remove("refLinks");
         }
-        switch (isBacklink ? CONSTANTS.POP_NONE : g_setting.popupWindow) {
+        switch (g_setting.popupWindow) {
             case CONSTANTS.POP_ALL: {
                 if (!unclickable) {
                     result.dataset["type"] = "block-ref";
