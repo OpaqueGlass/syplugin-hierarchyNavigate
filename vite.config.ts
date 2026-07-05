@@ -53,6 +53,14 @@ export default defineConfig({
                     dest: "./i18n/",
                 },
                 {
+                    src: "./src/i18n/zh_CN.json",
+                    dest: "./i18n/zh-CN.json",
+                },
+                {
+                    src: "./src/i18n/en_US.json",
+                    dest: "./i18n/en-US.json",
+                },
+                {
                     src: "./LICENSE",
                     dest: "./"
                 },

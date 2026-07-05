@@ -1,5 +1,15 @@
 ## 更新日志
 
+### v1.10.4 (2026年7月5日)
+
+- 改进：调整相邻文档的显示宽度，预览方格内容区字号，预览文本部分现在可以点击打开文档；
+  
+  如要自定义相邻文档显示宽度，请使用下面的css选择器
+  ```css
+  .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {}
+  ```
+- 改进：语言文件命名、plugin.json适配思源v3.7.0变化；
+
 ### v1.10.3 (2026年6月30日)
 
 - 适配：适配思源v3.7.0及以上版本，调整插件设置页、临时置顶、预览方格内容区样式；
