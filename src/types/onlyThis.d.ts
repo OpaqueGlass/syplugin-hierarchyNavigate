@@ -52,6 +52,9 @@ interface IDocLinkGenerateInfo {
     path: string;
     name: string;
     id: string;
+    docId?: string;
+    defId?: string;
+    isBacklink?: boolean;
     count?: number;
     subFileCount?: number; // 请注意，不指出此项将是认为有子文档，但数量未知
     content?: string;

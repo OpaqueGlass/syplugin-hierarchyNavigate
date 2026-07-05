@@ -1,10 +1,12 @@
 import { getBackend, IProtyle, openMobileFileById, openTab, showMessage } from "siyuan";
+import type { TProtyleAction } from "siyuan";
 import { isEventCtrlKey, isValidStr } from "./commonCheck";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getPluginInstance } from "./getInstance";
 import { getCurrentDocIdF, isMobile } from "@/syapi";
 import { removeCurrentTabF } from "./onlyThisUtil";
 import { lang } from "./lang";
+import { CONSTANTS } from "@/constants";
 
 /**
  * 封装的 showMessage API，自动在消息前添加插件名称
@@ -155,7 +157,7 @@ let lastClickTime_openRefLinkByAPI = 0;
  * @param mode 打开模式，preview或wysiwyg
  * @returns 
  */
-export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, openInFocus = undefined, removeCurrentTab = undefined, autoRemoveJudgeMiliseconds = 0, mode = undefined}: {mouseEvent?: MouseEvent, paramDocId?: string, keyParam?: any, openInFocus?: boolean, removeCurrentTab?: boolean, autoRemoveJudgeMiliseconds?: number, mode?: "preview" | "wysiwyg"}) {
+export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, openInFocus = undefined, removeCurrentTab = undefined, autoRemoveJudgeMiliseconds = 0, mode = undefined, action = undefined}: {mouseEvent?: MouseEvent, paramDocId?: string, keyParam?: any, openInFocus?: boolean, removeCurrentTab?: boolean, autoRemoveJudgeMiliseconds?: number, mode?: "preview" | "wysiwyg", action?: TProtyleAction[]}) {
     let docId: string;
     if (mouseEvent && (mouseEvent.currentTarget as HTMLElement)?.getAttribute("data-node-id")) {
         docId = (mouseEvent.currentTarget as HTMLElement)?.getAttribute("data-node-id");
@@ -169,11 +171,12 @@ export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, op
         debugPush("错误的id", docId)
         return;
     }
+    const actionList = getOpenAction(mouseEvent, action);
     // 需要冒泡，否则不能在所在页签打开
     // event?.preventDefault();
     // event?.stopPropagation();
     if (isMobile()) {
-        openMobileFileById(getPluginInstance().app, docId);
+        openMobileFileById(getPluginInstance().app, docId, actionList);
         return;
     }
     debugPush("openRefLinkEventAPIF", mouseEvent);
@@ -204,7 +207,8 @@ export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, op
         doc: {
             id: docId,
             zoomIn: openInFocus,
-            mode: mode
+            mode: mode,
+            action: actionList
         },
         position: positionKey,
         keepCursor: isEventCtrlKey(keyParam) ? true : undefined,
@@ -218,6 +222,21 @@ export function openRefLinkByAPI({mouseEvent, paramDocId = "", keyParam = {}, op
         removeCurrentTabF(needToCloseDocId);
         removeCurrentTab = false;
     }
+}
+
+function getOpenAction(mouseEvent?: MouseEvent, action?: TProtyleAction[]): TProtyleAction[] | undefined {
+    if (action) {
+        return action;
+    }
+    const currentTarget = mouseEvent?.currentTarget as HTMLElement;
+    const actionAttr = currentTarget?.getAttribute("data-action");
+    if (isValidStr(actionAttr)) {
+        return actionAttr.split(",").map((item) => item.trim()).filter((item) => isValidStr(item)) as TProtyleAction[];
+    }
+    if (currentTarget?.getAttribute("data-is-backlink") === "true") {
+        return CONSTANTS.BACKLINK_OPEN_ACTION.split(",") as TProtyleAction[];
+    }
+    return undefined;
 }
 
 

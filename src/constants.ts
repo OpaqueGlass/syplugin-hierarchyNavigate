@@ -42,6 +42,7 @@ export class CONSTANTS {
     public static readonly POP_NONE: string = "disable"; // 0
     public static readonly POP_LIMIT: string = "icon_only"; // 1
     public static readonly POP_ALL: string = "all"; // 2
+    public static readonly BACKLINK_OPEN_ACTION: string = "cb-get-focus,cb-get-context,cb-get-hl";
     public static readonly BACKLINK_NONE: string = "disable";
     public static readonly BACKLINK_NORMAL: string = "show_all_as_doc";
     public static readonly BACKLINK_DOC_ONLY: string = "doc_only";
