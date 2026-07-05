@@ -83,6 +83,9 @@ interface IFile {
     newFlashcardCount?: string;
     flashcardCount?: string;
     id: string;
+    docId?: string;
+    defId?: string;
+    isBacklink?: boolean;
     count: number;
     subFileCount: number;
 }

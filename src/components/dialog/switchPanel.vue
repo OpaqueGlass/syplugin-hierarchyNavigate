@@ -51,6 +51,8 @@ import { getReadOnlyGSettings } from '@/manager/settingManager';
 import { getAllChildDocuments, getAllDescendantDocuments, getAllSiblingDocuments, getCurrentDocSqlResult } from '@/worker/commonProvider';
 import { BackLinkContentPrinter } from '@/worker/contentPrinter';
 import { Dialog, openTab, showMessage } from 'siyuan';
+import type { TProtyleAction } from 'siyuan';
+import { CONSTANTS } from '@/constants';
 import { getPluginInstance } from '@/utils/getInstance';
 import { emojiIconHandler, htmlTransferParser, trimListDocsByPathAPIReturnedDocName } from '@/utils/onlyThisUtil';
 import { showPluginMessage, sleep } from '@/utils/common';
@@ -60,6 +62,7 @@ import { generateBlockId } from '@/syapi/custom';
 import { lang } from '@/utils/lang';
 
 const categoriesContainer = ref();
+const BACKLINK_OPEN_ACTION = CONSTANTS.BACKLINK_OPEN_ACTION.split(",") as TProtyleAction[];
 
 const props = defineProps<{
     docId: string,
@@ -366,14 +369,15 @@ const onItemClick = (item: any): void => {
     if (!item) {
         return;
     }
-    openDocAndCloseById(item.id);
+    openDocAndCloseById(item.id, item.isBacklink ? BACKLINK_OPEN_ACTION : undefined);
 };
 
-const openDocAndCloseById = (docId: string) => {
+const openDocAndCloseById = (docId: string, action?: TProtyleAction[]) => {
     openTab({
         app: getPluginInstance().app,
         doc: {
-            id: docId
+            id: docId,
+            action
         }
     });
     props.dialog.destroy();

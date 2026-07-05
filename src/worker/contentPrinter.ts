@@ -253,12 +253,23 @@ class BasicContentPrinter {
         // if (docName.length > g_setting.nameMaxLength && g_setting.nameMaxLength != 0) trimDocName = trimDocName.substring(0, g_setting.nameMaxLength) + "...";
 
         let result = document.createElement("span");
+        const isBacklink = doc.isBacklink === true;
         result.classList.add("refLinks", "docLinksWrapper");
         if (g_setting.docLinkClass) {
             result.classList.add(escapeClass(g_setting.docLinkClass));
         }
         result.dataset["subtype"] = "d";
         result.dataset["id"] = doc.id;
+        if (isBacklink) {
+            result.dataset["isBacklink"] = "true";
+            result.dataset["action"] = CONSTANTS.BACKLINK_OPEN_ACTION;
+            if (isValidStr(doc.docId)) {
+                result.dataset["docId"] = doc.docId;
+            }
+            if (isValidStr(doc.defId)) {
+                result.dataset["defId"] = doc.defId;
+            }
+        }
         // result.title = docName;
         if (isValidStr(docName)) {
             result.setAttribute("aria-label", docName);
@@ -835,6 +846,41 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
 }
 
 export class BackLinkContentPrinter extends BasicContentPrinter {
+    private static escapeSqlValue(value: string) {
+        return value.replaceAll(`"`, `""`);
+    }
+
+    private static async attachBacklinkRefBlockInfo(backLinkInfos: any[], defDocId: string, exactDefBlock: boolean = false) {
+        const docIds = backLinkInfos.map((item) => item.id).filter((id) => isValidStr(id));
+        const refBlockIdMap = new Map<string, string>();
+        if (docIds.length > 0) {
+            const defColumn = exactDefBlock ? "def_block_id" : "def_block_root_id";
+            const docIdListSql = docIds.map((id) => `"${this.escapeSqlValue(id)}"`).join(",");
+            const sqlStmt = `SELECT root_id, block_id FROM refs WHERE ${defColumn} = "${this.escapeSqlValue(defDocId)}" AND root_id IN (${docIdListSql}) ORDER BY block_id ASC`;
+            try {
+                const refBlockResponse = await queryAPI(sqlStmt);
+                refBlockResponse?.forEach((item) => {
+                    if (isValidStr(item.root_id) && isValidStr(item.block_id) && !refBlockIdMap.has(item.root_id)) {
+                        refBlockIdMap.set(item.root_id, item.block_id);
+                    }
+                });
+            } catch (err) {
+                warnPush("查询反链引用块失败", err);
+            }
+        }
+        backLinkInfos.forEach((item) => {
+            const docId = item.id;
+            item.isBacklink = true;
+            item.defId = defDocId;
+            item.docId = docId;
+            const refBlockId = refBlockIdMap.get(docId);
+            if (isValidStr(refBlockId)) {
+                item.id = refBlockId;
+            }
+        });
+        return backLinkInfos;
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         let result = null;
@@ -881,7 +927,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
                 prepareBackLinkInfo.push(tempDocItem);
             }
         }
-        return pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo);
+        return this.attachBacklinkRefBlockInfo(pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo), docId);
     }
     static async normalBackLinkElement(basicInfo: IBasicInfo) {
         const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
@@ -907,7 +953,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
                 prepareBackLinkInfo.push(tempDocItem);
             }
         }
-        const sortedBackLinkInfos = pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo);
+        const sortedBackLinkInfos = await this.attachBacklinkRefBlockInfo(pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo), basicInfo.currentDocId);
 
         sortedBackLinkInfos.forEach((item)=>{
             result.appendChild(this.docLinkGenerator(item));
@@ -942,7 +988,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
                 };
                 prepareBackLinkInfo.push(tempDocItem);
             }
-            return pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo);
+            return this.attachBacklinkRefBlockInfo(pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo), docId, true);
         } else {
             return [];
         }
@@ -974,7 +1020,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
                 };
                 prepareBackLinkInfo.push(tempDocItem);
             }
-            const sortedBackLinkInfos = pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo);
+            const sortedBackLinkInfos = await this.attachBacklinkRefBlockInfo(pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo), basicInfo.currentDocId, true);
 
             sortedBackLinkInfos.forEach((item)=>{
                 result.appendChild(this.docLinkGenerator(item));
