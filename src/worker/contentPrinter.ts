@@ -1765,7 +1765,8 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
             if (!isEmpty) {
                 // 如果有内容，直接显示预览
                 const contentDiv = document.createElement('div');
-                contentDiv.className = 'og-hn-pb-content';
+                contentDiv.className = 'og-hn-pb-content refLinks';
+                contentDiv.setAttribute('data-id', childDoc.id);
                 contentDiv.innerHTML = previewText;
                 docBox.appendChild(contentDiv);
             } else {

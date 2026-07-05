@@ -97,13 +97,14 @@ export function setStyle() {
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-onthisday-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-parent-sibling-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-parent-doc-container span.docLinksWrapper,
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-backlink-doc-container span.docLinksWrapper {
         width: calc( (100% - ${calColumnCount} * ${calColumnCount == 1 ? "0px" : "10px"}) / ${calColumnCount});
         ${calColumnCount == 1 ? "margin-right: 0px;" : ""}/*仅一列时忽略margin-right*/
     }
     `: ``;
+
+    
 
     const mobileLinkColumnOfNextStyle = isMobile() ? `.og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
         width: 100%;
@@ -220,7 +221,7 @@ export function setStyle() {
 }
 
 .og-hn-np-nav-post-title {
-    font-size: 1.1em;
+    font-size: 1.2em;
     font-weight: bold;
     color: var(--custom-h2-color);
     margin-bottom: 10px;
@@ -316,6 +317,7 @@ export function setStyle() {
     white-space: normal;
     overflow: hidden;
     font-size: 1em;
+    cursor: pointer;
 }
 
 /* 子文档容器 */
@@ -327,7 +329,7 @@ export function setStyle() {
 /* 子文档项 */
 .og-hn-pb-child-item {
     margin: 5px 0;
-    font-size: 0.9em;
+    font-size: 1em;
     white-space: normal;
 }
 
@@ -470,10 +472,11 @@ export function setStyle() {
 
     ${endDocAreaPaddingTop}
 
-    /* 限制相邻文档区域 链接宽度
+    /* 限制相邻文档区域 链接宽度*/
     .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
-        width: calc( (100% - 2em - 1 * 10px) / 4);
-    }*/
+        width: calc( (100% - 2em - 1 * 10px) / 2);
+        max-width: 30em;
+    }
 
     .og-hierachy-navigate-doc-container {
         max-height: ${isMobile() ? "25vh" : g_setting.maxHeightLimit + "em"};
