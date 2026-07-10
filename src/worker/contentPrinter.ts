@@ -850,6 +850,13 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
         return value.replaceAll(`"`, `""`);
     }
 
+    /**
+     * 获取具体引用对应的内容块id
+     * @param backLinkInfos 这里的id是引用发出者所在的文档id
+     * @param defDocId 被引文档id
+     * @param exactDefBlock 是否要求精确匹配内容，为false则引用了在被引文档的任何内容块都行；为true是必须引用的是被引文档
+     * @returns 
+     */
     private static async attachBacklinkRefBlockInfo(backLinkInfos: any[], defDocId: string, exactDefBlock: boolean = false) {
         const docIds = backLinkInfos.map((item) => item.id).filter((id) => isValidStr(id));
         const refBlockIdMap = new Map<string, string>();
