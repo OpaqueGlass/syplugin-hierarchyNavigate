@@ -114,7 +114,7 @@ export default class ContentPrinter {
                 promises.push(
                     // https://developer.mozilla.org/zh-CN/docs/Glossary/IIFE
                     (async () => {
-                        const printerResult = await printer.getBindedElement(this.basicInfo, this.protyleBasicInfo);
+                        const printerResult = await printer.getWrappedBindedElement(this.basicInfo, this.protyleBasicInfo);
                         const isOnlyOnce = await printer.isOnlyOnce(this.basicInfo);
     
                         if (printerResult) {
@@ -147,7 +147,7 @@ export default class ContentPrinter {
         }
         // 添加置顶拖拽移动区域
         results.unshift({
-            element: await MoveAreaContentPrinter.getBindedElement(this.basicInfo, this.protyleBasicInfo),
+            element: await MoveAreaContentPrinter.getWrappedBindedElement(this.basicInfo, this.protyleBasicInfo),
             onlyOnce: await MoveAreaContentPrinter.isOnlyOnce(this.basicInfo),
             relateContentKey: PRINTER_NAME.MOVE_TOP_AREA
         });
@@ -166,7 +166,6 @@ class BasicContentPrinter {
     constructor(basicInfo:IBasicInfo) {
         this.basicInfo = basicInfo;
     }
-    //TODO: 修饰符还有顺序？！java有吗？没关注过
     /**
      * 获取已经绑定了元素内操作的HTMLElement
      * 子类必须实现该方法
@@ -176,6 +175,43 @@ class BasicContentPrinter {
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         throw new Error("需子类覆盖实现");
     }
+
+    /**
+     * 子类可以覆盖实现，以直接使用自行创建的元素；
+     * 这是统一调用的入口
+     * @param basicInfo 
+     * @param protyleEnvInfo 
+     * @returns 
+     */
+    static async getWrappedBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        const result = await this.getBasicElement();
+        const contentElem = await this.getBindedElement(basicInfo, protyleEnvInfo);
+        if (!result) {
+            return contentElem;
+        }
+        if (!contentElem) {
+            return null;
+        }
+        const indicatorTitle = contentElem?.dataset?.ogIndicatorTitle;
+        if (isValidStr(indicatorTitle)
+            && result.children.length > 0
+            && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
+            result.children[0].setAttribute("title", indicatorTitle);
+        }
+        result.appendChild(contentElem);
+        result.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        return result;
+    }
+
+    /**
+     * 获取基础元素(最外层)
+     * 仅用于[getBindedElementWrapper]内部调用
+     * 返回Null时，表示不需要基础元素，直接返回[getBindedElement]的结果
+     */
+    static async getBasicElement(): Promise<HTMLElement> {
+        throw new Error("需子类覆盖实现");
+    }
+
 
     /**
      * 获取对应部分是否只插入一次
@@ -191,6 +227,23 @@ class BasicContentPrinter {
         //TODO: 基本的点击链接绑定
         return element;
     }
+
+    /**
+     * 获取通用文档链接区域
+     * @param classNames 对应区域的样式名，如果是正常网格结构或只有文档链接，直接不传入即可
+     * @returns 
+     */
+    static getContentElement(classNames: string[]):HTMLElement {
+        const result = document.createElement("div");
+        if (classNames) {
+            for (const className of classNames) {
+                result.classList.add(className);
+            }
+        } else {
+            result.classList.add(CONSTANTS.CONTAINER_MULTILINE_STYLE_CLASS_NAME);
+        }
+        return result;
+    }
     
     /**
      * 获取基础对象
@@ -199,21 +252,14 @@ class BasicContentPrinter {
      * @param indicatorLang 区域提示词
      * @returns HTMLElement
      */
-    static getBasicElement(uniqueClassName: string, classNames: string[], indicatorLang?: string, hoverTitleLang?: string):HTMLElement {
+    static _getBasicElement(uniqueClassName: string, indicatorLang?: string, hoverTitleLang?: string):HTMLElement {
         const contentElem = document.createElement("div");
         // 这里有点重复，看看再说
-        contentElem.classList.add(uniqueClassName);
+        contentElem.classList.add(uniqueClassName, "og-hn-doc-grid-container");
         if (isValidStr(hoverTitleLang)) {
             // contentElem.setAttribute("title", hoverTitleLang);
             contentElem.classList.add("ariaLabel")
             contentElem.setAttribute("aria-label", hoverTitleLang);
-        }
-        if (classNames) {
-            for (const className of classNames) {
-                contentElem.classList.add(className);
-            }
-        } else {
-            contentElem.classList.add(CONSTANTS.CONTAINER_CLASS_NAME, CONSTANTS.CONTAINER_MULTILINE_STYLE_CLASS_NAME);
         }
         
         if (isValidStr(indicatorLang)) {
@@ -420,8 +466,11 @@ class BasicContentPrinter {
 }
 
 class MoveAreaContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return null;
+    }
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
-        const result = super.getBasicElement(CONSTANTS.MOVE_TOP_AREA_CONTAINER_CLASS_NAME, null, null, null);
+        const result = super.getContentElement([CONSTANTS.MOVE_TOP_AREA_CONTAINER_CLASS_NAME]);
         const moreOrLess = document.createElement("span");
         moreOrLess.innerHTML = lang("move_temp_top_area");
         result.appendChild(moreOrLess);
@@ -491,6 +540,10 @@ class MoveAreaContentPrinter extends BasicContentPrinter {
 }
 
 class DocInfoContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return null;
+    }
+
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         // 请求总字数
         const g_setting = getReadOnlyGSettings();
@@ -571,44 +624,50 @@ class DocInfoContentPrinter extends BasicContentPrinter {
 }
 
 class ParentContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.PARENT_CONTAINER_ID, lang("parent_nodes"), lang("parent_area"));
+    }
+
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
-        const result = super.getBasicElement(CONSTANTS.PARENT_CONTAINER_ID, null, lang("parent_nodes"), lang("parent_area"));
+        const contentElem = super.getContentElement(null);
         if (basicInfo.docBasicInfo == null || basicInfo.parentDocBasicInfo == null) {
             const g_setting = getReadOnlyGSettings();
             // 历史兼容选项，当没有父文档时，将显示兄弟文档
             if (g_setting.sibling) {
                 return await SiblingContentPrinter.getBindedElement(basicInfo, protyleEnvInfo);
             }
-            result.appendChild(super.getNoneElement());
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            contentElem.appendChild(super.getNoneElement());
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         } else {
             if (basicInfo.parentDocBasicInfo) {
-                result.appendChild(this.docLinkGenerator(basicInfo.parentDocBasicInfo));
+                contentElem.appendChild(this.docLinkGenerator(basicInfo.parentDocBasicInfo));
             } else {
-                result.appendChild(this.getNoneElement());
-                result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+                contentElem.appendChild(this.getNoneElement());
+                contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
             }
         }
-        logPush("parentAreaOutput", result);
-        return result;
+        logPush("parentAreaOutput", contentElem);
+        return contentElem;
     }
 }
 
 class SiblingContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.SIBLING_CONTAINER_ID, lang("sibling_nodes"), lang("sibling_area"));
+    }
+
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const result = super.getBasicElement(CONSTANTS.SIBLING_CONTAINER_ID, null, lang("sibling_nodes"), lang("sibling_area"));
+        const contentElem = super.getContentElement(null);
         if (basicInfo.siblingDocLimited) {
             logPush("出于性能考虑，本文档的同级文档将不再显示");
             return null;
         }
         await fillOneDocRelationOfBasicInfo(basicInfo, "userDemandSiblingDocInfoList");
-        if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
-            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.userDemandSiblingDocInfoList.length));
-        }
+        contentElem.dataset.ogIndicatorTitle = lang("number_count").replace("%NUM%", basicInfo.userDemandSiblingDocInfoList.length);
         if (basicInfo.userDemandSiblingDocInfoList.length == 0) {
-            result.appendChild(super.getNoneElement());
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            contentElem.appendChild(super.getNoneElement());
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         } else {
             for (let i = 0; i < basicInfo.userDemandSiblingDocInfoList.length && (i < g_setting.docMaxNum || g_setting.docMaxNum == 0); i++) {
                 let doc = basicInfo.userDemandSiblingDocInfoList[i];
@@ -621,18 +680,22 @@ class SiblingContentPrinter extends BasicContentPrinter {
                     // temp = tempElement.outerHTML;
                     oneLinkElem.classList.add("og-hn-docLinksWrapper-hl");
                 }
-                result.appendChild(oneLinkElem);
+                contentElem.appendChild(oneLinkElem);
             }
         }
-        return result;
+        return contentElem;
     }
 }
 
 // IDEA: 或者我们把不同的决策设置为一个新的Printer，比如自动换成widget的话，一个AutoChild 然后判断再调用 Widget/Child
 class ChildContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, lang("child_nodes"), lang("child_area"));
+    }
+
     static async getBindedElement(basicInfo:IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"), lang("child_area"));
+        const contentElem = super.getContentElement(null);
         if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
             logPush("文档中含有数据库，不显示子文档区域");
             return null;
@@ -644,36 +707,42 @@ class ChildContentPrinter extends BasicContentPrinter {
         }
         await fillOneDocRelationOfBasicInfo(basicInfo, "childDocInfoList");
 
-        if (result.children.length > 0 && result.children[0].classList.contains(CONSTANTS.INDICATOR_CLASS_NAME)) {
-            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", basicInfo.childDocInfoList.length));
-        }
+        contentElem.dataset.ogIndicatorTitle = lang("number_count").replace("%NUM%", basicInfo.childDocInfoList.length);
         if (basicInfo.childDocInfoList.length == 0) {
-            result.appendChild(super.getNoneElement());
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            contentElem.appendChild(super.getNoneElement());
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         } else {
             for (let i = 0; i < basicInfo.childDocInfoList.length && (i < g_setting.docMaxNum || g_setting.docMaxNum == 0); i++) {
                 let doc = basicInfo.childDocInfoList[i];
                 const oneLinkElem = super.docLinkGenerator(doc);
-                result.appendChild(oneLinkElem);
+                contentElem.appendChild(oneLinkElem);
             }
         }
-        return result;
+        return contentElem;
     }
 }
 
 class BreadcrumbContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.BREADCRUMB_CONTAINER_CLASS_NAME, null, null);
+    }
+
+    static async getWrappedBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        return await this.getBindedElement(basicInfo, protyleEnvInfo);
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         // 没有前置缩进，不加入multiline样式
-        const result = super.getBasicElement(CONSTANTS.BREADCRUMB_CONTAINER_CLASS_NAME, [CONSTANTS.CONTAINER_CLASS_NAME], null);
+        const contentElem = super.getContentElement([CONSTANTS.BREADCRUMB_CONTAINER_CLASS_NAME, CONSTANTS.CONTAINER_CLASS_NAME]);
         // 这里嵌套了一层element……是因为原来用的parent下插入的面包屑，暂时保持一致
         const breadcrumbElem = await this.generateBreadCrumb(basicInfo);
-        result.appendChild(breadcrumbElem);
+        contentElem.appendChild(breadcrumbElem);
 
         // 绑定 > 点击事件
-        result.querySelectorAll(`.og-fake-breadcrumb-arrow-span[data-type="FILE"], .og-fake-breadcrumb-arrow-span[data-type="NOTEBOOK"]`).forEach((elem) => {
+        contentElem.querySelectorAll(`.og-fake-breadcrumb-arrow-span[data-type="FILE"], .og-fake-breadcrumb-arrow-span[data-type="NOTEBOOK"]`).forEach((elem) => {
             elem.addEventListener("click", this.openRelativeMenu)
         });
-        return result;
+        return contentElem;
     }
     static async generateBreadCrumb(basicInfo:IBasicInfo) {
         const pathObject = await this.parseDocPath(basicInfo.docBasicInfo);
@@ -846,6 +915,10 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
 }
 
 export class BackLinkContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, lang("backlink_nodes"), lang("backlink_area"));
+    }
+
     private static escapeSqlValue(value: string) {
         return value.replaceAll(`"`, `""`);
     }
@@ -890,14 +963,14 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
 
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        let result = null;
+        let contentElem = null;
         switch (g_setting.showBackLinksType) {
             case CONSTANTS.BACKLINK_DOC_ONLY: {
-                result = await this.docOnlyBackLinkElement(basicInfo);
+                contentElem = await this.docOnlyBackLinkElement(basicInfo);
                 break;
             }
             case CONSTANTS.BACKLINK_NORMAL: {
-                result = await this.normalBackLinkElement(basicInfo);
+                contentElem = await this.normalBackLinkElement(basicInfo);
                 break;
             }
             default: {
@@ -905,12 +978,12 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
                 break;
             }
         }
-        if (result == null) {
-            result = super.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
-            result.appendChild(super.getNoneElement());
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        if (contentElem == null) {
+            contentElem = super.getContentElement(null);
+            contentElem.appendChild(super.getNoneElement());
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         }
-        return result;
+        return contentElem;
     }
     static async getNormalBackLinks(docId: string, sortType: string) {
         // 处理不同排序方式
@@ -937,7 +1010,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
         return this.attachBacklinkRefBlockInfo(pinAndRemoveByDocNameForBackLinks(prepareBackLinkInfo), docId);
     }
     static async normalBackLinkElement(basicInfo: IBasicInfo) {
-        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
+        const result = this.getContentElement(null);
         // 处理不同排序方式
         const g_setting = getReadOnlyGSettings();
         const backlinkResponse = await getBackLink2T(basicInfo.currentDocId, linkSortTypeToBackLinkApiSortNum(g_setting.sortForBackLink));
@@ -1001,7 +1074,7 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
         }
     }
     static async docOnlyBackLinkElement(basicInfo: IBasicInfo) {
-        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("backlink_nodes"), lang("backlink_area"));
+        const result = this.getContentElement(null);
         // 处理不同排序方式
         const g_setting = getReadOnlyGSettings();
         let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
@@ -1043,6 +1116,10 @@ export class BackLinkContentPrinter extends BasicContentPrinter {
 }
 
 class NeighborContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, lang("neighbor_nodes"), lang("neighbor_area"));
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         if (basicInfo.siblingDocLimited) {
@@ -1051,7 +1128,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
         }
         await fillOneDocRelationOfBasicInfo(basicInfo, "allSiblingDocInfoList");
         const siblingDocs = basicInfo.allSiblingDocInfoList;
-        const result = this.getBasicElement(CONSTANTS.NEXT_CONTAINER_CLASS_NAME, null, lang("neighbor_nodes"), lang("neighbor_area"));
+        const contentElem = super.getContentElement(null);
         let iCurrentDoc = -1;
         let previousElem = null, nextElem = null;
         for (let iSibling = 0; iSibling < siblingDocs.length; iSibling++) {
@@ -1198,47 +1275,60 @@ class NeighborContentPrinter extends BasicContentPrinter {
             // }
             if (flag) {
                 if (previousElem) {
-                    result.appendChild(previousElem);
+                    contentElem.appendChild(previousElem);
                 }
                 if (nextElem) {
-                    result.appendChild(nextElem);
+                    contentElem.appendChild(nextElem);
                 }
-                result.classList.add(CONSTANTS.NEXT_CONTAINER_CLASS_NAME);
+                contentElem.classList.add(CONSTANTS.NEXT_CONTAINER_CLASS_NAME);
             } else {
                 const noneElem = this.getNoneElement();
-                result.appendChild(noneElem);
-                result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+                contentElem.appendChild(noneElem);
+                contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
             }
         } else {
             const noneElem = this.getNoneElement();
             noneElem.title = lang("is_hidden_doc");
-            result.appendChild(noneElem);
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            contentElem.appendChild(noneElem);
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         }
-        return result;
+        return contentElem;
     }
 }
 
 // TODO: 有个问题，widget不应该走切换页签的刷新吧，这个加载太慢；可能要applyer做其他实现
 class WidgetContentPrinter extends BasicContentPrinter {
     static isDoNotUpdate = true;
+
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, lang("child_nodes"), lang("child_area"));
+    }
+
+    static async getWrappedBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        if (basicInfo.docBasicInfo.subFileCount <= 0) {
+            logPush("无子文档，不显示子文档区域");
+            const result = await this.getBasicElement();
+            const contentElem = super.getContentElement(null);
+            contentElem.appendChild(this.getNoneElement());
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            this.isDoNotUpdate = false;
+            result.appendChild(contentElem);
+            result.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+            return result;
+        }
+        return await this.getBindedElement(basicInfo, protyleEnvInfo);
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         if (g_setting.noChildIfHasAv && await isDocHasAv(basicInfo.currentDocId)) {
             logPush("文档中含有数据库，不显示子文档区域");
             return null;
         }
-        if (basicInfo.docBasicInfo.subFileCount <= 0) {
-            logPush("无子文档，不显示子文档区域");
-            const result = super.getBasicElement(CONSTANTS.CHILD_CONTAINER_ID, null, lang("child_nodes"), lang("child_area"));
-            result.appendChild(this.getNoneElement());
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
-            this.isDoNotUpdate = false;
-            return result;
-        }
+        
         if (g_setting.lcdEmptyDocThreshold >= 0 && !await isDocEmpty(basicInfo.currentDocId, g_setting.lcdEmptyDocThreshold)) {
             this.isDoNotUpdate = false;
-            return await ChildContentPrinter.getBindedElement(basicInfo, protyleEnvInfo);
+            return await ChildContentPrinter.getWrappedBindedElement(basicInfo, protyleEnvInfo);
         }
         this.isDoNotUpdate = true;
         const result = document.createElement("div");
@@ -1257,6 +1347,10 @@ class WidgetContentPrinter extends BasicContentPrinter {
 
 
 class BlockTitleBreadcrumbContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.BREADCRUMB_CONTAINER_CLASS_NAME, null, null);
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         debugPush("isMobile", isMobile(), g_setting.hideBlockBreadceumbInDesktop);
@@ -1264,19 +1358,19 @@ class BlockTitleBreadcrumbContentPrinter extends BasicContentPrinter {
             return null;
         }
         // 没有前置缩进，不加入multiline样式
-        const result = super.getBasicElement(CONSTANTS.BREADCRUMB_CONTAINER_CLASS_NAME, [CONSTANTS.CONTAINER_CLASS_NAME], null);
+        const contentElem = super.getContentElement([CONSTANTS.CONTAINER_CLASS_NAME]);
         // 这里嵌套了一层element……是因为原来用的parent下插入的面包屑，暂时保持一致
         const breadcrumbElem = await this.generateBreadCrumb(basicInfo, protyleEnvInfo);
         if (!breadcrumbElem) {
             return null;
         }
-        result.appendChild(breadcrumbElem);
+        contentElem.appendChild(breadcrumbElem);
 
         // 绑定 > 点击事件
         // result.querySelectorAll(`.og-fake-breadcrumb-arrow-span[data-type="FILE"], .og-fake-breadcrumb-arrow-span[data-type="NOTEBOOK"]`).forEach((elem) => {
         //     elem.addEventListener("click", this.openRelativeMenu)
         // });
-        return result;
+        return contentElem;
     }
     static async generateBreadCrumb(basicInfo:IBasicInfo, protyleEnvInfo:IProtyleEnvInfo) {
         const pathObject = await this.parseDocPath(protyleEnvInfo.originProtyle as IProtyle);
@@ -1350,9 +1444,13 @@ class BlockTitleBreadcrumbContentPrinter extends BasicContentPrinter {
 }
 
 class OnThisDayInPreviousYears extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.ON_THIS_DAY_CONTAINER_CLASS_NAME, lang("on_this_day_nodes"), lang("on_this_day_area"));
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const result = super.getBasicElement(CONSTANTS.ON_THIS_DAY_CONTAINER_CLASS_NAME, null, lang("on_this_day_nodes"), lang("on_this_day_area"));
+        const contentElem = super.getContentElement(null);
         let currentDateMonthDay = "";
         const protyle = protyleEnvInfo.originProtyle as IProtyle
         const ialObject = protyle.background?.ial;
@@ -1375,9 +1473,9 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
         if (response.length <= 1) {
             logPush("没有往年今日", response);
             const noneElem = super.getNoneElement();
-            result.appendChild(noneElem);
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
-            return result;
+            contentElem.appendChild(noneElem);
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            return contentElem;
         }
         for (let i = 0; i < response.length; i++) {
             const thisDocInfo = response[i];
@@ -1386,9 +1484,9 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
             }
             thisDocInfo.name = thisDocInfo.name;
             const oneLinkElem = super.docLinkGenerator(thisDocInfo);
-            result.appendChild(oneLinkElem);
+            contentElem.appendChild(oneLinkElem);
         }
-        return result;
+        return contentElem;
     }
     static async isOnlyOnce(basicInfo: IBasicInfo): Promise<boolean> {
         return true;    
@@ -1399,16 +1497,20 @@ class OnThisDayInPreviousYears extends BasicContentPrinter {
 
 
 class ForwardLinkPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.FOWARDLINK_CONTAINER_CLASS_NAME, lang("forwardlink_nodes"), lang("forwardlink_area"));
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        let result = null;
+        let contentElem = null;
         switch (g_setting.showBackLinksType) {
             case CONSTANTS.BACKLINK_DOC_ONLY: {
-                result = await this.docOnlyBackLinkElement(basicInfo);
+                contentElem = await this.docOnlyBackLinkElement(basicInfo);
                 break;
             }
             case CONSTANTS.BACKLINK_NORMAL: {
-                result = await this.normalBackLinkElement(basicInfo);
+                contentElem = await this.normalBackLinkElement(basicInfo);
                 break;
             }
             default: {
@@ -1416,15 +1518,15 @@ class ForwardLinkPrinter extends BasicContentPrinter {
                 break;
             }
         }
-        if (result == null) {
-            result = super.getBasicElement(CONSTANTS.FOWARDLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"), lang("forwardlink_area"));
-            result.appendChild(super.getNoneElement());
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        if (contentElem == null) {
+            contentElem = super.getContentElement(null);
+            contentElem.appendChild(super.getNoneElement());
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         }
-        return result;
+        return contentElem;
     }
     static async normalBackLinkElement(basicInfo: IBasicInfo) {
-        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"), lang("forwardlink_area"));
+        const result = this.getContentElement(null);
         // 处理不同排序方式
         const g_setting = getReadOnlyGSettings();
         let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
@@ -1455,7 +1557,7 @@ class ForwardLinkPrinter extends BasicContentPrinter {
         return result;
     }
     static async docOnlyBackLinkElement(basicInfo: IBasicInfo) {
-        const result = this.getBasicElement(CONSTANTS.BACKLINK_CONTAINER_CLASS_NAME, null, lang("forwardlink_nodes"), lang("forwardlink_area"));
+        const result = this.getContentElement(null);
         // 处理不同排序方式
         const g_setting = getReadOnlyGSettings();
         let sqlStmt = `SELECT id, content FROM blocks WHERE id in (
@@ -1488,12 +1590,18 @@ class ForwardLinkPrinter extends BasicContentPrinter {
 }
 
 class MoreOrLessPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.MORE_OR_LESS_CONTAINER_CLASS_NAME, null, null);
+    }
+
     static async getMoreOrLessElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo, printerElemList: Array<any>
     ): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
-        const result = super.getBasicElement(CONSTANTS.MORE_OR_LESS_CONTAINER_CLASS_NAME, null, null, null);
+        const result = super._getBasicElement(CONSTANTS.MORE_OR_LESS_CONTAINER_CLASS_NAME, null, null);
+        const content = super.getContentElement([CONSTANTS.MORE_OR_LESS_CONTAINER_CLASS_NAME]);
+        result.appendChild(content);
         const moreOrLess = document.createElement("span");
-        result.appendChild(moreOrLess);
+        content.appendChild(moreOrLess);
         // 默认状态处理
         if (protyleEnvInfo.originProtyle?.element?.querySelectorAll(".og-hn-more-less[data-og-hide-flag=false]").length > 0) {
             debugPush("MoreOrLessPrinter 生成时判定原内容区存在，且未折叠，更新后也调整为未折叠");
@@ -1513,15 +1621,15 @@ class MoreOrLessPrinter extends BasicContentPrinter {
                 debugPush("折叠展开判定错误，不存在任何内容区元素");
             }
             if (moreOrLess.innerHTML === lang("more")) {
-                // 遍历移除
-                for (let i = g_setting.areaHideFrom; i < childrens.length; i++) {
+                // 遍历移除 考虑到moreOrLess和move两个部分，所以相较于从0开始，以从1开始的再加1
+                for (let i = g_setting.areaHideFrom + 1; i < childrens.length; i++) {
                     childrens[i].classList.remove(CONSTANTS.IS_FOLDING_CLASS_NAME);
                 }
                 moreOrLess.innerHTML = lang("less");
                 result.dataset.ogHideFlag = "false";
             }else {
                 // 遍历添加
-                for (let i = g_setting.areaHideFrom; i < childrens.length; i++) {
+                for (let i = g_setting.areaHideFrom + 1; i < childrens.length; i++) {
                     childrens[i].classList.add(CONSTANTS.IS_FOLDING_CLASS_NAME);
                 }
                 moreOrLess.innerHTML = lang("more");
@@ -1532,13 +1640,13 @@ class MoreOrLessPrinter extends BasicContentPrinter {
         return result;
     }
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
-        const result = super.getBasicElement(CONSTANTS.MORE_OR_LESS_CONTAINER_CLASS_NAME, null, null, null);
+        const contentElem = super.getContentElement(null);
         const moreOrLess = document.createElement("span");
         moreOrLess.innerHTML = lang("more_or_less");
-        result.appendChild(moreOrLess);
+        contentElem.appendChild(moreOrLess);
         //
-        result.classList.add("og-hn-more-less");
-        result.addEventListener("click", ()=>{
+        contentElem.classList.add("og-hn-more-less");
+        contentElem.addEventListener("click", ()=>{
             const styleElem = document.getElementById(CONSTANTS.HIDE_COULD_FOLD_STYLE_ID);
             if (styleElem) {
                 styleElem.remove();
@@ -1546,8 +1654,8 @@ class MoreOrLessPrinter extends BasicContentPrinter {
                 setCouldHideStyle();
             }
         });
-        result.dataset.ogContentType = PRINTER_NAME.MORE_OR_LESS;
-        return result;
+        contentElem.dataset.ogContentType = PRINTER_NAME.MORE_OR_LESS;
+        return contentElem;
     }
     static async isOnlyOnce(basicInfo:IBasicInfo): Promise<boolean> {
         return false;
@@ -1556,6 +1664,10 @@ class MoreOrLessPrinter extends BasicContentPrinter {
 
 
 class NeighborWithPreviewContentPrinter extends BasicContentPrinter {
+    static async getWrappedBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
+        return await this.getBindedElement(basicInfo, protyleEnvInfo);
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         if (basicInfo.siblingDocLimited) {
@@ -1764,6 +1876,10 @@ class NeighborWithPreviewContentPrinter extends BasicContentPrinter {
 }
 
 class PreviewBoxContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return null;
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         
@@ -1961,16 +2077,15 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
 }
 
 class ParentSiblingContentPrinter extends BasicContentPrinter {
+    static async getBasicElement(): Promise<HTMLElement> {
+        return super._getBasicElement(CONSTANTS.PARENT_SIBLING_CONTAINER_ID, lang("parent_sibling_nodes"), lang("parent_sibling_area"));
+    }
+
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         
         // 1. 初始化容器，使用唯一的 ID（如 PARENT_SIBLING_CONTAINER_ID）和对应的多语言标签
-        const result = super.getBasicElement(
-            CONSTANTS.PARENT_SIBLING_CONTAINER_ID, 
-            null, 
-            lang("parent_sibling_nodes"), 
-            lang("parent_sibling_area")
-        );
+        const contentElem = super.getContentElement(null);
 
         // 2. 性能限制检查（如果你的数据结构中有对应的限制字段）
         if (basicInfo.siblingDocLimited) {
@@ -1978,13 +2093,13 @@ class ParentSiblingContentPrinter extends BasicContentPrinter {
             return null;
         }
         if (basicInfo.docBasicInfo == null || basicInfo.parentDocBasicInfo == null) {
-            result.appendChild(super.getNoneElement());
-            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            contentElem.appendChild(super.getNoneElement());
+            contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
         } else {
             logPush("ParentSiblingContentPrinter 基本信息", basicInfo);
             const parentSiblings = await getUserDemandSiblingDocuments(basicInfo.parentDocBasicInfo.path, basicInfo.parentDocBasicInfo.box, DOC_SORT_TYPES[g_setting.childOrder], g_setting.showHiddenDoc);
             const count = parentSiblings.length;
-            result.children[0].setAttribute("title", lang("number_count").replace("%NUM%", count.toString()));
+            contentElem.dataset.ogIndicatorTitle = lang("number_count").replace("%NUM%", count.toString());
             // 循环生成文档链接
             const list = parentSiblings;
             for (let i = 0; i < list.length && (g_setting.docMaxNum === 0 || i < g_setting.docMaxNum); i++) {
@@ -1995,9 +2110,9 @@ class ParentSiblingContentPrinter extends BasicContentPrinter {
                 if (doc.id === basicInfo.parentDocBasicInfo.id) {
                     oneLinkElem.classList.add("og-hn-docLinksWrapper-hl");
                 }
-                result.appendChild(oneLinkElem);
+                contentElem.appendChild(oneLinkElem);
             }
         }
-        return result;
+        return contentElem;
     }
 }

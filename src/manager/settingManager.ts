@@ -55,8 +55,6 @@ interface IPluginSettings {
     flashcardContentGroup: string[],
     normalEndContentGroup: string[],
     enableForPopOverCircumstance: boolean, // 在其他情况也显示导航 v1.4.0+弃用
-    sameWidthColumn: number, // 等宽列
-    sameWidthColumnMobile: number,
     previousAndNextFollowDailynote: boolean,
     mobileBackReplace: boolean,
     mobileRemoveAllArea: boolean,
@@ -119,8 +117,6 @@ const defaultSetting: any = {
     showHiddenDoc: false,
     // previousAndNextHiddenDoc: true, // 同级文档显示隐藏文档 v1.4.0+弃用
     hideBlockBreadcrumbInDesktop: true,
-    sameWidthColumn: 6,
-    sameWidthColumnMobile: 2,
     previousAndNextFollowDailynote: false,
     mobileBackReplace: false,
     mobileRemoveAllArea: false,
@@ -141,6 +137,7 @@ const defaultSetting: any = {
     docNameCentering: true,
     endDocAreaPaddingTop: true,
     keepTempTop: false,
+    alignToGrid: true,
 }
 
 let tabProperties: Array<TabProperty> = [
@@ -219,9 +216,9 @@ export function initSettingProperty() {
         }),
         new TabProperty({"key": "appearance", "iconKey": "iconTheme", props: [
             new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),
-            new ConfigProperty({"key": "sameWidthColumn", "type": "NUMBER", min: 0, max: 15}),
-            new ConfigProperty({"key": "sameWidthColumnMobile", "type": "NUMBER", min: 0, max: 15}),
-            new ConfigProperty({"key": "sameWidth", "type": "NUMBER"}),
+            new ConfigProperty({"key": "alignToGrid", "type": "SWITCH"}),
+            new ConfigProperty({"key": "sameWidth", "type": "NUMBER", min: 0, max: 40}),
+            // new ConfigProperty({"key": "sameMaxWidth", "type": "NUMBER", min: 0, max: 40}),
             new ConfigProperty({"key": "areaBorder", "type": "SWITCH"}),
             new ConfigProperty({"key": "docNameCentering", "type": "SWITCH"}),
             new ConfigProperty({"key": "endDocAreaPaddingTop", "type": "SWITCH"}),

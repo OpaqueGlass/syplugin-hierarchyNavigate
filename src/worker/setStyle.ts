@@ -3,6 +3,7 @@ import { CONSTANTS } from "@/constants";
 import { logPush } from "@/logger";
 import { isMobile } from "@/syapi";
 import { lang } from "@/utils/lang";
+import { isCurrentVersionLessThan } from "@/utils/commonCheck";
 
 export function setStyle() {
     removeStyle();
@@ -12,10 +13,12 @@ export function setStyle() {
     const head = document.getElementsByTagName('head')[0];
     const style = document.createElement('style');
     style.setAttribute("id", CONSTANTS.STYLE_ID);
-    let linkWidthRestrict = g_setting.sameWidth == 0 ? "" : `
+    let linkWidthRestrict = g_setting.sameWidth <= 0 ? "" : `
     .og-hn-heading-docs-container span.docLinksWrapper {
         min-width: ${g_setting.sameWidth}em;
     }`;
+    let linkMinWidth = parseInt(g_setting.sameWidth) <= 0 ? 10 : parseInt(g_setting.sameWidth);
+
     let noIndicatorStyle = g_setting.hideIndicator ? `
     .og-hn-heading-docs-container .og-hierachy-navigate-doc-indicator {
         display:none;
@@ -65,6 +68,7 @@ export function setStyle() {
     
     `;
 
+
     let toTheTop = `
 .${CONSTANTS.TO_THE_TOP_CLASS_NAME} {
     z-index: 9;
@@ -85,31 +89,37 @@ export function setStyle() {
     display: none;
 }
     `;
-
-    let calColumnCount = g_setting.sameWidthColumn;
-    if (isMobile()) {
-        calColumnCount = g_setting.sameWidthColumnMobile;
-    }
     let docNameCenteringCSS = g_setting.docNameCentering ? "margin: 0 auto; /*居中显示*/": "";
-    const linkColumnStyle = calColumnCount > 0 ? 
-    `
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-children-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-sibling-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-onthisday-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-parent-sibling-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-parent-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-backlink-doc-container span.docLinksWrapper {
-        width: calc( (100% - ${calColumnCount} * ${calColumnCount == 1 ? "0px" : "10px"}) / ${calColumnCount});
-        ${calColumnCount == 1 ? "margin-right: 0px;" : ""}/*仅一列时忽略margin-right*/
-    }
-    `: ``;
-
     
+    const alignToGridStyle = g_setting.alignToGrid ? `
+    .og-hn-container-multiline {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(${linkMinWidth}em, 1fr));
+        gap: 6px 6px;
+    }
+    .og-hierachy-navigate-next-doc-container .og-hn-container-multiline {
+        grid-template-columns: repeat(2, minmax(${linkMinWidth}em, 1fr));
+    }
+    
+    ` : `
+    .og-hn-container-multiline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 6px; 
+    }
 
-    const mobileLinkColumnOfNextStyle = isMobile() ? `.og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
-        width: 100%;
-        margin-right: 0px;
-    }` : "";
+    .og-hierachy-navigate-next-doc-container .og-hn-container-multiline {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(${linkMinWidth}em, 1fr));
+        gap: 6px 6px;
+    }
+    `;
+
+    const mobileLinkColumnOfNextStyle = isMobile() ? `
+    .og-hierachy-navigate-next-doc-container .og-hn-container-multiline {
+        grid-template-columns: minmax(${linkMinWidth}em, 1fr);
+    }
+    ` : "";
 
     const defaultLinkStyle = `
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper{
@@ -123,11 +133,10 @@ export function setStyle() {
         padding: 4px 6px;
         border-radius: calc(1em + 2px);
         transition: var(--b3-transition);
-        margin-bottom: 3px;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
-        max-width: calc(100% - 10px); /*需要排除margin-right: 10px的影响*/
+        max-width: 100%;
         ${isMobile() ? "margin-top: 6px;": ""}
     }
     .${CONSTANTS.CONTAINER_CLASS_NAME} span.docLinksWrapper.og-hn-docLinksWrapper-hl {
@@ -143,15 +152,10 @@ export function setStyle() {
         ${docNameCenteringCSS} /*居中显示*/
         text-overflow: ellipsis;
         overflow-x: hidden; /* 修复文字下侧被截断的问题 */
+        padding-left: 3px;
+        padding-right: 3px;
     }
 
-    /* 语义调整 refLinks 的可点击，其他仅样式 https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/issues/61 */
-    .og-hierachy-navigate-sibling-doc-container  span.docLinksWrapper, 
-    .og-hierachy-navigate-children-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-next-doc-container span.docLinksWrapper,
-    .og-hierachy-navigate-backlink-doc-container span.docLinksWrapper {
-        margin-right: 10px;
-    }
     /* 这里，由于提示词单独占位，导致提示词-链接之间gap一样也有10px，或许可以考虑全都加入gap就不显得突兀了 */
     .og-hierachy-navigate-sibling-doc-container, 
     .og-hierachy-navigate-children-doc-container,
@@ -163,6 +167,13 @@ export function setStyle() {
         align-items: flex-start;*/
     }
     `;
+
+    const styleForMobile = isMobile() ? `
+    .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
+        width: calc( (100% - 2em - 1 * 10px) / 2);
+        max-width: 30em;
+    }
+    `:"";
 
     const previewNext = `
 .og-hierachy-navigate-next-preview-doc-container {
@@ -456,9 +467,7 @@ export function setStyle() {
 
     ${noneDisplayStyle}
 
-    ${g_setting.hideIndicator ? "" : alignStyle}
-
-    ${linkColumnStyle}
+    ${alignToGridStyle}
 
     ${mobileLinkColumnOfNextStyle} /* 移动端下一篇强制一列 */
 
@@ -472,11 +481,23 @@ export function setStyle() {
 
     ${endDocAreaPaddingTop}
 
-    /* 限制相邻文档区域 链接宽度*/
-    .og-hierachy-navigate-doc-container.og-hierachy-navigate-next-doc-container span.docLinksWrapper {
-        width: calc( (100% - 2em - 1 * 10px) / 2);
-        max-width: 30em;
+    /*指示器设定*/
+    .og-hn-doc-grid-container {
+        display: grid;
+        /* 第一列固定2em放类型标签，剩余空间给文档网格 */
+        grid-template-columns: ${g_setting.hideIndicator ? "minmax(0, 1fr);" : "2em minmax(0, 1fr);"}
+        gap: 0 8px;
+        align-items: baseline;
     }
+
+    /* 类型标签：向左突出到网格之外 */
+    .og-hn-doc-grid-container {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    
 
     .og-hierachy-navigate-doc-container {
         max-height: ${isMobile() ? "25vh" : g_setting.maxHeightLimit + "em"};
@@ -518,8 +539,8 @@ export function setStyle() {
 
     /* 面包屑箭头 */
     .og-hn-heading-docs-container .og-fake-breadcrumb-arrow-span .${CONSTANTS.ARROW_CLASS_NAME} {
-        height: 10px;
-        width: 10px;
+        height: ${isCurrentVersionLessThan("3.7.0") ? "10px":"14px"};
+        width: ${isCurrentVersionLessThan("3.7.0") ? "10px":"14px"};
         color: var(--b3-theme-on-surface-light);
         margin: 0 4px;
         flex-shrink: 0;
