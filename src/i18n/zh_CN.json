@@ -307,6 +307,9 @@
     "setting_column_showOrNot_name": "显示与否",
     "setting_column_basic_name": "基本",
     "setting_column_notebook_name": "笔记本",
+    "setting_column_docLink_name": "文档链接样式",
+    "setting_column_css_name": "样式表",
+    "setting_column_contentArea_name": "内容区样式",
 
     "===========关于选项卡===========": null,
     "setting_aboutAuthor_name": "关于此插件",

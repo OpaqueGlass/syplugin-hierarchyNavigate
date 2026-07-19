@@ -315,6 +315,9 @@
     "setting_column_showOrNot_name": "Show or not",
     "setting_column_basic_name": "Basic",
     "setting_column_notebook_name": "Notebook",
+    "setting_column_docLink_name": "Document Link Style",
+    "setting_column_css_name": "CSS",
+    "setting_column_contentArea_name": "Content Area Style",
 
 
     "setting_aboutAuthor_name": "About this plugin",

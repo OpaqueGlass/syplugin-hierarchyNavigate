@@ -95,7 +95,6 @@ export function setStyle() {
     .og-hn-container-multiline {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(${linkMinWidth}em, 1fr));
-        gap: 6px 6px;
     }
     .og-hierachy-navigate-next-doc-container .og-hn-container-multiline {
         grid-template-columns: repeat(2, minmax(${linkMinWidth}em, 1fr));
@@ -105,13 +104,11 @@ export function setStyle() {
     .og-hn-container-multiline {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px 6px; 
     }
 
     .og-hierachy-navigate-next-doc-container .og-hn-container-multiline {
         display: grid;
         grid-template-columns: repeat(2, minmax(${linkMinWidth}em, 1fr));
-        gap: 6px 6px;
     }
     `;
 
@@ -468,6 +465,10 @@ export function setStyle() {
     ${noneDisplayStyle}
 
     ${alignToGridStyle}
+
+    .og-hn-container-multiline {
+        gap: 6px 6px;
+    }
 
     ${mobileLinkColumnOfNextStyle} /* 移动端下一篇强制一列 */
 

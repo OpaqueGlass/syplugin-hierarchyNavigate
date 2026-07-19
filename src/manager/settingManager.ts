@@ -171,7 +171,7 @@ export function initSettingProperty() {
             ]
         }
         }),
-        new TabProperty({key: "showType", "iconKey": "iconTags", props: {
+        new TabProperty({key: "showType", "iconKey": "iconTags", showColumnAsGroup: true, props: {
             "showOrNot": [
                 new ConfigProperty({"key": "noChildIfHasAv", "type": "SWITCH"}),
                 new ConfigProperty({"key": "sibling", "type": "SWITCH"}),
@@ -214,20 +214,26 @@ export function initSettingProperty() {
             //     new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
             // ]
         }),
-        new TabProperty({"key": "appearance", "iconKey": "iconTheme", props: [
-            new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),
-            new ConfigProperty({"key": "alignToGrid", "type": "SWITCH"}),
-            new ConfigProperty({"key": "sameWidth", "type": "NUMBER", min: 0, max: 40}),
-            // new ConfigProperty({"key": "sameMaxWidth", "type": "NUMBER", min: 0, max: 40}),
-            new ConfigProperty({"key": "areaBorder", "type": "SWITCH"}),
-            new ConfigProperty({"key": "docNameCentering", "type": "SWITCH"}),
-            new ConfigProperty({"key": "endDocAreaPaddingTop", "type": "SWITCH"}),
-            new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),
-            new ConfigProperty({"key": "parentBoxCSS", "type": "TEXTAREA"}),
-            new ConfigProperty({"key": "siblingBoxCSS", "type": "TEXTAREA"}),
-            new ConfigProperty({"key": "childBoxCSS", "type": "TEXTAREA"}),
-            new ConfigProperty({"key": "docLinkCSS", "type": "TEXTAREA"}),
-        ]}),
+        new TabProperty({"key": "appearance", "iconKey": "iconTheme", showColumnAsGroup: true, props: {
+            "docLink": [
+                new ConfigProperty({"key": "alignToGrid", "type": "SWITCH"}),
+                new ConfigProperty({"key": "sameWidth", "type": "NUMBER", min: 0, max: 40}),
+                // new ConfigProperty({"key": "sameMaxWidth", "type": "NUMBER", min: 0, max: 40}),
+                new ConfigProperty({"key": "docNameCentering", "type": "SWITCH"}),
+            ],
+            "contentArea": [
+                new ConfigProperty({"key": "maxHeightLimit", "type": "NUMBER"}),
+                new ConfigProperty({"key": "areaBorder", "type": "SWITCH"}),
+                new ConfigProperty({"key": "endDocAreaPaddingTop", "type": "SWITCH"}),
+            ],
+            "css": [
+                new ConfigProperty({"key": "docLinkClass", "type": "TEXT"}),
+                new ConfigProperty({"key": "parentBoxCSS", "type": "TEXTAREA"}),
+                new ConfigProperty({"key": "siblingBoxCSS", "type": "TEXTAREA"}),
+                new ConfigProperty({"key": "childBoxCSS", "type": "TEXTAREA"}),
+                new ConfigProperty({"key": "docLinkCSS", "type": "TEXTAREA"}),
+            ]
+        }}),
         new TabProperty({"key": "lab", "iconKey": "iconHelp", props: {
             "ing": [
                 new ConfigProperty({"key": "openDocRemoveCurrentTab", "type": "SELECT", options: [CONSTANTS.REMOVE_CURRENT_TAB_DEFAULT, CONSTANTS.REMOVE_CURRENT_TAB_TRUE, CONSTANTS.REMOVE_CURRENT_TAB_FALSE]}),
