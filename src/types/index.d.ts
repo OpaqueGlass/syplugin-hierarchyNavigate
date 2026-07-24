@@ -89,3 +89,18 @@ interface IFile {
     count: number;
     subFileCount: number;
 }
+
+interface INotebook {
+    closed: boolean;
+    dueFlashcardCount: number;
+    encrypted: boolean;
+    flashcardCount: number;
+    icon: string;
+    id: string;
+    name: string;
+    newFlashcardCount: number;
+    sort: number;
+    sortMode: number;
+    subFileCount: number;
+    unlocked: boolean;
+}

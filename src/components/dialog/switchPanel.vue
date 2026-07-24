@@ -333,7 +333,6 @@ const createNeighborDocument = async (title: string) => {
     }
     const blockId = generateBlockId();
     const path = currentDoc.path.split('/').slice(0, -1).join('/') + '/' + blockId + '.sy';
-    debugger
     await createDocWithPath(currentDoc.box, path, title);
     openDocAndCloseById(blockId);
 }
@@ -346,7 +345,6 @@ const createChildDocument = async (title: string) => {
     }
     const blockId = generateBlockId();
     const path = currentDoc.path.substring(0, currentDoc.path.length - 3) + '/' + blockId + '.sy';
-    debugger
     await createDocWithPath(currentDoc.box, path, title);
     openDocAndCloseById(blockId);
 }

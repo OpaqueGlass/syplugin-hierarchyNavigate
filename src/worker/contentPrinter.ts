@@ -12,6 +12,7 @@ import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
 import { formatDateStringLikeFileTree, parseDateString } from "@/utils/common";
 import { clearMenuInstance, saveMenuInstance } from "./menuHelper";
+import { isNotebookDocEnabled } from "@/utils/compatUtils";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -796,8 +797,8 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             let onePathObject = pathObjects[i];
             if (i != 0) { // 这里排除了Notebook节点
                 result.appendChild(this.docLinkGenerator(pathObjects[i]));
-            } else if (g_setting.showNotebookInBreadcrumb) {
-                result.appendChild(this.docLinkGenerator(pathObjects[i], true));
+            } else if (g_setting.showNotebookInBreadcrumb || isNotebookDocEnabled()) {
+                result.appendChild(this.docLinkGenerator(pathObjects[i], !isNotebookDocEnabled()));
             }
             if (i == pathObjects.length - 1 && !await isChildDocExist(onePathObject.id)) {
                 continue;
@@ -2084,10 +2085,8 @@ class ParentSiblingContentPrinter extends BasicContentPrinter {
     static async getBindedElement(basicInfo: IBasicInfo, protyleEnvInfo: IProtyleEnvInfo): Promise<HTMLElement> {
         const g_setting = getReadOnlyGSettings();
         
-        // 1. 初始化容器，使用唯一的 ID（如 PARENT_SIBLING_CONTAINER_ID）和对应的多语言标签
         const contentElem = super.getContentElement(null);
 
-        // 2. 性能限制检查（如果你的数据结构中有对应的限制字段）
         if (basicInfo.siblingDocLimited) {
             logPush("出于性能考虑，父级文档的同级文档将不再显示");
             return null;

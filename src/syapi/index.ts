@@ -417,11 +417,27 @@ export async function getKramdown(blockid){
         "closed": false
       
  */
-export async function getNodebookList() {
+export async function getNodebookList(): Promise<INotebook[] | null> {
     let url = "/api/notebook/lsNotebooks";
     let response = await postRequest({}, url);
     if (response.code == 0 && response.data != null && "notebooks" in response.data){
         return response.data.notebooks;
+    }
+    return null;
+}
+
+/**
+ * 获取笔记本文档的部分统计信息
+ * @param notebookId 
+ * @returns 
+ */
+export async function getNotebookInfo(notebookId: string): Promise<INotebook | null> {
+    let url = "/api/notebook/getNotebookInfo";
+    let response = await postRequest({notebook: notebookId}, url);
+    if (response.code == 0 && response.data != null){
+        return response.data.boxInfo;
+    } else {
+        warnPush("请求笔记本信息时出错  ", response["msg"])
     }
     return null;
 }

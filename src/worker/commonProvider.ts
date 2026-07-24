@@ -1,8 +1,9 @@
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
-import { queryAPI, listDocsByPathT, DOC_SORT_TYPES, getDocInfo} from "@/syapi"
+import { queryAPI, listDocsByPathT, DOC_SORT_TYPES, getDocInfo, getNodebookList, getNotebookInfo} from "@/syapi"
 import { parseDateString } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
+import { getListDocsByPathAPIFilePath, isNotebookDoc, isNotebookDocEnabled } from "@/utils/compatUtils";
 export async function getBasicInfo(docId:string, docPath: string, notebookId: string): Promise<IBasicInfo> {
     let result: IBasicInfo;
     result = {
@@ -16,12 +17,16 @@ export async function getBasicInfo(docId:string, docPath: string, notebookId: st
         currentDocAttrs: {},
         subDocLimited: false,
         siblingDocLimited: false,
+        boxDoc: false,
     };
     result.docBasicInfo = await getSimpleDocInfo(docId, docPath, notebookId);
+    result.boxDoc = docId === notebookId;
     const parentDocId = getParentDocIdFromPath(docPath);
     // 笔记本的时候就没有上层,也导致下面没有统计
     if (isValidStr(parentDocId)) {
         result.parentDocBasicInfo = await getSimpleDocInfo(parentDocId, getParentPath(docPath), notebookId);
+    } else if (isNotebookDocEnabled() && !isNotebookDoc(docPath, notebookId)) {
+        result.parentDocBasicInfo = await getSimpleDocInfo(notebookId, `/${notebookId}.sy`, notebookId);
     }
     // TODO: 这个失败怎么判断？
     // if (currentDocSqlResponse.length == 0) {
@@ -49,7 +54,7 @@ async function getSimpleDocInfo(docId:string, docPath?:string, notebookId?: stri
         createTime: null,
         updateTime: null,
         icon: null,
-        box: notebookId
+        box: notebookId,
         // hPath: "",
     };
     const docInfoResponse = await getDocInfo(docId);
@@ -163,18 +168,49 @@ export async function getParentDocument(sqlResult:SqlResult) {
 }
 
 export async function getAllChildDocuments(docPath:string, notebookId: string, sortType?: number, showHidden?: boolean): Promise<IFile[]> {
+    docPath = getListDocsByPathAPIFilePath(docPath, notebookId);
     let childDocs = await listDocsByPathT({path: docPath, notebook: notebookId, maxListCount: 0, sort: sortType, showHidden: showHidden});
     return childDocs;
 }
 
-export async function getAllSiblingDocuments(currentDocPath: string, notebookId: string) {
+export async function getAllSiblingDocuments(currentDocPath: string, notebookId: string): Promise<IFile[]> {
     const parentDocPath = getParentPath(currentDocPath);
+    const isParentDocNotebookDoc = isNotebookDoc(currentDocPath, notebookId);
+    if (isParentDocNotebookDoc) {
+        const notebookList = await getNodebookList() ?? [];
+        return await fillNotebookDocFileInfo(notebookList.filter(notebook=>notebook.closed==false));
+    }
     let siblingDocs = await listDocsByPathT({path: parentDocPath, notebook: notebookId, maxListCount: 0, showHidden: true});
     return siblingDocs;
 }
 
+/**
+ * 补全笔记本信息
+ * 该api不支持v3.7.3以下版本
+ * @param notebookList 
+ * @returns 
+ */
+async function fillNotebookDocFileInfo(notebookList:INotebook[]): Promise<IFile[]> {
+    const promiseList = notebookList.filter(notebook=>notebook.closed==false).map(async (notebook)=>{
+        const notebookInfo = await getNotebookInfo(notebook.id);
+        if (notebookInfo != null) {
+            Object.assign(notebook, notebookInfo)
+        }
+        // @ts-ignore
+        return notebook as IFile;
+    });
+    const result = await Promise.all(promiseList);
+    return result.filter((doc) => doc !== null);
+}
+
 export async function getUserDemandSiblingDocuments(currentDocPath: string, notebookId: string, sortType?: number, showHidden?: boolean) {
     const parentDocPath = getParentPath(currentDocPath);
+    const isParentDocNotebookDoc = isNotebookDoc(currentDocPath, notebookId);
+    // 父文档是笔记本文档，则需要请求列出笔记本，并补全各个笔记本信息
+    if (isParentDocNotebookDoc) {
+        const notebookList = await getNodebookList() ?? [];
+        return await fillNotebookDocFileInfo(notebookList.filter(notebook=>notebook.closed==false));
+    }
     let siblingDocs = await listDocsByPathT({path: parentDocPath, notebook: notebookId, maxListCount: 0, showHidden: showHidden, sort: sortType});
     return siblingDocs;
 }

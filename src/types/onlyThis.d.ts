@@ -12,6 +12,7 @@ interface IBasicInfo {
     currentDocAttrs: any,
     siblingDocLimited: boolean,
     subDocLimited: boolean,
+    boxDoc: boolean,// 笔记本文档
 }
 
 interface IFileTreeListNeeded {
