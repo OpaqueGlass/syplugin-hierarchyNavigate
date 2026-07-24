@@ -24,6 +24,7 @@
 | Open next doc | `⌥⌘↓` or `Ctrl + Alt + ↓`  |  | |
 | Insert the `listChildDocs` widget | / | `⌥⇧L` or `Shift + Alt + L` | Need download `listChildDocs` first |
 | Display navigation related to the current document | `⌥⌘E` or `Ctrl + Alt + E` | | |
+| Hide or display all content areas | `⌥⌘H` or `Ctrl + Alt + H` | | |
 
 #### Other explanation
 
