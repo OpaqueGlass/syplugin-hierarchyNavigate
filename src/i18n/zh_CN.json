@@ -387,5 +387,6 @@
     "option_modified": "<code class='fn__code'>已修改（非默认值）</code>",
     "open_doc_first": "请先打开文档。——层级导航插件",
     "move_temp_top_area": "拖拽移动",
-    "default_performance": "[文档层级导航插件]：您的文档数量较多，插件将进入性能模式以避免导致卡顿问题(设置-试验田-性能模式)"
+    "default_performance": "[文档层级导航插件]：您的文档数量较多，插件将进入性能模式以避免导致卡顿问题(设置-试验田-性能模式)",
+    "hide_or_display_all_area": "隐藏或显示全部内容区"
 }

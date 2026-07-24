@@ -64,6 +64,14 @@ export function bindCommand(pluginInstance: Plugin) {
         },
     });
 
+    pluginInstance.addCommand({
+        langKey: "hide_or_display_all_area",
+        hotkey: "",
+        callback: () => {
+            hideOrDisplayAllArea();
+        },
+    });
+
     // 图标的制作参见帮助文档
     pluginInstance.addIcons(`<symbol id="iconOgHnBookUp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13V7"/><path d="M18 2h1a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2"/><path d="m9 10 3-3 3 3"/><path d="m9 5 3-3 3 3"/>
         </symbol>
@@ -300,6 +308,19 @@ async function addWidgetShortcutHandler(protyle:any) {
     debugPush("shortCut,PROTYLE", protyle);
     const WIDGET_HTML_V2 = `<div data-node-id=\"${NEW_NODE_ID}\" data-node-index=\"1\" data-type=\"NodeWidget\" class=\"iframe\" updated=\"${NEW_NODE_ID.split("-")[0]}\" data-subtype=\"widget\"><div class=\"iframe-content\">${WIDGET_HTML}<span class=\"protyle-action__drag\" contenteditable=\"false\"></span></div><div class=\"protyle-attr\" contenteditable=\"false\">​</div></div>`
     protyle.getInstance()?.insert(WIDGET_HTML_V2, true)
+}
+
+async function hideOrDisplayAllArea() {
+    const oldStyleElem = document.getElementById("og_hn_plugin_hide_all_area");
+    const isHidden = oldStyleElem != null;
+    if (isHidden) {
+        oldStyleElem.parentNode.removeChild(oldStyleElem);
+    } else {
+        const styleElem = document.createElement("style");
+        styleElem.id = "og_hn_plugin_hide_all_area";
+        styleElem.innerHTML = ".og-hn-heading-docs-container { display: none; }";
+        document.head.appendChild(styleElem);
+    }
 }
 
 export async function turnNavigationToTop() {

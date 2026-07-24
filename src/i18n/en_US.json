@@ -390,5 +390,6 @@
     "move_temp_top_area": "Drug to move",
     "option_modified": "<code class='fn__code'>Modified (not default)</code>",
     "open_doc_first": "Please open a document first. --HierarchyNavigate",
-    "default_performance": "[HierarchyNavigate Plugin]: You have a large number of documents, the plugin will enter performance mode to avoid potential lag issues (Settings - Test Area - Performance Mode)."
+    "default_performance": "[HierarchyNavigate Plugin]: You have a large number of documents, the plugin will enter performance mode to avoid potential lag issues (Settings - Test Area - Performance Mode).",
+    "hide_or_display_all_area": "Hide or display all content areas"
 }
