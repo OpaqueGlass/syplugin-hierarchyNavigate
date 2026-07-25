@@ -12,7 +12,7 @@ import { setCouldHideStyle } from "./setStyle";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
 import { formatDateStringLikeFileTree, parseDateString } from "@/utils/common";
 import { clearMenuInstance, saveMenuInstance } from "./menuHelper";
-import { isNotebookDocEnabled } from "@/utils/compatUtils";
+import { getListDocsByPathAPIFilePath, isNotebookDoc, isNotebookDocEnabled } from "@/utils/compatUtils";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;
@@ -751,7 +751,11 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         return breadcrumbElem;
     }
     static async parseDocPath(docDetail) {
-        let pathArray = docDetail.path.substring(0, docDetail.path.length - 3).split("/");
+        let docPath = getListDocsByPathAPIFilePath(docDetail.path, docDetail.box);
+        if (docPath.endsWith(".sy")) {
+            docPath = docPath.substring(0, docPath.length - 3);
+        }
+        let pathArray = docPath.split("/");
         // let hpathArray = docDetail.hpath.split("/");
         let resultArray = [];
         let box = getNotebookInfoLocallyF(docDetail.box);
@@ -762,12 +766,13 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             "box": box.id,
             "path": "/",
             "type": "NOTEBOOK",
-            "subFileCount": 999
+            "subFileCount": 999,
+            "bNotebookDoc": true
         }
         resultArray.push(temp);
         let tempPath = "";
         // slice(start, end) 起始start，终止end(不含)
-        const docInfoPromises = pathArray.slice(1).map(async (pathSegment) => {
+        const docInfoPromises = pathArray.slice(1).filter(item => isValidStr(item)).map(async (pathSegment) => {
             const docInfoResult = await getDocInfo(pathSegment);
             docInfoResult["box"] = box.id;
             docInfoResult["path"] = `${tempPath}/${pathSegment}.sy`;
@@ -800,7 +805,8 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             } else if (g_setting.showNotebookInBreadcrumb || isNotebookDocEnabled()) {
                 result.appendChild(this.docLinkGenerator(pathObjects[i], !isNotebookDocEnabled()));
             }
-            if (i == pathObjects.length - 1 && !await isChildDocExist(onePathObject.id)) {
+            // 如果是最后一个条目，且没有子文档，则不显示`>`；笔记本文档除外
+            if (i == pathObjects.length - 1 && !onePathObject["bNotebookDoc"] && !await isChildDocExist(onePathObject.id)) {
                 continue;
             }
             result.insertAdjacentHTML("beforeend", divideArrow
@@ -815,13 +821,14 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         let id = event.currentTarget.getAttribute("data-parent-id");
         let nextId = event.currentTarget.getAttribute("data-next-id");
         let rect = event.currentTarget.getBoundingClientRect();
+        debugger
         if (clearMenuInstance(id)) {
             return;
         }
         event.stopPropagation();
         event.preventDefault();
         let sqlResult = await queryAPI(`SELECT * FROM blocks WHERE id = '${id}'`);
-        if (sqlResult.length == 0) {
+        if (sqlResult.length == 0 || isNotebookDoc(sqlResult[0].path, sqlResult[0].box)) {
             sqlResult = [{
                 path: "/",
                 box: id
