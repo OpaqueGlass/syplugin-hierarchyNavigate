@@ -1,5 +1,5 @@
 <template>
-    <button class="b3-button b3-button--outline fn__size200" @click="props.btndo">{{ props.btnName }}</button>
+    <button class="b3-button b3-button--outline fn__flex-center fn__size200" @click="props.btndo">{{ props.btnName }}</button>
 </template>
 <script lang="ts" setup>
 // import { ref } from 'vue';

@@ -7,6 +7,7 @@ import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
 import { setStyle } from "@/worker/setStyle";
 import { DOC_SORT_TYPES, getJSONFile, isMobile, queryAPI } from "@/syapi";
 import { isValidStr } from "@/utils/commonCheck";
+import { fixListChildDocsSrc, isWrongListChildDocsSrcExist } from "@/worker/fixListChildDocsSrc";
 import * as siyuan from "siyuan";
 import outdatedSettingVue from "@/components/dialog/outdatedSetting.vue";
 import { generateUUID, showPluginMessage } from "@/utils/common";
@@ -244,6 +245,7 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "performanceMode", "type": "SWITCH"}),
                 new ConfigProperty({"key": "keepTempTop", "type": "SWITCH"}),
                 new ConfigProperty({"key": "enableForPreview", "type": "SWITCH"}),
+                new ConfigProperty({"key": "fixListChildDocsSrc", "type": "BUTTON", "btndo": fixListChildDocsSrc}),
             ],
             "stop": [
                 new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
@@ -289,33 +291,20 @@ export async function loadSettings() {
             loadResult = defaultSetting;
         }
     }
-    const currentVersion = 20260301;
+    const currentVersion = 20260808;
     let saveItNowFlag = false;
     if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
         // 旧版本
         loadResult["@version"] = currentVersion;
-        if (siyuan.getAllEditor == null) {
-            loadResult["immediatelyUpdate"] = false;
+        
+        // 旧版本迁移 START
+        if (await isWrongListChildDocsSrcExist()) {
+            showPluginMessage(lang("fix_lcd_src_warn"), 0, "error");
         }
-        loadResult["doNotAddToTitle"] = true;
-        // 检查数组中指定设置和defaultSetting是否一致
-        showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
-        // 调整性能模式
-        if (loadResult["performanceMode"] == false) {
-            const queryResult = await queryAPI(`SELECT COUNT(*) as count FROM blocks limit 9990000`);
-            logPush("块数量统计", queryResult);
-            if (queryResult && queryResult.length > 0) {
-                let count = queryResult[0]["count"];
-                if (count > 150000) {
-                    loadResult["performanceMode"] = true;
-                    warnPush("[文档层级导航 HierarchyNavigate]: You have a large number of documents, the plugin will enter performance mode to avoid potential slowdowns.")
-                    showPluginMessage(lang("default_performance"), 5000);
-                    saveItNowFlag = true;
-                }
-                
-            }
-        }
-        loadResult["relativeFontSize"] = 0;
+
+        // 旧版本迁移 END
+        
+        saveItNowFlag = true;
     }
     // showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
     // 检查选项类设置项，如果发现不在列表中的，重置为默认
@@ -330,6 +319,7 @@ export async function loadSettings() {
     // TODO: switch旧版需要迁移，另外引出迁移逻辑
     setting.value = Object.assign(Object.assign({}, defaultSetting), loadResult);
     logPush("载入设置项", setting.value);
+
     let isInternalUpdating = false;
     // return loadResult;
     watch(setting, (newVal) => {

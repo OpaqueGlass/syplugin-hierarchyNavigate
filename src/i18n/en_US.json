@@ -23,6 +23,7 @@
     "button_cancel": "Cancel",
     "setting_panel_title": "Plugin Settings: ",
     "dialog_panel_plugin_name": "plugin-hierarchyNavigate",
+    "msg_from": "Message from: ",
     "make_top_placeholder": "Press the shortcut key <code class='fn__code'>##</code> again to cancel the temporary pinning of the hierarchical navigation area.",
 
     "setting_fontSize_name": "Font Size",
@@ -326,6 +327,10 @@
     "setting_settingIconTips_desp": "🔄 indicates that the meaning or effect of the setting has changed in the latest version. Please read the <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/blob/ts-main/CHANGELOG.md'>changelog(written in Chinese)</a> to understand the changes and any necessary adjustments you may need to make.<br/>🆕 indicates a newly added setting in the latest version. Please read the <a target='_blank' href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/blob/ts-main/CHANGELOG.md'>changelog(written in Chinese)</a> to learn about the new feature.<br/>🧪 or 🚧 indicates an experimental feature. The developer will make efforts to maintain it, but it may be removed if there are unresolvable issues.<br/>🚅 indicates a feature in public beta testing. When a feature has passed a small-scale test, it will be marked as such (although there may not have been many testers, so its reliability is unknown).<br/>⛔ indicates a legacy compatibility option that will be removed soon.",
     "setting_debugMode_name": "Show detailed logs and Join alpha test",
     "setting_debugMode_desp": "When enabled, verbose logs are output in the console for debugging; It will also force enable some features in testing; enable under developer guidance and turn off for daily use.",
+
+    "setting_fixListChildDocsSrc_name": "Fix listChildDocs widget src",
+    "setting_fixListChildDocsSrc_desp": "This is a legacy issue, and you can refer to the <a href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/issues/114' target='_blank'>issue #114</a> for more detail. This will correct the src of all listChildDocs widgets in the workspace from /widgets/listChildDocs to the correct form ending with a slash (/widgets/listChildDocs/). It is recommended to back up your data before running. The operation should only be executed once, please do not click repeatedly.",
+    "setting_fixListChildDocsSrc_btn": "Fix src",
           
     "setting_experimental": "(🚧 Experimental feature, UNSTABLE, subject to removal at any time) ",
     "setting_testing": "(🚅 Beta feature, may be unstable, please provide feedback if any bug exist) ",
@@ -391,5 +396,12 @@
     "option_modified": "<code class='fn__code'>Modified (not default)</code>",
     "open_doc_first": "Please open a document first. --HierarchyNavigate",
     "default_performance": "[HierarchyNavigate Plugin]: You have a large number of documents, the plugin will enter performance mode to avoid potential lag issues (Settings - Test Area - Performance Mode).",
-    "hide_or_display_all_area": "Hide or display all content areas"
+    "hide_or_display_all_area": "Hide or display all content areas",
+
+    "fix_lcd_src_no_match": "No listChildDocs widgets need fixing (src already correct).",
+    "fix_lcd_src_sql_error": "Failed to fix listChildDocs src: SQL query error.",
+    "fix_lcd_src_done": "Fixed %FIXED% listChildDocs widget src (skipped %SKIP%, failed %FAIL%).",
+    "fix_lcd_src_warn": "Potential issues found with listChildDocs widget src. Please go to HierarchyNavigate plugin - Settings - Test Area - Fix listChildDocs widget src.",
+    "fix_lcd_src_start": "Starting to fix listChildDocs widget src, please wait.",
+    "fix_lcd_src_running": "A process is already running, please do not click again."
 }

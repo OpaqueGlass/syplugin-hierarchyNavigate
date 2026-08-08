@@ -16,7 +16,7 @@ import { CONSTANTS } from "@/constants";
  */
 export function showPluginMessage(message: string, timeout?: number, type?: "info" | "error"): void {
     const pluginName = lang("dialog_panel_plugin_name");
-    const prefixedMessage = `${message} —— ${pluginName}`;
+    const prefixedMessage = `${message} <br/> ${lang("msg_from")} ${pluginName}`;
     showMessage(prefixedMessage, timeout, type);
 }
 

@@ -22,6 +22,7 @@
     "button_cancel": "取消",
     "setting_panel_title": "文档层级导航插件设置",
     "dialog_panel_plugin_name": "文档层级导航插件",
+    "msg_from": "消息来自：",
     "make_top_placeholder": "再次按下快捷键<code class='fn__code'>##</code>以取消层级导航区域的临时置顶",
 
 
@@ -319,6 +320,10 @@
     "setting_debugMode_name": "显示详细日志并加入测试计划",
     "setting_debugMode_desp": "启用后，将在控制台输出详细日志，用于调试，也将强制启用部分尚在测试中功能；请在开发者建议下使用，并在日常使用时关闭。",
 
+    "setting_fixListChildDocsSrc_name": "修正 listChildDocs 挂件 iframe src",
+    "setting_fixListChildDocsSrc_desp": "这是历史遗留问题，可参考<a href='https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/issues/114' target='_blank'>这里的变更</a>”。将工作空间中所有 listChildDocs 挂件的 src 由 /widgets/listChildDocs 修正为以 / 结尾的正确形式 /widgets/listChildDocs/。执行前应当先备份数据，该操作只应执行一次，请勿重复点击。",
+    "setting_fixListChildDocsSrc_btn": "修正 src",
+
 
     "order_panel_enable": "启用/显示：",
     "order_panel_disable": "禁用/不显示：",
@@ -388,5 +393,12 @@
     "open_doc_first": "请先打开文档。——层级导航插件",
     "move_temp_top_area": "拖拽移动",
     "default_performance": "[文档层级导航插件]：您的文档数量较多，插件将进入性能模式以避免导致卡顿问题(设置-试验田-性能模式)",
-    "hide_or_display_all_area": "隐藏或显示全部内容区"
+    "hide_or_display_all_area": "隐藏或显示全部内容区",
+
+    "fix_lcd_src_no_match": "未找到需要修正的 listChildDocs 挂件（src 均已正确）。",
+    "fix_lcd_src_sql_error": "修正 listChildDocs src 失败：SQL 查询出错。",
+    "fix_lcd_src_done": "已修正 %FIXED% 个块的 listChildDocs 挂件 src（跳过 %SKIP% 个，失败 %FAIL% 个）。",
+    "fix_lcd_src_warn": "检查到 listChildDocs 挂件 src 可能存在不能正常显示的问题，请前往 层级导航插件 - 设置 - 试验田 - 修正 listChildDocs 挂件 src。",
+    "fix_lcd_src_start": "正在修正 listChildDocs 挂件 src，请耐心等待。",
+    "fix_lcd_src_running": "已有进程正在运行，请勿重复点击。"
 }
