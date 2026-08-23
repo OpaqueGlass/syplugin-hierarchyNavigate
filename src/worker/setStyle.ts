@@ -462,9 +462,9 @@ export function setStyle() {
 
     ${noIndicatorStyle}
 
-    ${noneDisplayStyle}
-
     ${alignToGridStyle}
+    /* 无内容显示样式 需要优先于 alignToGrid 的display生效 */
+    ${noneDisplayStyle}
 
     .og-hn-container-multiline {
         gap: 6px 6px;

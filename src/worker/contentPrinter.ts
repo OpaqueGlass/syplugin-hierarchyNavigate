@@ -201,6 +201,9 @@ class BasicContentPrinter {
         }
         result.appendChild(contentElem);
         result.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        if (contentElem.classList.contains(CONSTANTS.NONE_CLASS_NAME)) {
+            result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        }
         return result;
     }
 
@@ -821,7 +824,6 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         let id = event.currentTarget.getAttribute("data-parent-id");
         let nextId = event.currentTarget.getAttribute("data-next-id");
         let rect = event.currentTarget.getBoundingClientRect();
-        debugger
         if (clearMenuInstance(id)) {
             return;
         }
