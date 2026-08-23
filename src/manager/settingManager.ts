@@ -37,6 +37,7 @@ interface IPluginSettings {
     maxHeightLimit: number,
     hideIndicator: boolean,
     sameWidth: number,
+    sameMaxWidth: number,
     // adjustDocIcon: boolean, // v1.4.0+弃用
     // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
     immediatelyUpdate: boolean,
@@ -94,6 +95,7 @@ const defaultSetting: any = {
     maxHeightLimit: 10,
     hideIndicator: false,
     sameWidth: 0,
+    sameMaxWidth: 0,
     // adjustDocIcon: false, // v1.4.0+弃用
     // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
     immediatelyUpdate: true, // 文档移动、删除、重命名等变更后立即执行
@@ -219,7 +221,7 @@ export function initSettingProperty() {
             "docLink": [
                 new ConfigProperty({"key": "alignToGrid", "type": "SWITCH"}),
                 new ConfigProperty({"key": "sameWidth", "type": "NUMBER", min: 0, max: 40}),
-                // new ConfigProperty({"key": "sameMaxWidth", "type": "NUMBER", min: 0, max: 40}),
+                new ConfigProperty({"key": "sameMaxWidth", "type": "NUMBER", min: 0, max: 40}),
                 new ConfigProperty({"key": "docNameCentering", "type": "SWITCH"}),
             ],
             "contentArea": [

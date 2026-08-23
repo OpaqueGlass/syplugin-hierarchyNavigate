@@ -14,8 +14,12 @@ export function setStyle() {
     const style = document.createElement('style');
     style.setAttribute("id", CONSTANTS.STYLE_ID);
     let linkWidthRestrict = g_setting.sameWidth <= 0 ? "" : `
-    .og-hn-heading-docs-container span.docLinksWrapper {
+    .og-hn-container-multiline span.docLinksWrapper {
         min-width: ${g_setting.sameWidth}em;
+    }`;
+    let linkMaxWidthRestrict = g_setting.sameMaxWidth <= 0 ? "" : `
+    .og-hn-container-multiline span.docLinksWrapper {
+        max-width: ${g_setting.sameMaxWidth}em;
     }`;
     let linkMinWidth = parseInt(g_setting.sameWidth) <= 0 ? 10 : parseInt(g_setting.sameWidth);
 
@@ -459,6 +463,8 @@ export function setStyle() {
     }
 
     ${linkWidthRestrict}
+
+    ${linkMaxWidthRestrict}
 
     ${noIndicatorStyle}
 
