@@ -51,7 +51,7 @@ export function setStyle() {
     }` : "";
     // 第二行后对齐链接文本，（向内缩进： #21）
     let alignStyle = `
-    .og-hn-container-multiline {
+    .og-hn-container-multiline, .og-hn-container-next-doc {
         text-indent: -2em; /*2.28略微多了*/
         padding-left: 2em;
         overflow-x: hidden;
@@ -98,10 +98,12 @@ export function setStyle() {
     const alignToGridStyle = g_setting.alignToGrid ? `
     .og-hn-container-multiline {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(${linkMinWidth}em, 1fr));
+        grid-template-columns: repeat(auto-fill, var(--og-column-width));
     }
-    .og-hierachy-navigate-next-doc-container .og-hn-container-multiline {
-        grid-template-columns: repeat(2, minmax(${linkMinWidth}em, 1fr));
+    .og-hierachy-navigate-next-doc-container .og-hn-container-next-doc {
+        display: grid;
+        gap: 6px 6px;
+        grid-template-columns: repeat(2, 1fr);
     }
     
     ` : `
@@ -110,14 +112,14 @@ export function setStyle() {
         flex-wrap: wrap;
     }
 
-    .og-hierachy-navigate-next-doc-container .og-hn-container-multiline {
+    .og-hierachy-navigate-next-doc-container .og-hn-container-next-doc {
         display: grid;
         grid-template-columns: repeat(2, minmax(${linkMinWidth}em, 1fr));
     }
     `;
 
     const mobileLinkColumnOfNextStyle = isMobile() ? `
-    .og-hierachy-navigate-next-doc-container .og-hn-container-multiline {
+    .og-hierachy-navigate-next-doc-container .og-hn-container-next-doc {
         grid-template-columns: minmax(${linkMinWidth}em, 1fr);
     }
     ` : "";
@@ -407,7 +409,7 @@ export function setStyle() {
 
     `;
 
-    const fontSize = g_setting.relativeFontSize && g_setting.relativeFontSize > 0 ? Math.round(g_setting.relativeFontSize * parseFloat(window.siyuan.config.editor.fontSize ?? 16)) : g_setting.fontSize;
+    const fontSize = getContentAreaFontSizePx(g_setting);
 
     style.innerHTML = `
 
@@ -472,7 +474,7 @@ export function setStyle() {
     /* 无内容显示样式 需要优先于 alignToGrid 的display生效 */
     ${noneDisplayStyle}
 
-    .og-hn-container-multiline {
+    .og-hn-container-multiline, .og-hn-container-next-doc {
         gap: 6px 6px;
     }
 
@@ -629,4 +631,12 @@ export function setCouldHideStyle() {
 
 export function removeCouldHideStyle() {
     document.getElementById(CONSTANTS.HIDE_COULD_FOLD_STYLE_ID)?.remove();
+}
+
+/** 内容区实际字号(px)：relativeFontSize>0 时按编辑器字号折算，否则用 fontSize 设置项 */
+export function getContentAreaFontSizePx(g_setting: any): number {
+    if (g_setting.relativeFontSize && g_setting.relativeFontSize > 0) {
+        return Math.round(g_setting.relativeFontSize * parseFloat(window.siyuan.config.editor.fontSize ?? 16));
+    }
+    return g_setting.fontSize;
 }

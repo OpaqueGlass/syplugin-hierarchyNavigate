@@ -1138,7 +1138,7 @@ class NeighborContentPrinter extends BasicContentPrinter {
         }
         await fillOneDocRelationOfBasicInfo(basicInfo, "allSiblingDocInfoList");
         const siblingDocs = basicInfo.allSiblingDocInfoList;
-        const contentElem = super.getContentElement(null);
+        const contentElem = super.getContentElement([CONSTANTS.NEXT_DOC_MULTILINE_CLASS_NAME]);
         let iCurrentDoc = -1;
         let previousElem = null, nextElem = null;
         for (let iSibling = 0; iSibling < siblingDocs.length; iSibling++) {

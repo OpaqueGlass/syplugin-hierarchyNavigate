@@ -2,6 +2,11 @@ import { CONSTANTS, PRINTER_NAME } from "@/constants";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
+import {
+    measureDocNameLengthByChars, measureDocNameLengthByScriptWeight, measureDocNameLengthByCanvas,
+    measureMultilineDocNameLengths, computeRawColumnWidth, clampColumnWidth,
+} from "./gridColumnWidth";
+import { getContentAreaFontSizePx } from "./setStyle";
 import { isPluginExist, openRefLinkByAPI } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
@@ -81,6 +86,7 @@ export default class ContentApplyer {
             for (const elem of printerAllResults.elements) {
                 finalElement.appendChild(elem);
             }
+            if (g_setting.alignToGrid) this.writeColumnWidthToFinal(finalElement, g_setting);
             // 判断当前类型，交给不同的apply
             if (this.protyleEnvInfo.flashCard) {
                 this.flashcardApply(finalElement);
@@ -180,6 +186,7 @@ export default class ContentApplyer {
                     }
                 }
             }
+            if (g_setting.alignToGrid) this.syncColumnWidthOnPartialRefresh(existContentMainPart, g_setting);
             existContentMainPart.setAttribute("data-exist-content-part", JSON.stringify(printerAllResults.relateContentKeys));
         }
         if (checkTopExistCache() && g_setting.keepTempTop) {
@@ -245,6 +252,7 @@ export default class ContentApplyer {
             const holdEle = document.createElement("div");
             holdEle.style.height = "150px";
             finalElement.appendChild(holdEle);
+            if (g_setting.alignToGrid) this.writeColumnWidthToFinal(finalElement, g_setting);
             // 判断当前类型，交给不同的apply
             if (this.protyleEnvInfo.flashCard) {
                 this.flashcardApply(finalElement);
@@ -338,6 +346,7 @@ export default class ContentApplyer {
                     }
                 }
             }
+            if (g_setting.alignToGrid) this.syncColumnWidthOnPartialRefresh(existContentMainPart, g_setting);
             existContentMainPart.setAttribute("data-exist-content-part", JSON.stringify(printerAllResults.relateContentKeys));
             // this.adjustWysiwygPaddingBottom();
         }
@@ -573,5 +582,65 @@ export default class ContentApplyer {
             elem.removeEventListener("click", this.clickEventHandler, g_settings.openDocClickListenerCompatibilityMode);
             elem.addEventListener("click", this.clickEventHandler, g_settings.openDocClickListenerCompatibilityMode);
         });
+    }
+
+    /**
+     * 统一列宽注入（纯固定列宽模式）：
+     * - 计算得到的列宽写入父容器 CSS 变量 `--og-column-width`（next-doc 与其余 multiline 共用同一来源）。
+     * - 其余（非 next-doc）multiline 元素带 `og-hn-container-multiline` 类，此处仅覆写其
+     *   `grid-template-columns: repeat(auto-fill, var(--og-column-width))` 内联（CSS 变量，无闪烁）。
+     * - next-doc 元素不再带 multiline 类（改用 `og-hn-container-next-doc`），其 grid/gap/两列完全由
+     *   setStyle 中针对该新类的 CSS 规则 + 同一 `--og-column-width` 变量驱动，此处不对它单独判定。
+     */
+    private applyColumnWidthVar(finalElement: HTMLElement, colWPx: number): void {
+        finalElement.style.setProperty("--og-column-width", `${Math.round(colWPx)}px`);
+        (finalElement.querySelectorAll(".og-hn-container-multiline") as NodeListOf<HTMLElement>)
+            .forEach(m => (m.style.gridTemplateColumns = "repeat(auto-fill, minmax(var(--og-column-width), 1fr))"));
+    }
+
+    /** 首次插入：统计 + 计算 + 写入父容器 data-og-column-width + 注入 --og-column-width（均入 DOM 前完成） */
+    private writeColumnWidthToFinal(finalElement: HTMLElement, g_setting: any): number {
+        const w = this.resolveColumnWidthPx(finalElement, g_setting);
+        finalElement.dataset.ogColumnWidth = String(Math.round(w));   // → data-og-column-width（部分刷新复用）
+        this.applyColumnWidthVar(finalElement, w);
+        return w;
+    }
+
+    /** 部分刷新：复用父容器 data-og-column-width，重新注入 --og-column-width（next-doc 自动跟随） */
+    private syncColumnWidthOnPartialRefresh(existContentMainPart: HTMLElement, g_setting: any): void {
+        const cached = existContentMainPart.dataset.ogColumnWidth;
+        if (cached) {
+            this.applyColumnWidthVar(existContentMainPart, parseFloat(cached));
+            return;
+        }
+        this.writeColumnWidthToFinal(existContentMainPart, g_setting); // 兼容旧版/异常缺失
+    }
+
+    /** 列宽计算（含特例、测量方式选择、算法选择、夹紧），返回 px */
+    private resolveColumnWidthPx(finalElement: HTMLElement, g_setting: any): number {
+        const fontSizePx = getContentAreaFontSizePx(g_setting);
+        if (g_setting.sameWidth === g_setting.sameMaxWidth && g_setting.sameWidth !== 0) {
+            return g_setting.sameWidth * fontSizePx;                     // 特例：强制固定
+        }
+        // 测量方式/算法/百分位的选择均为 applyer 内部常量，不暴露为设置项（用户已确认）。
+        // 三套测量与三种算法本身保留在 gridColumnWidth.ts 供单测，调整时直接改这里即可。
+        const DEFAULT_MEASURE_METHOD: "canvas" | "chars" | "scriptWeight" = "scriptWeight";
+        const DEFAULT_COLUMN_WIDTH_ALGO: "percentile" | "user" | "trimmedMean" = "percentile";
+        const DEFAULT_PERCENTILE = 85;
+        const measurer =
+            DEFAULT_MEASURE_METHOD === "chars"        ? measureDocNameLengthByChars :
+            DEFAULT_MEASURE_METHOD === "scriptWeight" ? measureDocNameLengthByScriptWeight :
+                                                        measureDocNameLengthByCanvas;     // 默认 canvas
+        const lengths: number[] = [];
+        (finalElement.querySelectorAll(".og-hn-container-multiline") as NodeListOf<HTMLElement>)
+            .forEach(m => lengths.push(...measureMultilineDocNameLengths(m, measurer, fontSizePx)));
+        if (lengths.length === 0) {
+            return g_setting.sameWidth > 0 ? g_setting.sameWidth * fontSizePx : 10 * fontSizePx; // 兜底
+        }
+        const raw = computeRawColumnWidth(lengths, DEFAULT_COLUMN_WIDTH_ALGO,
+            { percentile: DEFAULT_PERCENTILE });
+        const minPx = g_setting.sameWidth    > 0 ? g_setting.sameWidth    * fontSizePx : 0;
+        const maxPx = g_setting.sameMaxWidth > 0 ? g_setting.sameMaxWidth * fontSizePx : Infinity;
+        return clampColumnWidth(raw, minPx, maxPx);
     }
 }

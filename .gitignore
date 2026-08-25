@@ -11,3 +11,4 @@ tmp
 notSync/*
 !notSync/
 .workbuddy/
+pnpm-workspace.yaml

@@ -35,6 +35,7 @@ export class CONSTANTS {
 
     public static readonly NONE_CLASS_NAME: string = "og-hierachy-navigate-doc-not-exist";
     public static readonly NEXT_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-next-doc-container";
+    public static readonly NEXT_DOC_MULTILINE_CLASS_NAME: string = "og-hn-container-next-doc"; // next-doc 内部 grid，独立于 og-hn-container-multiline
     public static readonly NEXT_PREVIEW_CONSTAINER_CLASS_NAME: string = "og-hierachy-navigate-next-preview-doc-container";
     public static readonly BACKLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-backlink-doc-container";
     public static readonly FOWARDLINK_CONTAINER_CLASS_NAME: string = "og-hierachy-navigate-forwardlink-doc-container";
