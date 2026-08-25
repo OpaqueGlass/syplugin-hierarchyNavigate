@@ -98,7 +98,7 @@ export function setStyle() {
     const alignToGridStyle = g_setting.alignToGrid ? `
     .og-hn-container-multiline {
         display: grid;
-        grid-template-columns: repeat(auto-fill, var(--og-column-width));
+        grid-template-columns: repeat(auto-fill, minmax(var(--og-hn-multiline-column-width), 1fr));
     }
     .og-hierachy-navigate-next-doc-container .og-hn-container-next-doc {
         display: grid;
@@ -110,6 +110,10 @@ export function setStyle() {
     .og-hn-container-multiline {
         display: flex;
         flex-wrap: wrap;
+    }
+    /* 网格对齐关闭：每个链接宽度由「文档链接最小/最大宽度」设置约束（min/max-width 见上方 linkWidthRestrict / linkMaxWidthRestrict） */
+    .og-hn-container-multiline span.docLinksWrapper {
+        flex: 0 1 auto;
     }
 
     .og-hierachy-navigate-next-doc-container .og-hn-container-next-doc {

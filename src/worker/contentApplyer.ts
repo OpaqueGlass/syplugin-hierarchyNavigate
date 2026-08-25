@@ -585,30 +585,31 @@ export default class ContentApplyer {
     }
 
     /**
-     * 统一列宽注入（纯固定列宽模式）：
-     * - 计算得到的列宽写入父容器 CSS 变量 `--og-column-width`（next-doc 与其余 multiline 共用同一来源）。
-     * - 其余（非 next-doc）multiline 元素带 `og-hn-container-multiline` 类，此处仅覆写其
-     *   `grid-template-columns: repeat(auto-fill, var(--og-column-width))` 内联（CSS 变量，无闪烁）。
-     * - next-doc 元素不再带 multiline 类（改用 `og-hn-container-next-doc`），其 grid/gap/两列完全由
-     *   setStyle 中针对该新类的 CSS 规则 + 同一 `--og-column-width` 变量驱动，此处不对它单独判定。
+     * 统一列宽注入（网格对齐模式）：
+     * - 计算得到的基准列宽写入父容器 CSS 变量 `--og-hn-multiline-column-width`（仅作用于 multiline 容器）。
+     * - multiline 元素带 `og-hn-container-multiline` 类，此处覆写其内联
+     *   `grid-template-columns: repeat(auto-fill, minmax(var(--og-hn-multiline-column-width), 1fr))`
+     *   （auto-fill 响应式列数；minmax 的 1fr 将余量均匀拉伸填满，无闪烁）。
+     * - next-doc 元素（带 `og-hn-container-next-doc`，不使用 multiline 类）不在此处处理：
+     *   其两列布局由 setStyle 中针对该类的 CSS 规则独立驱动，不跟随本列宽变量。
      */
     private applyColumnWidthVar(finalElement: HTMLElement, colWPx: number): void {
-        finalElement.style.setProperty("--og-column-width", `${Math.round(colWPx)}px`);
+        finalElement.style.setProperty("--og-hn-multiline-column-width", `${Math.round(colWPx)}px`);
         (finalElement.querySelectorAll(".og-hn-container-multiline") as NodeListOf<HTMLElement>)
-            .forEach(m => (m.style.gridTemplateColumns = "repeat(auto-fill, minmax(var(--og-column-width), 1fr))"));
+            .forEach(m => (m.style.gridTemplateColumns = "repeat(auto-fill, minmax(var(--og-hn-multiline-column-width), 1fr))"));
     }
 
-    /** 首次插入：统计 + 计算 + 写入父容器 data-og-column-width + 注入 --og-column-width（均入 DOM 前完成） */
+    /** 首次插入：统计 + 计算 + 写入父容器 data-og-hn-multiline-column-width + 注入 --og-hn-multiline-column-width（均入 DOM 前完成） */
     private writeColumnWidthToFinal(finalElement: HTMLElement, g_setting: any): number {
         const w = this.resolveColumnWidthPx(finalElement, g_setting);
-        finalElement.dataset.ogColumnWidth = String(Math.round(w));   // → data-og-column-width（部分刷新复用）
+        finalElement.dataset.ogHnMultilineColumnWidth = String(Math.round(w));   // → data-og-hn-multiline-column-width（部分刷新复用）
         this.applyColumnWidthVar(finalElement, w);
         return w;
     }
 
-    /** 部分刷新：复用父容器 data-og-column-width，重新注入 --og-column-width（next-doc 自动跟随） */
+    /** 部分刷新：复用父容器 data-og-hn-multiline-column-width，重新注入 --og-hn-multiline-column-width */
     private syncColumnWidthOnPartialRefresh(existContentMainPart: HTMLElement, g_setting: any): void {
-        const cached = existContentMainPart.dataset.ogColumnWidth;
+        const cached = existContentMainPart.dataset.ogHnMultilineColumnWidth;
         if (cached) {
             this.applyColumnWidthVar(existContentMainPart, parseFloat(cached));
             return;
