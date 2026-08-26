@@ -1,6 +1,6 @@
-import { debugPush, logPush, warnPush } from "@/logger";
+import { logPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
-import { queryAPI, listDocsByPathT, DOC_SORT_TYPES, getDocInfo, getNodebookList, getNotebookInfo} from "@/syapi"
+import { DOC_SORT_TYPES, getDocInfo, getNodebookList, getNotebookInfo, listDocsByPathT, queryAPI } from "@/syapi";
 import { parseDateString } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { getListDocsByPathAPIFilePath, isNotebookDoc, isNotebookDocEnabled } from "@/utils/compatUtils";

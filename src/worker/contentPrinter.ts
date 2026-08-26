@@ -1,18 +1,18 @@
 import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
-import { lang } from "@/utils/lang";
-import { DOC_SORT_TYPES, exportMdContent, getBackLink2T, getBlockBreadcrumb, getDocInfo, getDocPreview, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, listDocsByPathT, queryAPI } from "@/syapi"
-import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
+import { debugPush, errorPush, logPush, warnPush } from "@/logger";
 import { getGSettings, getReadOnlyGSettings } from "@/manager/settingManager";
+import { DOC_SORT_TYPES, exportMdContent, getBackLink2T, getBlockBreadcrumb, getDocInfo, getDocPreview, getNotebookInfoLocallyF, getNotebookSortModeF, isMobile, listDocsByPathT, queryAPI } from "@/syapi";
+import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEmpty, isDocHasAv } from "@/syapi/custom";
+import { formatDateStringLikeFileTree, parseDateString } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
-import { debugPush, errorPush, isDebugMode, logPush, warnPush } from "@/logger";
+import { getListDocsByPathAPIFilePath, isNotebookDoc, isNotebookDocEnabled } from "@/utils/compatUtils";
+import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
+import { lang } from "@/utils/lang";
+import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig, trimListDocsByPathAPIReturnedDocName } from "@/utils/onlyThisUtil";
 import { IProtyle, Menu } from "siyuan";
 import { fillOneDocRelationOfBasicInfo, getUserDemandSiblingDocuments } from "./commonProvider";
-import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig, trimListDocsByPathAPIReturnedDocName } from "@/utils/onlyThisUtil";
-import { setCouldHideStyle } from "./setStyle";
-import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
-import { formatDateStringLikeFileTree, parseDateString } from "@/utils/common";
 import { clearMenuInstance, saveMenuInstance } from "./menuHelper";
-import { getListDocsByPathAPIFilePath, isNotebookDoc, isNotebookDocEnabled } from "@/utils/compatUtils";
+import { setCouldHideStyle } from "./setStyle";
 
 export default class ContentPrinter {
     private basicInfo: IBasicInfo;

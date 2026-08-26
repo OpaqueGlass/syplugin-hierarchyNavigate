@@ -2,16 +2,19 @@ import { CONSTANTS, PRINTER_NAME } from "@/constants";
 import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
-import {
-    measureDocNameLengthByChars, measureDocNameLengthByScriptWeight, measureDocNameLengthByCanvas,
-    measureMultilineDocNameLengths, computeRawColumnWidth, clampColumnWidth,
-} from "./gridColumnWidth";
-import { getContentAreaFontSizePx } from "./setStyle";
-import { isPluginExist, openRefLinkByAPI } from "@/utils/common";
+import { isPluginExist } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
-import { removeToTheTop, turnNavigationToTop } from "./shortcutHandler";
+import {
+    clampColumnWidth,
+    computeRawColumnWidth,
+    measureDocNameLengthByCanvas,
+    measureDocNameLengthByChars, measureDocNameLengthByScriptWeight,
+    measureMultilineDocNameLengths,
+} from "./gridColumnWidth";
 import { checkTopExistCache } from "./menuHelper";
+import { getContentAreaFontSizePx } from "./setStyle";
+import { removeToTheTop, turnNavigationToTop } from "./shortcutHandler";
 
 // ContentApplyer是每次初始化的，remove的每次都不一样
 const clickEventHandler = (event)=>{
@@ -86,7 +89,7 @@ export default class ContentApplyer {
             for (const elem of printerAllResults.elements) {
                 finalElement.appendChild(elem);
             }
-            if (g_setting.alignToGrid) this.writeColumnWidthToFinal(finalElement, g_setting);
+            if (g_setting.alignToGrid) ContentApplyer.writeColumnWidthToFinal(finalElement, g_setting);
             // 判断当前类型，交给不同的apply
             if (this.protyleEnvInfo.flashCard) {
                 this.flashcardApply(finalElement);
@@ -186,7 +189,7 @@ export default class ContentApplyer {
                     }
                 }
             }
-            if (g_setting.alignToGrid) this.syncColumnWidthOnPartialRefresh(existContentMainPart, g_setting);
+            if (g_setting.alignToGrid) ContentApplyer.syncColumnWidthOnPartialRefresh(existContentMainPart as HTMLElement, g_setting);
             existContentMainPart.setAttribute("data-exist-content-part", JSON.stringify(printerAllResults.relateContentKeys));
         }
         if (checkTopExistCache() && g_setting.keepTempTop) {
@@ -252,7 +255,7 @@ export default class ContentApplyer {
             const holdEle = document.createElement("div");
             holdEle.style.height = "150px";
             finalElement.appendChild(holdEle);
-            if (g_setting.alignToGrid) this.writeColumnWidthToFinal(finalElement, g_setting);
+            if (g_setting.alignToGrid) ContentApplyer.writeColumnWidthToFinal(finalElement, g_setting);
             // 判断当前类型，交给不同的apply
             if (this.protyleEnvInfo.flashCard) {
                 this.flashcardApply(finalElement);
@@ -346,7 +349,7 @@ export default class ContentApplyer {
                     }
                 }
             }
-            if (g_setting.alignToGrid) this.syncColumnWidthOnPartialRefresh(existContentMainPart, g_setting);
+            if (g_setting.alignToGrid) ContentApplyer.syncColumnWidthOnPartialRefresh(existContentMainPart as HTMLElement, g_setting);
             existContentMainPart.setAttribute("data-exist-content-part", JSON.stringify(printerAllResults.relateContentKeys));
             // this.adjustWysiwygPaddingBottom();
         }
@@ -593,37 +596,40 @@ export default class ContentApplyer {
      * - next-doc 元素（带 `og-hn-container-next-doc`，不使用 multiline 类）不在此处处理：
      *   其两列布局由 setStyle 中针对该类的 CSS 规则独立驱动，不跟随本列宽变量。
      */
-    private applyColumnWidthVar(finalElement: HTMLElement, colWPx: number): void {
+    static applyColumnWidthVar(finalElement: HTMLElement, colWPx: number): void {
         finalElement.style.setProperty("--og-hn-multiline-column-width", `${Math.round(colWPx)}px`);
         (finalElement.querySelectorAll(".og-hn-container-multiline") as NodeListOf<HTMLElement>)
             .forEach(m => (m.style.gridTemplateColumns = "repeat(auto-fill, minmax(var(--og-hn-multiline-column-width), 1fr))"));
     }
 
-    /** 首次插入：统计 + 计算 + 写入父容器 data-og-hn-multiline-column-width + 注入 --og-hn-multiline-column-width（均入 DOM 前完成） */
-    private writeColumnWidthToFinal(finalElement: HTMLElement, g_setting: any): number {
-        const w = this.resolveColumnWidthPx(finalElement, g_setting);
-        finalElement.dataset.ogHnMultilineColumnWidth = String(Math.round(w));   // → data-og-hn-multiline-column-width（部分刷新复用）
-        this.applyColumnWidthVar(finalElement, w);
+    /** 列宽统计重算
+     * 应用于首次插入或设置项变更
+     **/
+    static writeColumnWidthToFinal(finalElement: HTMLElement, g_setting: any): number {
+        const w = ContentApplyer.resolveColumnWidthPx(finalElement, g_setting);
+        finalElement.dataset.ogHnMultilineColumnWidth = String(Math.round(w));
+        ContentApplyer.applyColumnWidthVar(finalElement, w);
         return w;
     }
 
-    /** 部分刷新：复用父容器 data-og-hn-multiline-column-width，重新注入 --og-hn-multiline-column-width */
-    private syncColumnWidthOnPartialRefresh(existContentMainPart: HTMLElement, g_setting: any): void {
+    /** 部分刷新：复用计算的缓存值 */
+    static syncColumnWidthOnPartialRefresh(existContentMainPart: HTMLElement, g_setting: any): void {
         const cached = existContentMainPart.dataset.ogHnMultilineColumnWidth;
         if (cached) {
-            this.applyColumnWidthVar(existContentMainPart, parseFloat(cached));
+            ContentApplyer.applyColumnWidthVar(existContentMainPart, parseFloat(cached));
             return;
         }
-        this.writeColumnWidthToFinal(existContentMainPart, g_setting); // 兼容旧版/异常缺失
+        // 如果没有缓存，则重新计算并写入
+        ContentApplyer.writeColumnWidthToFinal(existContentMainPart, g_setting);
     }
 
-    /** 列宽计算（含特例、测量方式选择、算法选择、夹紧），返回 px */
-    private resolveColumnWidthPx(finalElement: HTMLElement, g_setting: any): number {
+    /** 列宽计算 */
+    static resolveColumnWidthPx(finalElement: HTMLElement, g_setting: any): number {
         const fontSizePx = getContentAreaFontSizePx(g_setting);
+        // 如果用户设置了相同宽度且最大宽度与相同宽度一致，则直接返回该宽度
         if (g_setting.sameWidth === g_setting.sameMaxWidth && g_setting.sameWidth !== 0) {
-            return g_setting.sameWidth * fontSizePx;                     // 特例：强制固定
+            return g_setting.sameWidth * fontSizePx;
         }
-        // 测量方式/算法/百分位的选择均为 applyer 内部常量，不暴露为设置项（用户已确认）。
         // 三套测量与三种算法本身保留在 gridColumnWidth.ts 供单测，调整时直接改这里即可。
         const DEFAULT_MEASURE_METHOD: "canvas" | "chars" | "scriptWeight" = "scriptWeight";
         const DEFAULT_COLUMN_WIDTH_ALGO: "percentile" | "user" | "trimmedMean" = "percentile";
@@ -631,7 +637,7 @@ export default class ContentApplyer {
         const measurer =
             DEFAULT_MEASURE_METHOD === "chars"        ? measureDocNameLengthByChars :
             DEFAULT_MEASURE_METHOD === "scriptWeight" ? measureDocNameLengthByScriptWeight :
-                                                        measureDocNameLengthByCanvas;     // 默认 canvas
+                                                        measureDocNameLengthByCanvas;
         const lengths: number[] = [];
         (finalElement.querySelectorAll(".og-hn-container-multiline") as NodeListOf<HTMLElement>)
             .forEach(m => lengths.push(...measureMultilineDocNameLengths(m, measurer, fontSizePx)));
@@ -644,4 +650,26 @@ export default class ContentApplyer {
         const maxPx = g_setting.sameMaxWidth > 0 ? g_setting.sameMaxWidth * fontSizePx : Infinity;
         return clampColumnWidth(raw, minPx, maxPx);
     }
+}
+
+/**
+ * 设置变更后重算多行 doc link 列宽（网格对齐模式）。
+ * 遍历当前页面所有已渲染的 .og-hn-heading-docs-container，依据最新设置重新测量文档名、
+ * 重新计算列宽并写回内联样式；网格对齐开启时生效，关闭时清理残留内联样式（交由 setStyle 的 flex 规则 + 文档链接最小/最大宽度约束）
+ */
+export function recalcMultilineColumnWidthOnSettingsChange(): void {
+    const g_setting = getReadOnlyGSettings();
+    const containers = document.querySelectorAll<HTMLElement>(".og-hn-heading-docs-container");
+    if (!g_setting.alignToGrid) {
+        // 网格对齐关闭：移除可能在开启状态下残留的内联 grid 相关样式，避免覆盖 setStyle 的 flex 规则
+        containers.forEach((c) => {
+            c.style.removeProperty("--og-hn-multiline-column-width");
+            c.querySelectorAll<HTMLElement>(".og-hn-container-multiline")
+                .forEach((m) => (m.style.gridTemplateColumns = ""));
+        });
+        return;
+    }
+    containers.forEach((c) => {
+        ContentApplyer.writeColumnWidthToFinal(c, g_setting);
+    });
 }

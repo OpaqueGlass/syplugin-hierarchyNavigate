@@ -1,17 +1,17 @@
-import { TabProperty, ConfigProperty, loadAllConfigPropertyFromTabProperty } from "../utils/settings";
-import { createApp, nextTick, ref, watch } from "vue";
-import settingVue from "../components/settings/setting.vue";
-import { getPluginInstance } from "@/utils/getInstance";
-import { debugPush, logPush, warnPush } from "@/logger";
-import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
-import { setStyle } from "@/worker/setStyle";
-import { DOC_SORT_TYPES, getJSONFile, isMobile, queryAPI } from "@/syapi";
-import { isValidStr } from "@/utils/commonCheck";
-import { fixListChildDocsSrc, isWrongListChildDocsSrcExist } from "@/worker/fixListChildDocsSrc";
-import * as siyuan from "siyuan";
 import outdatedSettingVue from "@/components/dialog/outdatedSetting.vue";
+import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
+import { debugPush, logPush } from "@/logger";
+import { DOC_SORT_TYPES, isMobile } from "@/syapi";
 import { generateUUID, showPluginMessage } from "@/utils/common";
+import { isValidStr } from "@/utils/commonCheck";
+import { getPluginInstance } from "@/utils/getInstance";
 import { lang } from "@/utils/lang";
+import { recalcMultilineColumnWidthOnSettingsChange } from "@/worker/contentApplyer";
+import { fixListChildDocsSrc, isWrongListChildDocsSrcExist } from "@/worker/fixListChildDocsSrc";
+import { setStyle } from "@/worker/setStyle";
+import * as siyuan from "siyuan";
+import { createApp, nextTick, ref, watch } from "vue";
+import { ConfigProperty, loadAllConfigPropertyFromTabProperty, TabProperty } from "../utils/settings";
 
 // const pluginInstance = getPluginInstance();
 
@@ -95,7 +95,7 @@ const defaultSetting: any = {
     maxHeightLimit: 10,
     hideIndicator: false,
     sameWidth: 0,
-    sameMaxWidth: 0,
+    sameMaxWidth: 20,
     // adjustDocIcon: false, // v1.4.0+弃用
     // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
     immediatelyUpdate: true, // 文档移动、删除、重命名等变更后立即执行
@@ -341,6 +341,7 @@ export async function loadSettings() {
                 saveSettings(checkedData);
                 // logPush("保存设置项", newVal);
                 setStyle();
+                recalcMultilineColumnWidthOnSettingsChange();
                 changeDebug(checkedData);
             } catch(err) {
                 logPush("设置项检查时发生错误", err);
@@ -461,6 +462,12 @@ function checkSettingType(input: any) {
             input[key] = targetValue;
         }
     }
+
+    if (input["sameWidth"] > input["sameMaxWidth"]) {
+        input["sameWidth"] = input["sameMaxWidth"];
+        showPluginMessage(lang("setting_same_width_max_warn"), 4000);
+    }
+
     return input;
 }
 

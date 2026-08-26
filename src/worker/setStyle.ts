@@ -137,7 +137,7 @@ export function setStyle() {
         display: inline-flex;
         align-items: center;
         box-sizing: border-box;
-        padding: 4px 6px;
+        padding: 4px 6px; /* 左右宽度关联 LINK_H_PADDING_PX 需同步修改 */
         border-radius: calc(1em + 2px);
         transition: var(--b3-transition);
         text-overflow: ellipsis;

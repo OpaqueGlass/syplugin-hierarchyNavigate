@@ -405,5 +405,7 @@
     "fix_lcd_src_done": "Fixed %FIXED% listChildDocs widget src (skipped %SKIP%, failed %FAIL%).",
     "fix_lcd_src_warn": "Potential issues found with listChildDocs widget src. Please go to HierarchyNavigate plugin - Settings - Test Area - Fix listChildDocs widget src.",
     "fix_lcd_src_start": "Starting to fix listChildDocs widget src, please wait.",
-    "fix_lcd_src_running": "A process is already running, please do not click again."
+    "fix_lcd_src_running": "A process is already running, please do not click again.",
+
+    "setting_same_width_max_warn": "⚠️Note: The current setting's maximum width is less than the minimum width, which may cause display anomalies in the content area. The setting item has been reset."
 }

@@ -400,5 +400,7 @@
     "fix_lcd_src_done": "已修正 %FIXED% 个块的 listChildDocs 挂件 src（跳过 %SKIP% 个，失败 %FAIL% 个）。",
     "fix_lcd_src_warn": "检查到 listChildDocs 挂件 src 可能存在不能正常显示的问题，请前往 层级导航插件 - 设置 - 试验田 - 修正 listChildDocs 挂件 src。",
     "fix_lcd_src_start": "正在修正 listChildDocs 挂件 src，请耐心等待。",
-    "fix_lcd_src_running": "已有进程正在运行，请勿重复点击。"
+    "fix_lcd_src_running": "已有进程正在运行，请勿重复点击。",
+
+    "setting_same_width_max_warn": "⚠️注意：当前设置的最大宽度小于最小宽度，可能导致内容区显示异常，设置项被重设。"
 }
