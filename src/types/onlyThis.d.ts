@@ -59,6 +59,7 @@ interface IDocLinkGenerateInfo {
     count?: number;
     subFileCount?: number; // 请注意，不指出此项将是认为有子文档，但数量未知
     content?: string;
+    isNotebook?: boolean; // 笔记本节点，优先于 subFileCount 决定默认图标
 }
 
 interface IAllPrinterResult {

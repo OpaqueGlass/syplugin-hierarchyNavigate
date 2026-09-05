@@ -6,6 +6,7 @@ import { getChildDocuments, getChildDocumentsWordCount, isChildDocExist, isDocEm
 import { formatDateStringLikeFileTree, parseDateString } from "@/utils/common";
 import { isValidStr } from "@/utils/commonCheck";
 import { getListDocsByPathAPIFilePath, isNotebookDoc, isNotebookDocEnabled } from "@/utils/compatUtils";
+import { BreadcrumbNodeType, getDocIconHtmlStr, resolveNodeType } from "@/utils/docIcon";
 import { linkSortTypeToBackLinkApiSortNum, pinAndRemoveByDocNameForBackLinks, sortIFileWithNatural } from "@/utils/docSortUtils";
 import { lang } from "@/utils/lang";
 import { getNeighborDailyNoteDoc, htmlTransferParser, isSortAsc, isSortByNameOrCreateTime, openRefLinkByAPIWithConfig, trimListDocsByPathAPIReturnedDocName } from "@/utils/onlyThisUtil";
@@ -201,8 +202,10 @@ class BasicContentPrinter {
         }
         result.appendChild(contentElem);
         result.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+        debugPush("getWrappedBindedElement", contentElem.classList);
         if (contentElem.classList.contains(CONSTANTS.NONE_CLASS_NAME)) {
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
+            debugPush("getWrappedBindedElement", "添加none样式", result);
         }
         return result;
     }
@@ -285,7 +288,7 @@ class BasicContentPrinter {
     // 请注意，传入的doc.name应当包含.sy后缀（即IFile类型原始值），本函数会进行处理！
     static docLinkGenerator(doc:IDocLinkGenerateInfo, unclickable:boolean = false) {
         let g_setting = getReadOnlyGSettings();
-        let emojiStr = this.getEmojiHtmlStr(doc.icon, doc?.subFileCount != 0, g_setting);
+        let emojiStr = this.getEmojiHtmlStr(doc.icon, resolveNodeType(doc.isNotebook === true, doc.subFileCount), g_setting);
         // 这里需要区分doc.content 和 doc.name，或者，传入前就将doc.name加入.sy后缀
         let docName = "";
         if (isValidStr(doc.name)) {
@@ -389,48 +392,20 @@ class BasicContentPrinter {
         }
     }
 
-    static getEmojiHtmlStr(iconString:string, hasChild:boolean, g_setting:any) {
+    static getEmojiHtmlStr(iconString:string, nodeType:BreadcrumbNodeType, g_setting:any) {
         if (g_setting.icon == CONSTANTS.ICON_NONE) return g_setting.linkDivider;
         // 处理sqlResult等无图标的情况
         if (iconString == null) return g_setting.linkDivider;
-        // 无emoji的处理
-        if ((!isValidStr(iconString)) && g_setting.icon == CONSTANTS.ICON_ALL) {
-            if (window.siyuan.storage["local-images"]) {
-                if (hasChild) {
-                    return BasicContentPrinter.getEmojiHtmlStr(window.siyuan.storage["local-images"].folder, hasChild, g_setting);
-                } else {
-                    return BasicContentPrinter.getEmojiHtmlStr(window.siyuan.storage["local-images"].file, hasChild, g_setting);
-                }
-            }
-            return hasChild ? "📑" : "📄";//无icon默认值
-        }
-        if (!isValidStr(iconString)) return g_setting.linkDivider;
-        let result = iconString;
-        // emoji地址判断逻辑为出现.，但请注意之后的补全
-        if (iconString.startsWith("api/icon/getDynamicIcon")) {
-            result = `<img class="iconpic" style="width: 1em" src="/${iconString}"/>`;
-        } else if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
-            result = `<img class="iconpic" style="width: 1em" src="/emojis/${iconString}"/>`;
-        } else if (iconString.match(new RegExp("http(s)?:\\/\\/"))) {
-            result = `<img class="iconpic" style="width: 1em" src="${iconString}"/>`;
-        } else {
-            result = `<span class="emojitext">${emojiIconHandler(iconString, hasChild)}</span>`;
-        }
-        return result;
-        function emojiIconHandler(iconString:string, hasChild = false) {
-            //确定是emojiIcon 再调用，printer自己加判断
-            try {
-                let result = "";
-                iconString.split("-").forEach(element => {
-                    debugPush("element", element);
-                    result += String.fromCodePoint(Number("0x" + element));
-                });
-                return result;
-            } catch (err) {
-                errorPush("emoji处理时发生错误", iconString, err);
-                return hasChild ? "📑" : "📄";
-            }
-        }
+        const result = getDocIconHtmlStr({
+            iconString: iconString ?? "",
+            nodeType,
+            textClassName: "og-hn-link-emojitext",
+            picClassName: "og-hn-link-iconpic",
+            picStyle: "width: 1em",
+            iconMode: g_setting.icon,
+            wrapBlank: false,
+        });
+        return isValidStr(result) ? result : g_setting.linkDivider;
     }
     /**
      * 排序方式转sql orderby
@@ -770,7 +745,8 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
             "path": "/",
             "type": "NOTEBOOK",
             "subFileCount": 999,
-            "bNotebookDoc": true
+            "bNotebookDoc": true,
+            "isNotebook": true
         }
         resultArray.push(temp);
         let tempPath = "";
@@ -847,7 +823,7 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
                 : currSibling.name;
             let tempMenuItemObj = {
                 accelerator: nextId == currSibling.id ? "<-" : undefined,
-                iconHTML: BreadcrumbContentPrinter.getEmojiHtmlStrE2(currSibling.icon, currSibling.subFileCount != 0),
+                iconHTML: BreadcrumbContentPrinter.getEmojiHtmlStrE2(currSibling.icon, resolveNodeType(false, currSibling.subFileCount)),
                 label: `<span class="${CONSTANTS.MENU_ITEM_CLASS_NAME}" 
                     og-data-doc-id="${currSibling.id}"
                     ${nextId == currSibling.id ? `style="font-weight: bold;"` : ""}
@@ -881,46 +857,20 @@ class BreadcrumbContentPrinter extends BasicContentPrinter {
         }, 3);
         saveMenuInstance(tempMenu, id);
     }
-    static getEmojiHtmlStrE2(iconString, hasChild) {
+    /**
+     * 面包屑下拉菜单的图标，Menu.iconHTML 需要字符串
+     */
+    static getEmojiHtmlStrE2(iconString, nodeType:BreadcrumbNodeType) {
         const g_setting = getReadOnlyGSettings();
         if (g_setting.icon == CONSTANTS.ICON_NONE) return ``;
-        // 无emoji的处理
-        if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_ALL) {
-            if (window.siyuan.storage["local-images"]) {
-                if (hasChild) {
-                    return BreadcrumbContentPrinter.getEmojiHtmlStrE2(window.siyuan.storage["local-images"].folder, hasChild);
-                } else {
-                    return BreadcrumbContentPrinter.getEmojiHtmlStrE2(window.siyuan.storage["local-images"].file, hasChild);
-                }
-            }
-            return hasChild ? `<span class="og-hn-menu-emojitext">📑</span>` : `<span class="og-hn-menu-emojitext">📄</span>`;//无icon默认值
-        }
-        if ((iconString == undefined || iconString == null ||iconString == "") && g_setting.icon == CONSTANTS.ICON_CUSTOM_ONLY) return `<span class="og-hn-menu-emojitext"></span>`;
-        let result = iconString;
-        // emoji地址判断逻辑为出现.，但请注意之后的补全
-        if (iconString.startsWith("api/icon/getDynamicIcon")) {
-            result = `<img class="og-hn-menu-emojipic" src="/${iconString}"/>`;
-        } else if (iconString.indexOf(".") != -1 && !iconString.match(new RegExp("http(s)?:\\/\\/")) ) {
-            result = `<img class="og-hn-menu-emojipic" src="/emojis/${iconString}"/>`;
-        } else if (iconString.match(new RegExp("http(s)?:\\/\\/"))) {
-            result = `<img class="og-hn-menu-emojipic" src="${iconString}"/>`;
-        } else {
-            result = `<span class="og-hn-menu-emojitext">${BreadcrumbContentPrinter.emojiIconHandler(iconString, hasChild)}</span>`;
-        }
-        return result;
-    }
-    static emojiIconHandler(iconString, hasChild = false) {
-        //确定是emojiIcon 再调用，printer自己加判断
-        try {
-            let result = "";
-            iconString.split("-").forEach(element => {
-                result += String.fromCodePoint(Number("0x" + element));
-            });
-            return result;
-        } catch (err) {
-            errorPush("emoji处理时发生错误", iconString, err);
-            return hasChild ? "📑" : "📄";
-        }
+        return getDocIconHtmlStr({
+            iconString: iconString ?? "",
+            nodeType,
+            textClassName: "og-hn-menu-emojitext",
+            picClassName: "og-hn-menu-emojipic",
+            iconMode: g_setting.icon,
+            wrapBlank: true,
+        });
     }
 }
 
@@ -1934,7 +1884,7 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
             const title = document.createElement('h4');
             title.className = 'og-hn-pb-title refLinks';
             title.setAttribute("data-id", childDoc.id);
-            title.insertAdjacentHTML("afterbegin", this.getEmojiHtmlStr(childDoc.icon, childDoc.subFileCount > 0, g_setting) + docName);
+            title.insertAdjacentHTML("afterbegin", this.getEmojiHtmlStr(childDoc.icon, resolveNodeType(false, childDoc.subFileCount ?? 0), g_setting) + docName);
             // title.textContent = docName;
             docBox.appendChild(title);
             
@@ -2015,7 +1965,7 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
             // docLink.setAttribute('data-subtype', 'd');
             // docLink.setAttribute('data-id', childDoc.id);
             
-            docLink.innerHTML = this.getEmojiHtmlStr(childDoc.icon, childDoc.subFileCount > 0, g_setting);
+            docLink.innerHTML = this.getEmojiHtmlStr(childDoc.icon, resolveNodeType(false, childDoc.subFileCount ?? 0), g_setting);
             
             docLink.appendChild(document.createTextNode(docName));
             docItem.appendChild(docLink);

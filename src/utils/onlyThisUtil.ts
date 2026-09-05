@@ -4,6 +4,7 @@ import { IProtyle } from "siyuan";
 import * as siyuanAPIs from "siyuan";
 import { isCurrentVersionLessThan, isValidStr } from "./commonCheck";
 import { openRefLinkByAPI } from "./common";
+import { getDefaultEmojiText, unicodeToEmoji } from "./docIcon";
 
 export function getProtyleInfo(protyle: IProtyle):IProtyleEnvInfo {
     let result:IProtyleEnvInfo = {
@@ -69,60 +70,11 @@ export function decodeHTML(str: string): string {
 }
 
 
-export function getListItemEmojiHtmlStr(iconString:string, hasChild:boolean) {
-    // 无emoji的处理
-    if (!isValidStr(iconString)) {
-        return hasChild ? `<span class="b3-list-item__graphic">📑</span>` : `<span class="b3-list-item__graphic">📄</span>`;
-    }
-    let result = iconString;
-    // emoji地址判断逻辑为出现.，但请注意之后的补全
-    if (iconString.startsWith("api/icon/getDynamicIcon")) {
-        result = `<img class="b3-list-item__graphic" src="/${iconString}" />`;
-    } else if (iconString.indexOf(".") != -1) {
-        result = `<img class="b3-list-item__graphic" src="/emojis/${iconString}" />`;
-    } else {
-        result = `<span class="b3-list-item__graphic">${emojiIconHandler(iconString, hasChild)}</span>`;
-    }
-    return result;
-    function emojiIconHandler(iconString:string, hasChild = false) {
-        //确定是emojiIcon 再调用，printer自己加判断
-        try {
-            let result = "";
-            iconString.split("-").forEach(element => {
-                //TODO: 确定是否正常
-                debugPush("element", element);
-                result += String.fromCodePoint(Number("0x" + element));
-            });
-            return result;
-        } catch (err) {
-            errorPush("emoji处理时发生错误", iconString, err);
-            return hasChild ? "📑" : "📄";
-        }
-    }
-}
-
 export function emojiIconHandler(iconString:string, hasChild = false) {
     if (!isValidStr(iconString)) {
-        if (window.siyuan.storage["local-images"]) {
-            if (hasChild) {
-                return emojiIconHandler(window.siyuan.storage["local-images"].folder, hasChild);
-            } else {
-                return emojiIconHandler(window.siyuan.storage["local-images"].file, hasChild);
-            }
-        }
-        return hasChild ? "📑" : "📄";
+        return getDefaultEmojiText(hasChild);
     }
-    //确定是emojiIcon 再调用，printer自己加判断
-    try {
-        let result = "";
-        iconString.split("-").forEach(element => {
-            result += String.fromCodePoint(Number("0x" + element));
-        });
-        return result;
-    } catch (err) {
-        errorPush("emoji处理时发生错误", iconString, err);
-        return hasChild ? "📑" : "📄";
-    }
+    return unicodeToEmoji(iconString) ?? getDefaultEmojiText(hasChild);
 }
 
 /**
