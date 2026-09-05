@@ -44,6 +44,9 @@ export function setStyle() {
     .${CONSTANTS.NONE_CLASS_NAME} {
         display: none;
     }
+    .og-hierachy-navigate-doc-container:has(.og-hierachy-navigate-doc-not-exist) {
+        display: none;
+    }
     ` : "";
     let endDocAreaPaddingTop = g_setting.endDocAreaPaddingTop ? `/*文档结尾区域*/
     .og-hn-heading-docs-container.og-hn-at-doc-end{
@@ -411,6 +414,12 @@ export function setStyle() {
     overflow: hidden;
 }
 
+/* 因svg默认图标而插入的调整*/
+.og-hn-link-emojitext {
+    vertical-align: middle;
+}
+
+
     `;
 
     const fontSize = getContentAreaFontSizePx(g_setting);
@@ -449,6 +458,15 @@ export function setStyle() {
     img.og-hn-menu-emojipic {
         width: 16px;
         height: 16px;
+    }
+
+    /* 默认 SVG 图标，跟随思源 fileTree.useSVGDefaultIcon 时出现 */
+    svg.og-hn-default-svgicon {
+        width: 1em;
+        height: 1em;
+        align-self: center;
+        flex-shrink: 0;
+        fill: currentColor;
     }
     /* 语义调整 refLink的可点击，其他仅样式 https://github.com/OpaqueGlass/syplugin-hierarchyNavigate/issues/61 */
     .og-hn-heading-docs-container span.docLinksWrapper.refLinks:hover {
