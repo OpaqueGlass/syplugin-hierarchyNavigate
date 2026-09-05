@@ -493,8 +493,7 @@ export function setStyle() {
     ${noIndicatorStyle}
 
     ${alignToGridStyle}
-    /* 无内容显示样式 需要优先于 alignToGrid 的display生效 */
-    ${noneDisplayStyle}
+
 
     .og-hn-container-multiline, .og-hn-container-next-doc {
         gap: 6px 6px;
@@ -630,6 +629,8 @@ export function setStyle() {
     .og-hn-heading-docs-container .${CONSTANTS.IS_FOLDING_CLASS_NAME} {
         display: none !important;
     }
+    /* 无内容显示样式 需要优先于 alignToGrid，og-hn-doc-grid-container 的display生效 */
+    ${noneDisplayStyle}
     `;
     head.appendChild(style);
 }

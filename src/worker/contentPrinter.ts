@@ -181,6 +181,7 @@ class BasicContentPrinter {
     /**
      * 子类可以覆盖实现，以直接使用自行创建的元素；
      * 这是统一调用的入口
+     * 子类覆盖实现时，需要自行判断是否为空，并在外层容器加入 [CONSTANTS.NONE_CLASS_NAME] 样式
      * @param basicInfo 
      * @param protyleEnvInfo 
      * @returns 
@@ -202,8 +203,11 @@ class BasicContentPrinter {
         }
         result.appendChild(contentElem);
         result.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
-        debugPush("getWrappedBindedElement", contentElem.classList);
-        if (contentElem.classList.contains(CONSTANTS.NONE_CLASS_NAME)) {
+        const hasNone = (el: Element) => {
+            return el.classList.contains(CONSTANTS.NONE_CLASS_NAME) || el.querySelector(`.${CONSTANTS.NONE_CLASS_NAME}`) != null;
+        };
+        debugPush("getWrappedBindedElement", contentElem.classList.contains(CONSTANTS.NONE_CLASS_NAME), contentElem.querySelector(`.${CONSTANTS.NONE_CLASS_NAME}`));
+        if (hasNone(contentElem)) {
             result.classList.add(CONSTANTS.NONE_CLASS_NAME);
             debugPush("getWrappedBindedElement", "添加none样式", result);
         }
@@ -1273,7 +1277,7 @@ class WidgetContentPrinter extends BasicContentPrinter {
             contentElem.classList.add(CONSTANTS.NONE_CLASS_NAME);
             this.isDoNotUpdate = false;
             result.appendChild(contentElem);
-            result.classList.add(CONSTANTS.CONTAINER_CLASS_NAME);
+            result.classList.add(CONSTANTS.CONTAINER_CLASS_NAME, CONSTANTS.NONE_CLASS_NAME);
             return result;
         }
         return await this.getBindedElement(basicInfo, protyleEnvInfo);
