@@ -1916,7 +1916,12 @@ class PreviewBoxContentPrinter extends BasicContentPrinter {
             
             container.appendChild(docBox);
         }
-        
+
+        if (directChildDocs.length === 0) {
+            const noneElem = this.getNoneElement();
+            container.appendChild(noneElem);
+            container.classList.add(CONSTANTS.NONE_CLASS_NAME);
+        }
         return container;
     }
 

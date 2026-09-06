@@ -51,7 +51,11 @@ export function setStyle() {
     let endDocAreaPaddingTop = g_setting.endDocAreaPaddingTop ? `/*文档结尾区域*/
     .og-hn-heading-docs-container.og-hn-at-doc-end{
         border-top: 2px dotted var(--b3-table-border-color, var(--b3-theme-surface-lighter, #e0e0e0));
-    }` : "";
+    }
+    .og-hn-heading-docs-container.og-hn-at-doc-end {
+        padding-top: 10px;
+    }
+    ` : "";
     // 第二行后对齐链接文本，（向内缩进： #21）
     let alignStyle = `
     .og-hn-container-multiline, .og-hn-container-next-doc {
@@ -193,7 +197,6 @@ export function setStyle() {
 .og-hn-np-inner-flex {
     display: flex;
     justify-content: space-between;
-    margin: 10px 0;
     gap: 20px;
     height: 100%;
 }
