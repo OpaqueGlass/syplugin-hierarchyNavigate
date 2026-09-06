@@ -434,10 +434,10 @@ export default class ContentApplyer {
         let that = this;
         let observer:any = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
-            debugPush("observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
+            debugPush("ContentApplyer", "weSetObserver: MutationObserver响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 let targetNode = protyleElement.querySelector('.protyle-title') as HTMLElement;
-                debugPush("observer", targetNode, targetNode.style, finalElement, finalElement?.style);
+                debugPush("ContentApplyer", "weSetObserver: MutationObserver", targetNode, targetNode.style, finalElement, finalElement?.style);
                 // 获取更改后的样式
                 const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container");
                 const computedStyle = window.getComputedStyle(targetNode);
@@ -459,7 +459,7 @@ export default class ContentApplyer {
         });
         // #67  #117
         if ((window.siyuan?.config?.editor?.fullWidth !== true && isPluginExist("siyuan-center-width")) || !isCurrentVersionLessThan("3.8.3")) {
-            logPush("检测到特殊插件，插件将使用兼容模式运行");
+            logPush("ContentApplyer", "weSetObserver: 检测到特殊插件，插件将使用兼容模式运行");
             finalElement.style.transition = "";
             let timeout = null;
             observer = new ResizeObserver(function(entries) {
@@ -468,7 +468,7 @@ export default class ContentApplyer {
                         clearTimeout(timeout);
                     }
                     // timeout = setTimeout(()=>{
-                        debugPush("[兼容模式]observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
+                        debugPush("ContentApplyer", "weSetObserver: [兼容模式]observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
                         let targetNode = protyleElement.querySelector('.protyle-title') as HTMLElement;
                         // 获取更改后的样式
                         const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top");
@@ -476,7 +476,7 @@ export default class ContentApplyer {
                         if (insertedElement && computedStyle) {
                             const marginRight = computedStyle.marginRight;
                             const marginLeft = computedStyle.marginLeft;
-                            debugPush(`[兼容模式]observer - 检测到margin变化: right=${marginRight}, left=${marginLeft}`);
+                            debugPush("ContentApplyer", "weSetObserver: [兼容模式]observer - 检测到margin变化: right=${marginRight}, left=${marginLeft}");
                             
                             const validatedMarginRight = that.validateAndFixMargin(marginRight);
                             const validatedMarginLeft = that.validateAndFixMargin(marginLeft);
@@ -515,18 +515,18 @@ export default class ContentApplyer {
         }
         // #73 ResizeObserver绑定.title的情况下，有时获得了旧margin数据
         // 新版思源应该可以直接不监听了，性能能提升点？
-        if (!isCurrentVersionLessThan("3.8.3")) {
-            const computedStyle = getComputedStyle(this.protyleElement.querySelector('.protyle-title'));
-            const value = computedStyle.getPropertyValue('--b3-protyle-padding-left').trim();
-            debugPush("检测到3.8.3以上版本，获取了--b3-protyle-padding-left", value);
-            if (isValidStr(value)) {
-                debugPush("检测到3.8.3以上版本，且获取了--b3-protyle-padding-left，停用ResizeObserver绑定.protyle-content");
-                finalElement.style.marginLeft = "var(--b3-protyle-padding-left)";
-                finalElement.style.marginRight = "var(--b3-protyle-padding-right)";
-            }
+        const computedStyle = getComputedStyle(finalElement);
+        const b3AttrValue = computedStyle.getPropertyValue('--b3-protyle-padding-left').trim();
+        debugPush("ContentApplyer", "weSetObserver: 检测到3.8.3以上版本，获取了--b3-protyle-padding-left", b3AttrValue);
+        if (!isCurrentVersionLessThan("3.8.3") && isValidStr(b3AttrValue)) {
+            debugPush("ContentApplyer", "weSetObserver: 检测到3.8.3以上版本，且获取了--b3-protyle-padding-left，停用ResizeObserver绑定.protyle-content");
+            finalElement.style.marginLeft = "var(--b3-protyle-padding-left)";
+            finalElement.style.marginRight = "var(--b3-protyle-padding-right)";
         } else if (observer instanceof ResizeObserver) {
+            debugPush("ContentApplyer", "weSetObserver: 使用ResizeObserver绑定.protyle-content");
             observer.observe(this.protyleElement);
         } else {
+            debugPush("ContentApplyer", "weSetObserver: 使用MutationObserver绑定.protyle-title");
             observer.observe(targetNode, config);
         }
     }
