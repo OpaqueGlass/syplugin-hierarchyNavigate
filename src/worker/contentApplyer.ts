@@ -3,7 +3,7 @@ import { debugPush, logPush, warnPush } from "@/logger";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { isMobile } from "@/syapi";
 import { isPluginExist } from "@/utils/common";
-import { isValidStr } from "@/utils/commonCheck";
+import { isCurrentVersionLessThan, isValidStr } from "@/utils/commonCheck";
 import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import {
     clampColumnWidth,
@@ -381,6 +381,14 @@ export default class ContentApplyer {
         }
         return -1;
     }
+    getTransition() {
+        const titleElem = window.document.querySelector(".protyle-title");
+        const computedStyle = window.getComputedStyle(titleElem);
+        if (isValidStr(computedStyle.transition)) {
+            return computedStyle.transition;
+        }
+        return "none";
+    }
     async betaApply(finalElement: HTMLElement) {
         this.protyleElement.querySelector(".og-hn-heading-docs-container.og-hn-at-doc-top")?.remove();
         const titleTarget = this.protyleElement.querySelector(`.protyle-title`); //  .protyle-title__input
@@ -391,7 +399,7 @@ export default class ContentApplyer {
             logPush("betaApply", marginLeft);
             finalElement.style.marginRight = marginRight;
             finalElement.style.marginLeft = marginLeft;
-            finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
+            finalElement.style.transition = this.getTransition();
             titleTarget.insertAdjacentElement("afterend", finalElement);
         } else if ((this.protyleEnvInfo.originProtyle?.options?.mode == "preview" || !this.protyleElement.querySelector(`.protyle-preview`).classList.contains("fn__none")) && g_setting.enableForPreview) { // 预览模式
             const previewTarget = this.protyleElement.querySelector(`.protyle-preview`) as HTMLElement;
@@ -432,15 +440,25 @@ export default class ContentApplyer {
                 debugPush("observer", targetNode, targetNode.style, finalElement, finalElement?.style);
                 // 获取更改后的样式
                 const insertedElement = protyleElement.querySelector(".og-hn-heading-docs-container");
+                const computedStyle = window.getComputedStyle(targetNode);
+                const getValidMarginValue = (styleInline: string, styleComputed: string): string => {
+                    if (styleInline && styleInline !== '') {
+                        return styleInline;
+                    } else if (styleComputed && styleComputed !== '') {
+                        return styleComputed;
+                    } else {
+                        return '0px';
+                    }
+                };
                 if (insertedElement) {
-                    finalElement.style.marginRight = targetNode.style.marginRight;
-                    finalElement.style.marginLeft = targetNode.style.marginLeft;
+                    finalElement.style.marginRight = getValidMarginValue(targetNode.style.marginRight, computedStyle.marginRight);
+                    finalElement.style.marginLeft = getValidMarginValue(targetNode.style.marginLeft, computedStyle.marginLeft);
                 }
             }
         });
         });
-        // #67
-        if (window.siyuan?.config?.editor?.fullWidth !== true && isPluginExist("siyuan-center-width")) {
+        // #67  #117
+        if ((window.siyuan?.config?.editor?.fullWidth !== true && isPluginExist("siyuan-center-width")) || !isCurrentVersionLessThan("3.8.3")) {
             logPush("检测到特殊插件，插件将使用兼容模式运行");
             finalElement.style.transition = "";
             let timeout = null;
@@ -449,7 +467,7 @@ export default class ContentApplyer {
                     if (timeout) {
                         clearTimeout(timeout);
                     }
-                    timeout = setTimeout(()=>{
+                    // timeout = setTimeout(()=>{
                         debugPush("[兼容模式]observer响应宽度更改，observer设定来源", that.basicInfo.currentDocId, that.protyleEnvInfo.originProtyle?.id);
                         let targetNode = protyleElement.querySelector('.protyle-title') as HTMLElement;
                         // 获取更改后的样式
@@ -466,10 +484,11 @@ export default class ContentApplyer {
                             finalElement.style.marginRight = validatedMarginRight;
                             finalElement.style.marginLeft = validatedMarginLeft;
                         }
-                    }, 30);
+                    // }, 0);
                 });
             });
         }
+        
         // 防止多个observer，分屏的时候会有多个
         if (!window["og_hn_observe"]) {
             window["og_hn_observe"] = {};
@@ -495,7 +514,17 @@ export default class ContentApplyer {
             config = null;
         }
         // #73 ResizeObserver绑定.title的情况下，有时获得了旧margin数据
-        if (observer instanceof ResizeObserver) {
+        // 新版思源应该可以直接不监听了，性能能提升点？
+        if (!isCurrentVersionLessThan("3.8.3")) {
+            const computedStyle = getComputedStyle(this.protyleElement.querySelector('.protyle-title'));
+            const value = computedStyle.getPropertyValue('--b3-protyle-padding-left').trim();
+            debugPush("检测到3.8.3以上版本，获取了--b3-protyle-padding-left", value);
+            if (isValidStr(value)) {
+                debugPush("检测到3.8.3以上版本，且获取了--b3-protyle-padding-left，停用ResizeObserver绑定.protyle-content");
+                finalElement.style.marginLeft = "var(--b3-protyle-padding-left)";
+                finalElement.style.marginRight = "var(--b3-protyle-padding-right)";
+            }
+        } else if (observer instanceof ResizeObserver) {
             observer.observe(this.protyleElement);
         } else {
             observer.observe(targetNode, config);
@@ -536,7 +565,7 @@ export default class ContentApplyer {
                 const marginLeft = window.getComputedStyle(titleTarget).getPropertyValue("margin-left");
                 finalElement.style.marginRight = marginRight;
                 finalElement.style.marginLeft = marginLeft;
-                finalElement.style.transition = "margin .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0ms";
+                finalElement.style.transition = this.getTransition();
             }
             if (contentTarget) {
                 contentTarget.insertAdjacentElement("beforeend", finalElement);
