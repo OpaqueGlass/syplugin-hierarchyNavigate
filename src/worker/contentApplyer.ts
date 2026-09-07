@@ -412,9 +412,18 @@ export default class ContentApplyer {
         }
     }
 
+    isSpecialPluginEnabled() {
+        debugPush("ContentApplyer", "isSpecialPluginEnabled: 检测自适应宽度", window.siyuan?.config?.editor?.fullWidth !== true);
+        return (window.siyuan?.config?.editor?.fullWidth !== true && isPluginExist("siyuan-center-width"));
+    }
+
     weSetObserver(finalElement: HTMLElement) {
         if (finalElement instanceof Promise || finalElement == null) {
             warnPush("不太懂，但这个不对", finalElement);
+            return;
+        }
+        if (isMobile()) {
+            logPush("ContentApplyer", "weSetObserver: 移动端不设置observer");
             return;
         }
         // 响应自适应宽度
@@ -458,8 +467,8 @@ export default class ContentApplyer {
         });
         });
         // #67  #117
-        if ((window.siyuan?.config?.editor?.fullWidth !== true && isPluginExist("siyuan-center-width")) || !isCurrentVersionLessThan("3.8.3")) {
-            logPush("ContentApplyer", "weSetObserver: 检测到特殊插件，插件将使用兼容模式运行");
+        if (this.isSpecialPluginEnabled() || !isCurrentVersionLessThan("3.8.3")) {
+            logPush("ContentApplyer", `weSetObserver: 检测到特殊插件${this.isSpecialPluginEnabled()}或v3.8.3以上${isCurrentVersionLessThan("3.8.3")}思源版本，插件将使用兼容模式运行`);
             finalElement.style.transition = "";
             let timeout = null;
             observer = new ResizeObserver(function(entries) {
@@ -476,7 +485,7 @@ export default class ContentApplyer {
                         if (insertedElement && computedStyle) {
                             const marginRight = computedStyle.marginRight;
                             const marginLeft = computedStyle.marginLeft;
-                            debugPush("ContentApplyer", "weSetObserver: [兼容模式]observer - 检测到margin变化: right=${marginRight}, left=${marginLeft}");
+                            debugPush("ContentApplyer", `weSetObserver: [兼容模式]observer - 检测到margin变化: right=${marginRight}, left=${marginLeft}`);
                             
                             const validatedMarginRight = that.validateAndFixMargin(marginRight);
                             const validatedMarginLeft = that.validateAndFixMargin(marginLeft);
@@ -518,7 +527,12 @@ export default class ContentApplyer {
         const computedStyle = getComputedStyle(finalElement);
         const b3AttrValue = computedStyle.getPropertyValue('--b3-protyle-padding-left').trim();
         debugPush("ContentApplyer", "weSetObserver: 检测到3.8.3以上版本，获取了--b3-protyle-padding-left", b3AttrValue);
-        if (!isCurrentVersionLessThan("3.8.3") && isValidStr(b3AttrValue)) {
+
+        if (this.isSpecialPluginEnabled()) {
+            debugPush("ContentApplyer", "weSetObserver: 检测到特殊插件，停用ResizeObserver绑定.protyle-content，使用 --leftWidth --rightWidth");
+            finalElement.style.marginLeft = "var(--leftWidth)";
+            finalElement.style.marginRight = "var(--rightWidth)";
+        } else if (!isCurrentVersionLessThan("3.8.3") && isValidStr(b3AttrValue)) {
             debugPush("ContentApplyer", "weSetObserver: 检测到3.8.3以上版本，且获取了--b3-protyle-padding-left，停用ResizeObserver绑定.protyle-content");
             finalElement.style.marginLeft = "var(--b3-protyle-padding-left)";
             finalElement.style.marginRight = "var(--b3-protyle-padding-right)";
@@ -661,7 +675,7 @@ export default class ContentApplyer {
         }
         // 三套测量与三种算法本身保留在 gridColumnWidth.ts 供单测，调整时直接改这里即可。
         const DEFAULT_MEASURE_METHOD: "canvas" | "chars" | "scriptWeight" = "scriptWeight";
-        const DEFAULT_COLUMN_WIDTH_ALGO: "percentile" | "user" | "trimmedMean" = "percentile";
+        const DEFAULT_COLUMN_WIDTH_ALGO: "percentile" | "user" | "trimmedMean" = "trimmedMean";
         const DEFAULT_PERCENTILE = 85;
         const measurer =
             DEFAULT_MEASURE_METHOD === "chars"        ? measureDocNameLengthByChars :
