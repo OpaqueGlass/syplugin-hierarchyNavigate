@@ -1,7 +1,6 @@
-import { queryAPI, getKramdown, updateBlockAPI } from "@/syapi";
-import { logPush, warnPush, errorPush, debugPush } from "@/logger";
+import { queryAPI, getKramdown, updateBlockAPI } from "siyuan-plugin-uni-helper/api";
+import { logPush, warnPush, errorPush, debugPush, lang } from "siyuan-plugin-uni-helper/core";
 import { showPluginMessage } from "@/utils/common";
-import { lang } from "@/utils/lang";
 
 let running = false;
 /**

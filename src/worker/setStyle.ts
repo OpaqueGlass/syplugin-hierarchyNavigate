@@ -1,9 +1,7 @@
 import { getDefaultSettings, getReadOnlyGSettings } from "@/manager/settingManager";
 import { CONSTANTS } from "@/constants";
-import { logPush } from "@/logger";
-import { isMobile } from "@/syapi";
-import { lang } from "@/utils/lang";
-import { isCurrentVersionLessThan } from "@/utils/commonCheck";
+import { isCurrentVersionLessThan, lang, logPush } from "siyuan-plugin-uni-helper/core";
+import { isMobile } from "siyuan-plugin-uni-helper/api";
 
 export function setStyle() {
     removeStyle();

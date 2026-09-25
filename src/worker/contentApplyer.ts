@@ -1,9 +1,8 @@
 import { CONSTANTS, PRINTER_NAME } from "@/constants";
-import { debugPush, logPush, warnPush } from "@/logger";
+import { debugPush, logPush, warnPush, isCurrentVersionLessThan, isValidStr } from "siyuan-plugin-uni-helper/core";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
-import { isMobile } from "@/syapi";
+import { isMobile } from "siyuan-plugin-uni-helper/api";
 import { isPluginExist } from "@/utils/common";
-import { isCurrentVersionLessThan, isValidStr } from "@/utils/commonCheck";
 import { openRefLinkByAPIWithConfig } from "@/utils/onlyThisUtil";
 import {
     clampColumnWidth,

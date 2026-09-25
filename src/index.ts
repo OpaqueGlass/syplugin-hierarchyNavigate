@@ -28,25 +28,19 @@
  */
 import {
     Plugin,
-    showMessage,
     openTab,
     getFrontend,
 } from "siyuan";
-import * as siyuan from "siyuan";
 import "@/index.scss";
 
-import { createApp } from "vue";
-import settingVue from "./components/settings/setting.vue";
-import { setLanguage } from "./utils/lang";
-import { debugPush, errorPush, logPush } from "./logger";
-import { initSettingProperty } from './manager/settingManager';
-import { setPluginInstance } from "./utils/getInstance";
-import { loadSettings } from "./manager/settingManager";
+import { isMobile } from "siyuan-plugin-uni-helper/api";
+import { debugPush, errorPush, logPush, registerPlugin, showPluginMessage } from "siyuan-plugin-uni-helper/core";
+import { openSetting } from "siyuan-plugin-uni-helper/settings";
+import { initSettingProperty, loadSettings } from './manager/settingManager';
 import EventHandler from "./worker/eventHandler";
 import { removeCouldHideStyle, removeStyle, setCouldHideStyle, setStyle } from "./worker/setStyle";
 import { bindCommand } from "./worker/shortcutHandler";
 import { CONSTANTS } from "./constants";
-import { generateUUID, showPluginMessage } from "./utils/common";
 // import "source-map-support/register";
 
 const STORAGE_NAME = "menu-config";
@@ -65,11 +59,15 @@ export default class OGPluginTemplate extends Plugin {
     async onload() {
         this.data[STORAGE_NAME] = {readonlyText: "Readonly"};
         logPush("测试", this.i18n);
-        setLanguage(this.i18n);
-        setPluginInstance(this);
+        registerPlugin(this, {
+            shortName: "hn",
+            fullName: "层级导航",
+            styleIdPrefix: CONSTANTS.PLUGIN_NAME,
+            traceOnError: true,
+        });
         initSettingProperty();
         bindCommand(this);
-        // 载入设置项，此项必须在setPluginInstance之后被调用
+        // 载入设置项，此项必须在registerPlugin之后被调用
         this.myEventHandler = new EventHandler();
         
         const frontEnd = getFrontend();
@@ -130,21 +128,10 @@ export default class OGPluginTemplate extends Plugin {
     }
 
     openSetting() {
-        // 生成Dialog内容
-        const uid = generateUUID();
-        // 创建dialog
-        const app = createApp(settingVue);
-        const settingDialog = new siyuan.Dialog({
-            "title": this.i18n["setting_panel_title"],
-            "content": `
-            <div id="og_plugintemplate_${uid}" style="overflow: hidden; position: relative;height: 100%;"></div>
-            `,
-            "width": isMobile() ? "92vw":"1040px",
-            "height": isMobile() ? "70vh":"80vh",
-            "destroyCallback": ()=>{app.unmount(); },
+        openSetting({
+            "width": isMobile() ? "92vw" : "1040px",
+            "height": isMobile() ? "70vh" : "80vh",
         });
-        app.mount(`#og_plugintemplate_${uid}`);
-        
     }
 
     private openStatisticTab() {
@@ -161,7 +148,3 @@ export default class OGPluginTemplate extends Plugin {
 
 
 }
-
-function isMobile() {
-    return window.top.document.getElementById("sidebar") ? true : false;
-};

@@ -1,23 +1,16 @@
-import outdatedSettingVue from "@/components/dialog/outdatedSetting.vue";
 import { CONSTANTS, LINK_SORT_TYPES, PRINTER_NAME } from "@/constants";
-import { debugPush, logPush } from "@/logger";
-import { DOC_SORT_TYPES, isMobile } from "@/syapi";
-import { generateUUID, showPluginMessage } from "@/utils/common";
-import { isValidStr } from "@/utils/commonCheck";
-import { getPluginInstance } from "@/utils/getInstance";
-import { lang } from "@/utils/lang";
+import Notebookorder from "@/components/settings/notebookorder.vue";
 import { recalcMultilineColumnWidthOnSettingsChange } from "@/worker/contentApplyer";
 import { fixListChildDocsSrc, isWrongListChildDocsSrcExist } from "@/worker/fixListChildDocsSrc";
 import { setStyle } from "@/worker/setStyle";
-import * as siyuan from "siyuan";
-import { createApp, nextTick, ref, watch } from "vue";
-import { ConfigProperty, loadAllConfigPropertyFromTabProperty, TabProperty } from "../utils/settings";
-
-// const pluginInstance = getPluginInstance();
-
-const settingDefinition = new Array<IConfigProperty>;
-
-let setting: any = ref({});
+import { DOC_SORT_TYPES } from "siyuan-plugin-uni-helper/api";
+import { debugPush, getPluginInstance, lang, showPluginMessage } from "siyuan-plugin-uni-helper/core";
+import {
+    ConfigProperty,
+    TabProperty,
+    createSettingManager,
+    loadAllConfigPropertyFromTabProperty,
+} from "siyuan-plugin-uni-helper/settings";
 
 interface IPluginSettings {
     fontSize: number,
@@ -31,20 +24,16 @@ interface IPluginSettings {
     sibling: boolean, // 为true则在父文档不存在时清除
     nameMaxLength: number,// 文档名称最大长度 0不限制
     docMaxNum: number, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
-    // limitPopUpScope: false,// 限制浮窗触发范围
     linkDivider: string, // 前缀
     popupWindow: string,
     maxHeightLimit: number,
     hideIndicator: boolean,
     sameWidth: number,
     sameMaxWidth: number,
-    // adjustDocIcon: boolean, // v1.4.0+弃用
-    // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
     immediatelyUpdate: boolean,
     noneAreaHide: boolean,
     showDocInfo: boolean,
     replaceWithBreadcrumb: boolean,
-    // retryForNewDoc: null,
     listChildDocs: boolean, // 对于空白文档，使用列出子文档挂件替代
     lcdEmptyDocThreshold: number, // 插入列出子文档挂件的空文档判定阈值（段落块）,-1为不限制、对所有父文档插入
     previousAndNext: boolean, // 上一篇、下一篇
@@ -60,7 +49,6 @@ interface IPluginSettings {
     previousAndNextFollowDailynote: boolean,
     mobileBackReplace: boolean,
     mobileRemoveAllArea: boolean,
-    // doNotAddToTitle: boolean, v1.7.1起移除
     areaBorder: boolean,
     debugMode: boolean,
     showNotebookInBreadcrumb: boolean,
@@ -89,24 +77,15 @@ const defaultSetting: any = {
     sibling: false, // 为true则在父文档不存在时清除
     nameMaxLength: 20,// 文档名称最大长度 0不限制
     docMaxNum: 128, // API最大文档显示数量 0不限制（请求获取全部子文档），建议设置数量大于32
-    // limitPopUpScope: false,// 限制浮窗触发范围
     linkDivider: "● ", // 前缀
     popupWindow: CONSTANTS.POP_LIMIT,
     maxHeightLimit: 10,
     hideIndicator: false,
     sameWidth: 0,
     sameMaxWidth: 20,
-    // adjustDocIcon: false, // v1.4.0+弃用
-    // timelyUpdate: true,// 在页签切换后立刻刷新，该选项已废弃，默认启用
     immediatelyUpdate: true, // 文档移动、删除、重命名等变更后立即执行
     noneAreaHide: false,
-    // showDocInfo: false, // 弃用，换为排序方式
-    // replaceWithBreadcrumb: true, // 弃用，换为排序方式
-    // retryForNewDoc: null,
-    // listChildDocs: false, // 对于空白文档，使用列出子文档挂件替代 // 弃用，换为排序方式
     lcdEmptyDocThreshold: 0, // 插入列出子文档挂件的空文档判定阈值（段落块）,-1为不限制、对所有父文档插入
-    // previousAndNext: false, // 上一篇、下一篇 // 弃用，换为排序方式
-    // alwaysShowSibling: false, // 始终显示同级文档 // 弃用，换为排序方式
     mainRetry: 5, // 主函数重试次数
     noChildIfHasAv: false, // 检查文档是否包含数据库，如果有，则不显示子文档区域
     showBackLinksType: CONSTANTS.BACKLINK_NORMAL, // 显示反链区域
@@ -118,7 +97,6 @@ const defaultSetting: any = {
     enableForPreview: false, // 在预览时也显示导航
     childOrder: "FOLLOW_DOC_TREE", // 子文档部分排序方式
     showHiddenDoc: false,
-    // previousAndNextHiddenDoc: true, // 同级文档显示隐藏文档 v1.4.0+弃用
     hideBlockBreadcrumbInDesktop: true,
     previousAndNextFollowDailynote: false,
     mobileBackReplace: false,
@@ -144,10 +122,8 @@ const defaultSetting: any = {
 }
 
 let tabProperties: Array<TabProperty> = [
-    
-];
-let updateTimeout: any = null;
 
+];
 
 /**
  * 设置项初始化
@@ -156,21 +132,21 @@ let updateTimeout: any = null;
 export function initSettingProperty() {
     const allOptions = Object.values(PRINTER_NAME);
     const generalOptions = [PRINTER_NAME.PARENT, PRINTER_NAME.CHILD, PRINTER_NAME.SIBLING, PRINTER_NAME.PARENT_SIBLING, PRINTER_NAME.PREV_NEXT, PRINTER_NAME.BACKLINK, PRINTER_NAME.BREADCRUMB, PRINTER_NAME.INFO, PRINTER_NAME.WIDGET, PRINTER_NAME.ON_THIS_DAY, PRINTER_NAME.FORWARDLINK, PRINTER_NAME.PREV_NEXT_PREVIEW, PRINTER_NAME.PREVIEW_BOX];
-    
+
     const flashCardOptions = [PRINTER_NAME.PARENT, PRINTER_NAME.CHILD, PRINTER_NAME.SIBLING, PRINTER_NAME.PARENT_SIBLING, PRINTER_NAME.PREV_NEXT, PRINTER_NAME.BACKLINK, PRINTER_NAME.BREADCRUMB, PRINTER_NAME.INFO, PRINTER_NAME.WIDGET, PRINTER_NAME.BLOCK_BREADCRUMB];
     tabProperties.push(
         new TabProperty({key: "content", "iconKey": "iconOrderedList", props: {
-            "basic": 
+            "basic":
             [
                 new ConfigProperty({"key": "contentOrderTip", "type": "TIPS"}),
                 new ConfigProperty({"key": "openDocContentGroup", "type": "ORDER", "options": generalOptions}),
                 new ConfigProperty({"key": "mobileContentGroup", "type": "ORDER", "options": generalOptions}),
                 new ConfigProperty({"key": "flashcardContentGroup", "type": "ORDER", "options": flashCardOptions}),
                 new ConfigProperty({"key": "normalEndContentGroup", "type": "ORDER", "options": generalOptions}),
-                
+
             ],
             "notebook": [
-                new ConfigProperty({"key": "notebookOpenDocContentGroup", "type": "CUSTOM_NOTEBOOK"})
+                new ConfigProperty({"key": "notebookOpenDocContentGroup", "type": "CUSTOM_NOTEBOOK", "component": Notebookorder})
             ]
         }
         }),
@@ -191,12 +167,12 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "showHiddenDoc", "type": "SWITCH"}),
                 new ConfigProperty({"key": "lcdEmptyDocThreshold", "type": "NUMBER", "min": -1}),
                 new ConfigProperty({"key": "showBackLinksType", "type": "SELECT", "options": [CONSTANTS.BACKLINK_NORMAL, CONSTANTS.BACKLINK_DOC_ONLY]}),
-                new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}), 
-                new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}), 
+                new ConfigProperty({"key": "pinRegStrListForLinks", "type": "TEXTAREA"}),
+                new ConfigProperty({"key": "removeRegStrListForLinks", "type": "TEXTAREA"}),
             ],
             }
         }),
-        new TabProperty({key: "general", "iconKey": "iconSettings", props: 
+        new TabProperty({key: "general", "iconKey": "iconSettings", props:
             [
                 new ConfigProperty({"key": "fontSize", "type": "NUMBER"}),
                 new ConfigProperty({"key": "relativeFontSize", "type": "NUMBER", min: 0, max: 4}),
@@ -206,16 +182,11 @@ export function initSettingProperty() {
                 new ConfigProperty({"key": "icon", "type": "SELECT", options: [CONSTANTS.ICON_NONE, CONSTANTS.ICON_CUSTOM_ONLY, CONSTANTS.ICON_ALL]}),
                 new ConfigProperty({"key": "linkDivider", "type": "TEXT"}),
                 new ConfigProperty({"key": "areaHideFrom", "type": "NUMBER", min: 0, max: 15}),
-                
-                // new ConfigProperty({"key": "mainRetry", "type": "NUMBER", "max": 3}),
+
                 new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
                 new ConfigProperty({"key": "enableForPopOverCircumstance", "type": "SWITCH"}),
                 new ConfigProperty({"key": "enableForPreview", "type": "SWITCH"}),
             ],
-            // "extend": [
-            //     new ConfigProperty({"key": "mobileBackReplace", "type": "SWITCH"}),
-            //     new ConfigProperty({"key": "mobileRemoveAllArea", "type": "SWITCH"}),
-            // ]
         }),
         new TabProperty({"key": "appearance", "iconKey": "iconTheme", showColumnAsGroup: true, props: {
             "docLink": [
@@ -261,219 +232,8 @@ export function initSettingProperty() {
     );
 }
 
-export function getTabProperties() {
-    return tabProperties;
-}
-
-// 发生变动之后，由界面调用这里
-export function saveSettings(newSettings: any) {
-    // 如果有必要，需要判断当前设备，然后选择保存位置
-    debugPush("界面调起保存设置项", newSettings);
-    getPluginInstance().saveData("settings_main.json", JSON.stringify(newSettings, null, 4));
-}
-
-
-/**
- * 仅用于初始化时载入设置项
- * 请不要重复使用
- * @returns 
- */
-export async function loadSettings() {
-    let loadResult = null;
-    // 这里从文件载入
-    loadResult = await getPluginInstance().loadData("settings_main.json");
-    debugPush("文件载入设置", loadResult);
-    if (loadResult == undefined || loadResult == "") {
-        let oldSettings = await transferOldSetting();
-        debugPush("oldSettings", oldSettings);
-        if (oldSettings != null) {
-            debugPush("使用转换后的旧设置", oldSettings);
-            loadResult = oldSettings;
-        } else {
-            loadResult = defaultSetting;
-        }
-    }
-    const currentVersion = 20260808;
-    let saveItNowFlag = false;
-    if (!loadResult["@version"] || loadResult["@version"] < currentVersion) {
-        // 旧版本
-        loadResult["@version"] = currentVersion;
-        
-        // 旧版本迁移 START
-        if (await isWrongListChildDocsSrcExist()) {
-            showPluginMessage(lang("fix_lcd_src_warn"), 0, "error");
-        }
-
-        // 旧版本迁移 END
-        
-        saveItNowFlag = true;
-    }
-    // showOutdatedSettingWarnDialog(checkOutdatedSettings(loadResult), defaultSetting);
-    // 检查选项类设置项，如果发现不在列表中的，重置为默认
-    try {
-        loadResult = checkSettingType(loadResult);
-    } catch(err) {
-        logPush("设置项类型检查时发生错误", err);
-    }
-    
-    // 如果有必要，判断设置项是否对当前设备生效
-    // TODO: 对于Order，switch需要进行检查，防止版本问题导致选项不存在，不存在的用默认值
-    // TODO: switch旧版需要迁移，另外引出迁移逻辑
-    setting.value = Object.assign(Object.assign({}, defaultSetting), loadResult);
-    logPush("载入设置项", setting.value);
-
-    let isInternalUpdating = false;
-    // return loadResult;
-    watch(setting, (newVal) => {
-        if (isInternalUpdating) {
-            debugPush("内部更新设置项，不保存", newVal);
-            return;
-        }
-        // 延迟更新
-        if (updateTimeout) {
-            clearTimeout(updateTimeout);
-        }
-        logPush("检查到变化");
-        updateTimeout = setTimeout(() => {
-            isInternalUpdating = true;
-            try {
-                let checkedData = checkSettingType(newVal)
-                saveSettings(checkedData);
-                // logPush("保存设置项", newVal);
-                setStyle();
-                recalcMultilineColumnWidthOnSettingsChange();
-                changeDebug(checkedData);
-            } catch(err) {
-                logPush("设置项检查时发生错误", err);
-            } finally {
-                nextTick(() => {
-                    isInternalUpdating = false;
-                });
-            }
-            // updateSingleSetting(key, newVal);
-            
-            updateTimeout = null;
-        }, 400);
-    }, {deep: true, immediate: saveItNowFlag});
-    changeDebug(setting.value);
-}
-
-function checkOutdatedSettings(loadSetting) {
-    const CHECK_SETTING_KEYS = [
-    ];
-    let result = [];
-    for (let key of CHECK_SETTING_KEYS) {
-        if (loadSetting[key] != defaultSetting[key]) {
-            result.push(key);
-        }
-    }
-    return result;
-}
-
-function showOutdatedSettingWarnDialog(outdatedSettingKeys, defaultSettings) {
-    if (outdatedSettingKeys.length == 0) {
-        return;
-    }
-    const app = createApp(outdatedSettingVue, {"outdatedKeys": outdatedSettingKeys, "defaultSettings": defaultSettings});
-    const uid = generateUUID();
-    const settingDialog = new siyuan.Dialog({
-            "title": lang("dialog_panel_plugin_name") + lang("dialog_panel_outdate"),
-            "content": `
-            <div id="og_plugintemplate_${uid}" class="b3-dialog__content" style="overflow: hidden; position: relative;height: 100%;"></div>
-            `,
-            "width": isMobile() ? "42vw":"520px",
-            "height": isMobile() ? "auto":"auto",
-            "destroyCallback": ()=>{app.unmount();},
-        });
-    app.mount(`#og_plugintemplate_${uid}`);
-    return;
-}
-
-function changeDebug(newVal) {
-    if (newVal.debugMode === true) {
-        debugPush("调试模式已开启");
-        window.top["OpaqueGlassDebug"] = true;
-        if (!window.top["OpaqueGlassDebugV2"]) {
-            window.top["OpaqueGlassDebugV2"] = {};
-        }
-        window.top["OpaqueGlassDebugV2"]["hn"] = 5;
-    } else if (newVal.debugMode === false) {
-        debugPush("调试模式已关闭");
-        if (window.top["OpaqueGlassDebugV2"] && window.top["OpaqueGlassDebugV2"]["hn"]) {
-            delete window.top["OpaqueGlassDebugV2"]["hn"];
-        }
-    }
-}
-/**
- * 校验并修正设置项
- * @param input 响应式的 setting 对象
- */
-function checkSettingType(input: any) {
-    const propertyMap = loadAllConfigPropertyFromTabProperty(tabProperties);
-
-    for (const prop of Object.values(propertyMap)) {
-        const key = prop.key;
-        const currentValue = input[key];
-        let targetValue = currentValue; // 默认目标值等于当前值
-
-        // --- 分类型校验逻辑 ---
-        if (prop.type === "SELECT") {
-            if (!prop.options.includes(currentValue)) {
-                targetValue = defaultSetting[key];
-            }
-        } 
-        else if (prop.type === "ORDER") {
-            // 过滤无效的打印机名称
-            if (Array.isArray(currentValue)) {
-                const filteredOrder = currentValue.filter(item => 
-                    Object.values(PRINTER_NAME).includes(item)
-                );
-                // 数组需要通过 JSON 字符串化对比，或者判断长度/内容是否变化
-                if (JSON.stringify(filteredOrder) !== JSON.stringify(currentValue)) {
-                    targetValue = filteredOrder;
-                }
-            }
-        } 
-        else if (prop.type === "SWITCH") {
-            if (currentValue === undefined) {
-                targetValue = defaultSetting[key];
-            }
-        } 
-        else if (prop.type === "NUMBER") {
-            if (isValidStr(currentValue)) {
-                let num = parseFloat(currentValue);
-                // 边界逻辑修正
-                if (key === "docMaxNum" && num === 0) {
-                    num = prop.max;
-                }
-                if (prop.min !== undefined && num < prop.min) {
-                    num = prop.min;
-                }
-                if (prop.max !== undefined && num > prop.max) {
-                    num = prop.max;
-                }
-                targetValue = num;
-            }
-        }
-
-        // --- 关键：只有当值真正发生变化时，才触发赋值 ---
-        // 这样当第二次 watch 触发时，由于 targetValue 等于 currentValue，赋值不会执行，从而打破循环
-        if (input[key] !== targetValue) {
-            input[key] = targetValue;
-        }
-    }
-
-    if (input["sameWidth"] > input["sameMaxWidth"]) {
-        input["sameWidth"] = input["sameMaxWidth"];
-        showPluginMessage(lang("setting_same_width_max_warn"), 4000);
-    }
-
-    return input;
-}
-
 async function transferOldSetting() {
     const oldSettings = await getPluginInstance().loadData("settings.json");
-    // TODO: 判断并迁移设置项
     let newSetting = Object.assign({}, oldSettings);
     if (oldSettings == null || oldSettings == "") {
         return null;
@@ -529,32 +289,66 @@ async function transferOldSetting() {
         }
     }
     newSetting = Object.assign(Object.assign({}, defaultSetting), newSetting);
-    
+
     return newSetting;
 }
 
-export function getGSettings() {
-    // logPush("getConfig", setting.value, setting);
-    // 改成 setting._rawValue不行
-    return setting;
+/**
+ * 插件专属校验：排序项白名单过滤 + 宽度区间钳制
+ * 通用的类型校正由设置引擎完成
+ */
+function checkBusinessRule(input: any, defaults: any) {
+    const propertyMap = loadAllConfigPropertyFromTabProperty(tabProperties);
+
+    for (const prop of Object.values(propertyMap)) {
+        if (prop.type !== "ORDER") {
+            continue;
+        }
+        const currentValue = input[prop.key];
+        if (!Array.isArray(currentValue)) {
+            continue;
+        }
+        const filteredOrder = currentValue.filter(item => Object.values(PRINTER_NAME).includes(item));
+        if (JSON.stringify(filteredOrder) !== JSON.stringify(currentValue)) {
+            input[prop.key] = filteredOrder;
+        }
+    }
+
+    if (input["sameWidth"] > input["sameMaxWidth"]) {
+        input["sameWidth"] = input["sameMaxWidth"];
+        showPluginMessage(lang("setting_same_width_max_warn"), 4000);
+    }
+
+    return input;
 }
 
-export function getReadOnlyGSettings() {
-    return setting._rawValue;
+async function migrateToCurrentVersion() {
+    if (await isWrongListChildDocsSrcExist()) {
+        showPluginMessage(lang("fix_lcd_src_warn"), 0, "error");
+    }
 }
 
-export function getDefaultSettings() {
-    return defaultSetting;
+function applySettings() {
+    setStyle();
+    recalcMultilineColumnWidthOnSettingsChange();
 }
 
-export function getSettingPanelApp() {
-    
-}
+const settingManager = createSettingManager({
+    defaultSetting,
+    currentVersion: 20260808,
+    tabs: () => tabProperties,
+    transferOld: transferOldSetting,
+    onVersionUpgrade: migrateToCurrentVersion,
+    customValidate: checkBusinessRule,
+    onChanged: applySettings,
+    debugSwitchKey: "debugMode",
+});
 
-export function updateSingleSetting(key: string, value: any) {
-    // 对照检查setting的类型
-    // 直接绑定@change的话，value部分可能传回event
-    // 如果700毫秒内没用重复调用，则执行保存
-    
-}
-
+export const {
+    loadSettings,
+    saveSettings,
+    getGSettings,
+    getReadOnlyGSettings,
+    getDefaultSettings,
+    getTabProperties,
+} = settingManager;

@@ -1,11 +1,8 @@
 import { getBackend, IProtyle, openMobileFileById, openTab, showMessage } from "siyuan";
 import type { TProtyleAction } from "siyuan";
-import { isEventCtrlKey, isValidStr } from "./commonCheck";
-import { debugPush, logPush, warnPush } from "@/logger";
-import { getPluginInstance } from "./getInstance";
-import { getCurrentDocIdF, isMobile } from "@/syapi";
+import { debugPush, isEventCtrlKey, isValidStr, lang, logPush, warnPush, getPluginInstance } from "siyuan-plugin-uni-helper/core";
+import { getCurrentDocIdF, isMobile } from "siyuan-plugin-uni-helper/api";
 import { removeCurrentTabF } from "./onlyThisUtil";
-import { lang } from "./lang";
 import { CONSTANTS } from "@/constants";
 
 /**

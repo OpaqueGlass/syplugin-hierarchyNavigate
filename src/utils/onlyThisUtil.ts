@@ -1,8 +1,7 @@
-import { debugPush, errorPush, logPush } from "@/logger";
-import { DOC_SORT_TYPES, getblockAttr, getCurrentDocIdF, isMobile, queryAPI } from "@/syapi";
+import { debugPush, errorPush, logPush, isCurrentVersionLessThan, isValidStr } from "siyuan-plugin-uni-helper/core";
+import { DOC_SORT_TYPES, getblockAttr, getCurrentDocIdF, isMobile, queryAPI } from "siyuan-plugin-uni-helper/api";
 import { IProtyle } from "siyuan";
 import * as siyuanAPIs from "siyuan";
-import { isCurrentVersionLessThan, isValidStr } from "./commonCheck";
 import { openRefLinkByAPI } from "./common";
 import { getDefaultEmojiText, unicodeToEmoji } from "./docIcon";
 

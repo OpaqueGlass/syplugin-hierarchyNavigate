@@ -33,6 +33,7 @@
     "@vitejs/plugin-vue": "^4.5.0",
     "@vue/tsconfig": "^0.4.0",
     "natsort": "^2.0.3",
+    "siyuan-plugin-uni-helper": "file:../siyuan-plugin-uni-helper",
     "sortablejs": "^1.15.2",
     "vue": "^3.4.15",
     "vue-tsc": "^1.8.22"

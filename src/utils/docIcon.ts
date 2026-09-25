@@ -1,6 +1,5 @@
 import { CONSTANTS } from "@/constants";
-import { errorPush } from "@/logger";
-import { isValidStr } from "@/utils/commonCheck";
+import { errorPush, isValidStr } from "siyuan-plugin-uni-helper/core";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 const XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";

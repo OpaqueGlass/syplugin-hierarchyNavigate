@@ -1,6 +1,5 @@
-import { debugPush, errorPush, logPush, warnPush } from "@/logger";
+import { debugPush, errorPush, logPush, warnPush, isBlankStr, isValidStr } from "siyuan-plugin-uni-helper/core";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
-import { isBlankStr, isValidStr } from "./commonCheck";
 import { LINK_SORT_TYPES } from "@/constants";
 import { trimListDocsByPathAPIReturnedDocName } from "@/utils/onlyThisUtil";
 import natsort from "natsort";

@@ -46,20 +46,19 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { debugPush, errorPush, logPush } from '@/logger';
+import { debugPush, errorPush, logPush, isValidStr, lang, getPluginInstance } from 'siyuan-plugin-uni-helper/core';
+import { createDocWithPath } from 'siyuan-plugin-uni-helper/api';
+import { generateBlockId } from 'siyuan-plugin-uni-helper/api/custom';
 import { getReadOnlyGSettings } from '@/manager/settingManager';
 import { getAllChildDocuments, getAllDescendantDocuments, getAllSiblingDocuments, getCurrentDocSqlResult } from '@/worker/commonProvider';
 import { BackLinkContentPrinter } from '@/worker/contentPrinter';
 import { Dialog, openTab, showMessage } from 'siyuan';
 import type { TProtyleAction } from 'siyuan';
 import { CONSTANTS } from '@/constants';
-import { getPluginInstance } from '@/utils/getInstance';
+
 import { emojiIconHandler, htmlTransferParser, trimListDocsByPathAPIReturnedDocName } from '@/utils/onlyThisUtil';
 import { showPluginMessage, sleep } from '@/utils/common';
-import { createDocWithPath } from '@/syapi';
-import { isValidStr } from '@/utils/commonCheck';
-import { generateBlockId } from '@/syapi/custom';
-import { lang } from '@/utils/lang';
+
 
 const categoriesContainer = ref();
 const BACKLINK_OPEN_ACTION = CONSTANTS.BACKLINK_OPEN_ACTION.split(",") as TProtyleAction[];

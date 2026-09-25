@@ -23,13 +23,18 @@ console.log("distDir=>", distDir)
 
 export default defineConfig({
     resolve: {
+        // 与 siyuan-plugin-uni-helper 共用同一份 Vue，避免双实例
+        dedupe: ["vue"],
         alias: {
             "@": resolve(__dirname, "src"),
         }
     },
 
     plugins: [
-        vue(),
+        // 包中的 SFC 以源码发布，默认 include 不含 node_modules，需显式覆盖
+        vue({
+            include: [/\.vue$/, /node_modules[\\/]siyuan-plugin-uni-helper.*\.vue$/],
+        }),
         viteStaticCopy({
             targets: [
                 {

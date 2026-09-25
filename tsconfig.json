@@ -19,6 +19,8 @@
         "jsx": "preserve",
         /* Linting */
         "strict": false,
+        /* legacy 装饰器：供 @SyVersion 标注类方法使用 */
+        "experimentalDecorators": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,

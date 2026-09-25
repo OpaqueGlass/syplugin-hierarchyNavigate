@@ -1,17 +1,14 @@
-import { debugPush, errorPush, infoPush, isDebugMode, logPush, warnPush } from "@/logger";
+import { debugPush, errorPush, infoPush, isCurrentVersionLessThan, isDebugMode, logPush, warnPush, getPluginInstance, Mutex } from "siyuan-plugin-uni-helper/core";
 import {type IProtyle, type IEventBusMap, showMessage} from "siyuan";
 import * as siyuanAPIs from "siyuan";
-import { getPluginInstance } from "@/utils/getInstance";
 import { getBasicInfo } from "@/worker/commonProvider";
 import ContentPrinter from "@/worker/contentPrinter";
 import { getProtyleInfo } from "@/utils/onlyThisUtil"
 import ContentApplyer from "./contentApplyer";
-import Mutex from "@/utils/mutex";
 import { getReadOnlyGSettings } from "@/manager/settingManager";
 import { showPluginMessage, sleep } from "@/utils/common";
 import { CONSTANTS } from "@/constants";
-import { getAllShowingDocId, getHPathById, isMobile } from "@/syapi";
-import { isCurrentVersionLessThan } from "@/utils/commonCheck";
+import { getAllShowingDocId, getHPathById, isMobile } from "siyuan-plugin-uni-helper/api";
 export default class EventHandler {
     private handlerBindList: Record<string, (arg1: CustomEvent)=>void> = {
         "loaded-protyle-static": this.loadedProtyleRetryEntry.bind(this), // mutex需要访问EventHandler的属性

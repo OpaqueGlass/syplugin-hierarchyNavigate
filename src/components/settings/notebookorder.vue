@@ -57,13 +57,10 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
-import Item from './item.vue'
-import Block from './block.vue'
-import Order from './items/order.vue'
+import { Block, Item, Order } from 'siyuan-plugin-uni-helper/vue'
 import { PRINTER_NAME } from '@/constants'
 import { getGSettings } from '@/manager/settingManager'
-import { logPush } from '@/logger'
-import { lang } from '@/utils/lang'
+import { lang, logPush } from 'siyuan-plugin-uni-helper/core'
 
 const notebookList = ref(window.siyuan.notebooks.map(n => ({
   id: n.id,
