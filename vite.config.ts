@@ -82,7 +82,9 @@ export default defineConfig({
     // https://github.com/vitejs/vite/discussions/3058#discussioncomment-2115319
     // 在这里自定义变量
     define: {
-        "process.env": process.env,
+        // vite 6 会警告「把整个 process.env 注入 define」，这里只显式注入实际用到的字段。
+        // NODE_ENV 必须显式给出，否则 Vue 会保留运行时判断并打进 dev 分支（体积与运行时告警均劣化）
+        "process.env.NODE_ENV": `"${isWatch ? "development" : "production"}"`,
         "process.env.DEV_MODE": `"${isWatch}"`,
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
     },

@@ -58,13 +58,14 @@ export default class OGPluginTemplate extends Plugin {
 
     async onload() {
         this.data[STORAGE_NAME] = {readonlyText: "Readonly"};
-        logPush("测试", this.i18n);
+        // 注册必须先于任何日志/语言调用，否则首条日志拿不到插件短名与调试等级
         registerPlugin(this, {
             shortName: "hn",
             fullName: "层级导航",
             styleIdPrefix: CONSTANTS.PLUGIN_NAME,
             traceOnError: true,
         });
+        logPush("测试", this.i18n);
         initSettingProperty();
         bindCommand(this);
         // 载入设置项，此项必须在registerPlugin之后被调用
