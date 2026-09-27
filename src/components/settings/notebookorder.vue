@@ -1,5 +1,13 @@
 <template>
   <div>
+    <!-- 已经使用独立排序的笔记本 -->
+    <Block settingKey="" :configName="lang('setting_notebookOrderEnabled_name')" :configDesp="lang('setting_notebookOrderEnabled_desp')">
+      <template v-for="notebook in notebookList" :key="notebook.id">
+        <div class="fn__flex-center fn__size200" v-if="isNotebookTopEnabled(notebook) || isNotebookBottomEnabled(notebook)">
+          <span >{{ notebookName(notebook.id) }}</span>
+        </div>
+      </template>
+    </Block>
     <!-- 选择笔记本 -->
     <Item settingKey="" :configName="lang('setting_selectOneNotebookFirst_name')" :configDesp="lang('setting_selectOneNotebookFirst_desp')">
       <select class="b3-select fn__flex-center fn__size200" v-model="currentNotebookId">
@@ -17,7 +25,7 @@
       
     </Item>
     <Block 
-        v-if="currentNotebookId && isTopEnabled"
+        v-if="currentNotebookId && isCurrentNotebookTopEnabled"
         :setting-key="currentNotebookObj.configTopKeyName"
         :config-name="notebookName(currentNotebookId) + lang('setting_notebookTopArea_index_name')"
         :config-desp="lang('setting_notebookTopArea_index_desp')"
@@ -36,10 +44,10 @@
       <button class="b3-button b3-button--outline fn__flex-center fn__size200"
         @click="bottomForNotebook"
         :disabled="!currentNotebookObj"
-      >启用/禁用</button>
+      >{{ lang("enable_or_disable") }}</button>
     </Item>
     <Block 
-        v-if="currentNotebookId && isBottomEnabled"
+        v-if="currentNotebookId && isCurrentNotebookBottomEnabled"
         :setting-key="currentNotebookObj.configEndKeyName"
         :config-name="notebookName(currentNotebookId) + lang('setting_notebookEndArea_index_name')"
         :config-desp="lang('setting_notebookEndArea_index_desp')"
@@ -89,17 +97,27 @@ const currentNotebookObj = computed(() => {
 // 全局设置对象
 const g_setting = getGSettings()
 
-const isTopEnabled = computed(() =>
-  currentNotebookObj.value && g_setting.value[currentNotebookObj.value.configTopKeyName] !== null && g_setting.value[currentNotebookObj.value.configTopKeyName] !== undefined
+const isNotebookTopEnabled = function(notebookObject: any) {
+  if (!notebookObject) return false
+  return g_setting.value[notebookObject.configTopKeyName] !== null && g_setting.value[notebookObject.configTopKeyName] !== undefined
+}
+
+const isNotebookBottomEnabled = function(notebookObject: any) {
+  if (!notebookObject) return false
+  return g_setting.value[notebookObject.configEndKeyName] !== null && g_setting.value[notebookObject.configEndKeyName] !== undefined
+}
+
+const isCurrentNotebookTopEnabled = computed(() =>
+  isNotebookTopEnabled(currentNotebookObj.value)
 )
 
-const isBottomEnabled = computed(() =>
-  currentNotebookObj.value && g_setting.value[currentNotebookObj.value.configEndKeyName] !== null && g_setting.value[currentNotebookObj.value.configEndKeyName] !== undefined
+const isCurrentNotebookBottomEnabled = computed(() =>
+  isNotebookBottomEnabled(currentNotebookObj.value)
 )
 
 function topForNotebook() {
     if (!currentNotebookObj.value) return;
-    if (isTopEnabled.value) {
+    if (isCurrentNotebookTopEnabled.value) {
         g_setting.value[currentNotebookObj.value.configTopKeyName] = null;
     } else {
         g_setting.value[currentNotebookObj.value.configTopKeyName] = [];
@@ -108,7 +126,7 @@ function topForNotebook() {
 
 function bottomForNotebook() {
     if (!currentNotebookObj.value) return;
-    if (isBottomEnabled.value) {
+    if (isCurrentNotebookBottomEnabled.value) {
         g_setting.value[currentNotebookObj.value.configEndKeyName] = null;
     } else {
         g_setting.value[currentNotebookObj.value.configEndKeyName] = [];

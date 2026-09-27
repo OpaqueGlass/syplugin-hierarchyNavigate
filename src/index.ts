@@ -48,9 +48,7 @@ const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";
 
 
-
-
-export default class OGPluginTemplate extends Plugin {
+export default class OGHierarchyNavigatePlugin extends Plugin {
 
     private isMobile: boolean;
     private settingPanel;
@@ -131,7 +129,7 @@ export default class OGPluginTemplate extends Plugin {
     openSetting() {
         openSetting({
             "width": isMobile() ? "92vw" : "1040px",
-            "height": isMobile() ? "70vh" : "80vh",
+            "height": "80vh",
         });
     }
 

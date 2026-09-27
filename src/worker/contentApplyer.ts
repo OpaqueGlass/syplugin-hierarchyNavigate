@@ -75,6 +75,7 @@ export default class ContentApplyer {
             allExistMainPart = previewElement.querySelectorAll(`.og-hn-heading-docs-container.${CONSTANTS.HEADING_CLASS_NAME}`);
         }
         const existContentMainPart = allExistMainPart ? allExistMainPart[0] : null;
+        debugPush("ContentApplyer", "existContentMainPart", existContentMainPart);
 
         if (this._isBlankAllPrinterResult(printerAllResults)) {
             if (existContentMainPart) {

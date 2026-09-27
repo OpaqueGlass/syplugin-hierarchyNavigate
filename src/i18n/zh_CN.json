@@ -284,6 +284,8 @@
     "setting_enableForPreview_desp": "启用此项后，可在预览模式下显示层级导航。在思源 v3.6.4 及以下版本中，即使在预览模式下点击层级导航，文档仍会以所见即所得模式打开。修改此项后需要重启思源方可完全生效。",
 
     "===========笔记本独立选项卡===========": null,
+    "setting_notebookOrderEnabled_name": "当前已经启用自定义排序的笔记本",
+    "setting_notebookOrderEnabled_desp": "以下笔记本已经启用了自定义排序功能（如果部分文档下显示的导航内容区不符合预期，请检查对应的笔记本排序、文档属性中的自定义排序）",
     "setting_selectOneNotebookFirst_name": "请先选择一个笔记本",
     "setting_selectOneNotebookFirst_desp": "选择一个笔记本，然后设置特定于笔记本的内容区顺序吧【生效顺序说明： 文档属性中的排序 > 笔记本独立顺序 > 移动端排序 > 常规排序】",
     "setting_notebookTopAreaEnable_name": "对指定笔记本启用/禁用“文档开头”内容区独立排序",

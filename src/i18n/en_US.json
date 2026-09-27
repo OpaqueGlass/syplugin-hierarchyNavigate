@@ -298,6 +298,8 @@
     "setting_enableForPreview_desp": "Enable this option to display hierarchical navigation in preview mode. In SiYuan v3.6.4 and earlier versions, clicking on the hierarchical navigation in preview mode will still open the document in WYSIWYG mode.",
 
     "===========笔记本独立选项卡===========": null,
+    "setting_notebookOrderEnabled_name": "Currently Enabled Custom Sorting Notebooks",
+    "setting_notebookOrderEnabled_desp": "The following notebooks have enabled custom sorting (if the navigation content area displayed under some documents does not meet expectations, please check the corresponding notebook sorting and custom sorting in document properties).",
     "setting_selectOneNotebookFirst_name": "Please select a notebook first",
     "setting_selectOneNotebookFirst_desp": "Select a notebook, then set the section order specific to that notebook. [Order of precedence: Sort order in document properties > Notebook-specific order > Mobile order > General order]",
     "setting_notebookTopAreaEnable_name": "Enable/Disable independent sorting of the 'Document Start' section for the specified notebook",
