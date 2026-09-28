@@ -47,6 +47,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      # workspace
+      - name: Prepare pnpm-workspace.yaml
+        run: cp scripts/pnpm-workspace.yaml pnpm-workspace.yaml
+
       # Install dependencies
       - name: Install dependencies
         run: pnpm install
