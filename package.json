@@ -38,5 +38,11 @@
     "sortablejs": "^1.15.2",
     "vue": "^3.4.15",
     "vue-tsc": "^1.8.22"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild"
+    ]
   }
 }
